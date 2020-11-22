@@ -15,7 +15,6 @@
 		B37EEA6B2561A976003FBC42 /* Hue_LightsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA6A2561A976003FBC42 /* Hue_LightsUITests.swift */; };
 		B37EEA822561A9B4003FBC42 /* MainVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA812561A9B4003FBC42 /* MainVC.swift */; };
 		B37EEA872561A9DE003FBC42 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA862561A9DE003FBC42 /* MainView.swift */; };
-		B3AF8EE425658E050060C968 /* RestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AF8EE325658E050060C968 /* RestManager.swift */; };
 		B3AF8EE92565A04C0060C968 /* Discovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AF8EE82565A04C0060C968 /* Discovery.swift */; };
 		B3AF8EF12565AC490060C968 /* HueModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AF8EF02565AC490060C968 /* HueModel.swift */; };
 		B3AF8EFF25669CFB0060C968 /* ListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AF8EFE25669CFA0060C968 /* ListController.swift */; };
@@ -56,7 +55,6 @@
 		B37EEA6C2561A976003FBC42 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B37EEA812561A9B4003FBC42 /* MainVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainVC.swift; sourceTree = "<group>"; };
 		B37EEA862561A9DE003FBC42 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
-		B3AF8EE325658E050060C968 /* RestManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestManager.swift; sourceTree = "<group>"; };
 		B3AF8EE82565A04C0060C968 /* Discovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Discovery.swift; sourceTree = "<group>"; };
 		B3AF8EF02565AC490060C968 /* HueModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HueModel.swift; sourceTree = "<group>"; };
 		B3AF8EFE25669CFA0060C968 /* ListController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListController.swift; sourceTree = "<group>"; };
@@ -174,7 +172,6 @@
 			isa = PBXGroup;
 			children = (
 				B3DA93CC2561B60E004BF5E1 /* DataManager.swift */,
-				B3AF8EE325658E050060C968 /* RestManager.swift */,
 				B3AF8EE82565A04C0060C968 /* Discovery.swift */,
 				B3AF8EF02565AC490060C968 /* HueModel.swift */,
 				B3AF8F0325669EFE0060C968 /* HueLightsCell.swift */,
@@ -342,7 +339,6 @@
 				B3DA93CD2561B60E004BF5E1 /* DataManager.swift in Sources */,
 				B37EEA872561A9DE003FBC42 /* MainView.swift in Sources */,
 				B3AF8EF12565AC490060C968 /* HueModel.swift in Sources */,
-				B3AF8EE425658E050060C968 /* RestManager.swift in Sources */,
 				B3AF8F0425669EFE0060C968 /* HueLightsCell.swift in Sources */,
 				B37EEA822561A9B4003FBC42 /* MainVC.swift in Sources */,
 				B37EEA4B2561A975003FBC42 /* SceneDelegate.swift in Sources */,

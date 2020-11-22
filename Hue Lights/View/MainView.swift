@@ -28,7 +28,7 @@ class MainView: UIView {
         label.text = "Test label"
         return label
     }()
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setup()
@@ -50,7 +50,6 @@ class MainView: UIView {
         NSLayoutConstraint.activate([
             btnGetItems.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor),
             btnGetItems.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
-            
         ])
     }
     

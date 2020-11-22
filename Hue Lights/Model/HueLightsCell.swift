@@ -6,6 +6,11 @@
 //
 
 import UIKit
+
+protocol HueCellDelegate {
+    func onSwitchToggled(sender: UISwitch)
+    func brightnessSliderChanged(sender: UISlider)
+}
 struct LightData{
     var lightName: String
     var isOn: Bool
@@ -13,6 +18,8 @@ struct LightData{
     var isReachable: Bool
 }
 class HueLightsCell: UITableViewCell {
+    var cellDelegate: HueCellDelegate?
+    
     var ivImage : UIImageView = {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
@@ -26,18 +33,27 @@ class HueLightsCell: UITableViewCell {
         label.textColor = .black
         return label
     }()
-    var onSwitch : UISwitch = {
+    lazy var onSwitch : UISwitch = {
         let onSwitch = UISwitch()
         onSwitch.translatesAutoresizingMaskIntoConstraints = false
         onSwitch.isOn = false
-        onSwitch.addTarget(self, action: #selector(onSwitchToggle), for: .touchUpInside)
+        onSwitch.addTarget(self, action: #selector(onSwitchToggle), for: .valueChanged)
         return onSwitch
     }()
-    var brightnessSlider : UISlider = {
+    lazy var brightnessSlider : UISlider = {
         let slider = UISlider()
         slider.translatesAutoresizingMaskIntoConstraints = false
+        slider.minimumValue = 1
+        slider.maximumValue = 255
         slider.addTarget(self, action: #selector(brightnessChanged), for: .valueChanged)
         return slider
+    }()
+    var lblBrightness: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = .label
+        label.numberOfLines = 1
+        return label
     }()
     var lightName = String(){
         didSet{
@@ -52,30 +68,31 @@ class HueLightsCell: UITableViewCell {
     var brightness = Float(){
         didSet{
             brightnessSlider.value = brightness
+            let sliderValue = (brightnessSlider.value/brightnessSlider.maximumValue) * 100
+            lblBrightness.text = String(format: "%.0f", sliderValue) + "%"
         }
     }
     var isReachable = Bool(){
         didSet{
             if isReachable == false{
                 self.lblLightName.alpha = 0.5
-                self.onSwitch.alpha = 0.5
-                self.brightnessSlider.alpha = 0.5
+                self.lblLightName.text! += " - Unreachable"
+                self.onSwitch.isHidden = true
+                self.brightnessSlider.isHidden = true
+                self.lblBrightness.isHidden = true
                 onSwitch.isOn = false
             }
         }
     }
-//    var lightColor = UIColor()
+    
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
         setup()
 
     }
     
     
     func configureCell(LightData: LightData){
-//        lblLightName.text = LightData.lightName
         lightName = LightData.lightName
         isOn = LightData.isOn
         brightness = LightData.brightness
@@ -84,17 +101,16 @@ class HueLightsCell: UITableViewCell {
     
     
     func setup(){
-        addSubview(ivImage)
-        addSubview(lblLightName)
-        addSubview(onSwitch)
-        addSubview(brightnessSlider)
-        
+        contentView.addSubview(ivImage)
+        contentView.addSubview(lblLightName)
+        contentView.addSubview(onSwitch)
+        contentView.addSubview(brightnessSlider)
+        contentView.addSubview(lblBrightness)
         setupConstraints()
     }
     func setupConstraints(){
-        let safeArea = self.safeAreaLayoutGuide
+        let safeArea = contentView.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
-
             ivImage.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: UI.horizontalSpacing),
             ivImage.widthAnchor.constraint(equalToConstant: 45),
             ivImage.heightAnchor.constraint(equalToConstant: 45),
@@ -109,25 +125,23 @@ class HueLightsCell: UITableViewCell {
             onSwitch.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor),
 
             
+            lblBrightness.bottomAnchor.constraint(equalTo: brightnessSlider.topAnchor),
+            lblBrightness.trailingAnchor.constraint(equalTo: brightnessSlider.trailingAnchor),
+            
             brightnessSlider.topAnchor.constraint(equalTo: lblLightName.bottomAnchor),
             brightnessSlider.leadingAnchor.constraint(equalTo: lblLightName.leadingAnchor),
-            brightnessSlider.trailingAnchor.constraint(equalTo: onSwitch.leadingAnchor),
-            
+            brightnessSlider.trailingAnchor.constraint(equalTo: onSwitch.leadingAnchor, constant: -20),
         ])
-    }
-    @objc func onSwitchToggle(sender: UISwitch){
-        if sender == onSwitch{
-            if sender.isOn{
-                print("switched on")
-            } else {
-                print("Switched off")
-            }
-        }
-    }
-    @objc func brightnessChanged(sender: UISlider){
-        if sender == brightnessSlider{
-            print("value changed: \(sender.value)")
-        }
         
     }
+    @objc func onSwitchToggle(sender: UISwitch){
+        cellDelegate?.onSwitchToggled(sender: sender)
+    }
+    @objc func brightnessChanged(sender: UISlider){
+        cellDelegate?.brightnessSliderChanged(sender: sender)
+        let sliderValue = (sender.value/sender.maximumValue) * 100
+        lblBrightness.text = String(format: "%.0f", sliderValue) + "%"
+    }
+    
+
 }
