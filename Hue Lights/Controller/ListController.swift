@@ -22,6 +22,10 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
     private var filtered = [String]()
     private var filteredLights = [HueModel.Light]()
     private var hueResults = [HueModel]()
+    private var pickedColor = UIColor.systemBlue
+    private var colorPicker = UIColorPickerViewController()
+    private var tempButton = UIButton() // used to update the color of the cell's button
+
     lazy var tableView : UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -57,6 +61,7 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        colorPicker.delegate = self
         searchController.searchBar.isTranslucent = false
         navigationItem.searchController = searchController
         searchController.searchBar.delegate = self
@@ -105,7 +110,6 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
         return filtered.count
     }
 
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! HueLightsCell
         cell.cellDelegate = self
@@ -113,7 +117,7 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let filtered = filteredLights.filter({$0.name == rowName})
         for light in filtered{
             let reachable = light.state.reachable
-            let cellData = LightData(lightName: light.name, isOn: light.state.on, brightness: Float(light.state.bri), isReachable: reachable)
+            let cellData = LightData(lightName: light.name, isOn: light.state.on, brightness: Float(light.state.bri), isReachable: reachable, lightColor: .white) // will need to update this once we get the color conversion figured out
             cell.configureCell(LightData: cellData)
             for x in hueResults{
                 for i in x.lights{
@@ -121,6 +125,7 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
                         if let tag = Int(i.key){
                             cell.onSwitch.tag = tag
                             cell.brightnessSlider.tag = tag
+                            cell.btnChangeColor.tag = tag
     //                        print("tag: \(onSwitch.tag)")
                         }
                     }
@@ -138,7 +143,11 @@ extension ListController: UISearchBarDelegate{
     
 }
 
+
+//MARK: - HueCellDelegate
 extension ListController: HueCellDelegate{
+    
+    
     func onSwitchToggled(sender: UISwitch) {
         guard let delegate = delegate else { return}
         print("Sender's Tag: \(sender.tag)")
@@ -155,6 +164,7 @@ extension ListController: HueCellDelegate{
         guard let delegate = delegate else { return}
         print("Brightness slider changed")
         print("Sender's Tag: \(sender.tag)")
+        
         let lightNumber = sender.tag
         guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/lights/\(lightNumber)/state") else {return}
         print(url)
@@ -164,6 +174,26 @@ extension ListController: HueCellDelegate{
         DataManager.put(url: url, httpBody: httpBody)
         
     }
+    func changeLightColor(sender: UIButton) {
+        print("change light color tapped")
+        selectColor()
+        tempButton = sender
+    }
     
     
+}
+//MARK: - color picker
+extension ListController : UIColorPickerViewControllerDelegate{
+    func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
+        pickedColor = viewController.selectedColor
+        tempButton.backgroundColor = pickedColor
+    }
+    func colorPickerViewControllerDidFinish(_ viewController: UIColorPickerViewController) {
+        print("color picker controler did finish")
+    }
+    private func selectColor(){
+        colorPicker.supportsAlpha = true
+        colorPicker.selectedColor = pickedColor
+        self.present(colorPicker, animated: true)
+    }
 }

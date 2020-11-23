@@ -17,6 +17,16 @@ class MainVC: UIViewController, ListSelectionControllerDelegate {
     internal var bridgeUser = String()
     let decoder = JSONDecoder()
     
+    
+    //Color picker setup
+    private var pickedColor = UIColor.systemBlue
+    private var colorPicker = UIColorPickerViewController()
+    
+    
+    
+    
+    
+    
     override func loadView() {
         super.loadView()
         rootView = MainView()
@@ -25,6 +35,12 @@ class MainVC: UIViewController, ListSelectionControllerDelegate {
         bridgeUser = "kagaOXDCsywZ7IbOS3EJkOg1r5CD4DBvvVc9lKC7" // Steve's Bridge Username
 //        getTapped()
         discovery()
+        
+        // move to the cell so when user clicks on the color icon they can pick a color
+        
+        colorPicker.delegate = self
+        setupBarButton()
+        view.backgroundColor = pickedColor
     }
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,12 +65,15 @@ extension MainVC: GetDelegate{
                     let resultsFromBrdige = try JSONDecoder().decode(HueModel.self, from: data)
                     self.hueResults.append(resultsFromBrdige)
                     for light in resultsFromBrdige.lights{
-                        print("KEY: \(light.key) light name: \(light.value.name), state on: \(light.value.state.on), Brightness: \(light.value.state.bri), is reachable: \(light.value.state.reachable)")
+                        print("Key: \(light.key) light name: \(light.value.name), state on: \(light.value.state.on), Brightness: \(light.value.state.bri), is reachable: \(light.value.state.reachable)")
                         
+                        if let safeHue = light.value.state.hue,
+                           let safeSat = light.value.state.sat{
+                            print("\(light.value.name)'s Hue: \(safeHue), Saturtation: \(safeSat)")
+                        }
                         self.sourceItems.append(light.value.name)
                         self.hueLights.append(light.value)
                     }
-                    
                     DispatchQueue.main.async {
                         let listController = ListController()
                         listController.delegate = self
@@ -97,5 +116,27 @@ extension MainVC{
             case .failure(let e): print("Error: \(e)")
             }
         }
+    }
+}
+//MARK: - color picker
+extension MainVC : UIColorPickerViewControllerDelegate{
+    func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
+        pickedColor = viewController.selectedColor
+        view.backgroundColor = pickedColor
+    }
+    func colorPickerViewControllerDidFinish(_ viewController: UIColorPickerViewController) {
+        print("color picker controler did finish")
+    }
+    private func selectColor(){
+        colorPicker.supportsAlpha = true
+        colorPicker.selectedColor = pickedColor
+        self.present(colorPicker, animated: true)
+    }
+    private func setupBarButton(){
+        let pickColorAction = UIAction(title: "Pick Color") { _ in
+            self.selectColor()
+        }
+        let pickColorBarButton = UIBarButtonItem(image: UIImage(systemName: "eyedropper"), primaryAction: pickColorAction)
+        navigationItem.rightBarButtonItem = pickColorBarButton
     }
 }

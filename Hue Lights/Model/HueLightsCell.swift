@@ -10,21 +10,27 @@ import UIKit
 protocol HueCellDelegate {
     func onSwitchToggled(sender: UISwitch)
     func brightnessSliderChanged(sender: UISlider)
+    func changeLightColor(sender: UIButton)
 }
 struct LightData{
     var lightName: String
     var isOn: Bool
     var brightness: Float
     var isReachable: Bool
+    var lightColor: UIColor
 }
 class HueLightsCell: UITableViewCell {
     var cellDelegate: HueCellDelegate?
     
-    var ivImage : UIImageView = {
-        let iv = UIImageView()
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.backgroundColor = .systemGray
-        return iv
+    lazy var btnChangeColor : UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.backgroundColor = .white
+//        button.setTitle("Color", for: .normal)
+        button.setImage(UIImage(systemName: "eyedropper"), for: .normal)
+        button.tintColor = .label
+        button.addTarget(self, action: #selector(changeColorTapped), for: .touchUpInside)
+        return button
     }()
     var lblLightName : UILabel = {
         let label = UILabel()
@@ -44,7 +50,7 @@ class HueLightsCell: UITableViewCell {
         let slider = UISlider()
         slider.translatesAutoresizingMaskIntoConstraints = false
         slider.minimumValue = 1
-        slider.maximumValue = 255
+        slider.maximumValue = 254
         slider.addTarget(self, action: #selector(brightnessChanged), for: .valueChanged)
         return slider
     }()
@@ -101,7 +107,7 @@ class HueLightsCell: UITableViewCell {
     
     
     func setup(){
-        contentView.addSubview(ivImage)
+        contentView.addSubview(btnChangeColor)
         contentView.addSubview(lblLightName)
         contentView.addSubview(onSwitch)
         contentView.addSubview(brightnessSlider)
@@ -111,13 +117,13 @@ class HueLightsCell: UITableViewCell {
     func setupConstraints(){
         let safeArea = contentView.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
-            ivImage.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: UI.horizontalSpacing),
-            ivImage.widthAnchor.constraint(equalToConstant: 45),
-            ivImage.heightAnchor.constraint(equalToConstant: 45),
-            ivImage.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor),
+            btnChangeColor.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: UI.horizontalSpacing),
+            btnChangeColor.widthAnchor.constraint(equalToConstant: 45),
+            btnChangeColor.heightAnchor.constraint(equalToConstant: 45),
+            btnChangeColor.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor),
 
 
-            lblLightName.leadingAnchor.constraint(equalTo: ivImage.trailingAnchor, constant: UI.horizontalSpacing),
+            lblLightName.leadingAnchor.constraint(equalTo: btnChangeColor.trailingAnchor, constant: UI.horizontalSpacing),
             lblLightName.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor),
 
 
@@ -142,6 +148,10 @@ class HueLightsCell: UITableViewCell {
         let sliderValue = (sender.value/sender.maximumValue) * 100
         lblBrightness.text = String(format: "%.0f", sliderValue) + "%"
     }
-    
+    @objc func changeColorTapped(sender: UIButton){
+        print("change color")
+        cellDelegate?.changeLightColor(sender: sender)
+        
+    }
 
 }

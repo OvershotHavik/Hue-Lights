@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B307539A256C199600C8CA4F /* ConvertColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3075399256C199600C8CA4F /* ConvertColor.swift */; };
 		B37EEA492561A975003FBC42 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA482561A975003FBC42 /* AppDelegate.swift */; };
 		B37EEA4B2561A975003FBC42 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA4A2561A975003FBC42 /* SceneDelegate.swift */; };
 		B37EEA522561A976003FBC42 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B37EEA512561A976003FBC42 /* Assets.xcassets */; };
@@ -41,6 +42,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B3075399256C199600C8CA4F /* ConvertColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvertColor.swift; sourceTree = "<group>"; };
 		B37EEA452561A975003FBC42 /* Hue Lights.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Hue Lights.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B37EEA482561A975003FBC42 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B37EEA4A2561A975003FBC42 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -175,6 +177,7 @@
 				B3AF8EE82565A04C0060C968 /* Discovery.swift */,
 				B3AF8EF02565AC490060C968 /* HueModel.swift */,
 				B3AF8F0325669EFE0060C968 /* HueLightsCell.swift */,
+				B3075399256C199600C8CA4F /* ConvertColor.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -341,6 +344,7 @@
 				B3AF8EF12565AC490060C968 /* HueModel.swift in Sources */,
 				B3AF8F0425669EFE0060C968 /* HueLightsCell.swift in Sources */,
 				B37EEA822561A9B4003FBC42 /* MainVC.swift in Sources */,
+				B307539A256C199600C8CA4F /* ConvertColor.swift in Sources */,
 				B37EEA4B2561A975003FBC42 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

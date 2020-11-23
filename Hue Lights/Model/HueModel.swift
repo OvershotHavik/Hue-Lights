@@ -28,6 +28,11 @@ struct HueModel: Codable{
     struct State: Codable{
         let on : Bool
         let bri: Int
+        let hue : Int?
+        let sat: Int?
+        let effect: String?
+        let xy: [Double]?
+        let ct : Int?
         let alert : String
         let mode: String
         let reachable: Bool
