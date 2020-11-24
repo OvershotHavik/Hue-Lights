@@ -117,7 +117,11 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let filtered = filteredLights.filter({$0.name == rowName})
         for light in filtered{
             let reachable = light.state.reachable
-            let cellData = LightData(lightName: light.name, isOn: light.state.on, brightness: Float(light.state.bri), isReachable: reachable, lightColor: convertsRGBtoUIColor(xy: light.state.xy)) // will need to update this once we get the color conversion figured out
+            let cellData = LightData(lightName: light.name,
+                                     isOn: light.state.on,
+                                     brightness: Float(light.state.bri),
+                                     isReachable: reachable,
+                                     lightColor: ConvertColor.getRGB(xy: light.state.xy, bri: light.state.bri))
             cell.configureCell(LightData: cellData)
             for x in hueResults{
                 for i in x.lights{
@@ -136,28 +140,6 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
             
         }
         return cell
-    }
-    
-    func convertsRGBtoUIColor(xy: [Double]?) -> UIColor{
-        if xy == nil{
-            return .white
-        }
-        var components = [CGFloat]()
-        if let safexy = xy{
-            for i in safexy{
-                components.append(CGFloat(i))
-            }
-        }
-
-        components.append(contentsOf: [1, 1])
-            let sRGB = CGColorSpace(name: CGColorSpace.sRGB)
-            if let safesRGB = sRGB{
-                if let lightCGColor = CGColor(colorSpace: safesRGB, components: components){
-                    let lightUIColor = UIColor(cgColor: lightCGColor)
-                    return lightUIColor
-                }
-            }
-        return .white
     }
 }
 
@@ -229,7 +211,7 @@ extension ListController : UIColorPickerViewControllerDelegate{
         print("color picker controler did finish")
     }
     private func selectColor(){
-        colorPicker.supportsAlpha = true
+        colorPicker.supportsAlpha = false
         colorPicker.selectedColor = pickedColor
         self.present(colorPicker, animated: true)
     }

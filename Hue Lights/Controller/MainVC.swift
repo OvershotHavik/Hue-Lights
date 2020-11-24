@@ -35,11 +35,15 @@ class MainVC: UIViewController, ListSelectionControllerDelegate {
         bridgeUser = "kagaOXDCsywZ7IbOS3EJkOg1r5CD4DBvvVc9lKC7" // Steve's Bridge Username
 //        getTapped()
         discovery()
+        
+//        view.backgroundColor = ConvertColor.getRGB(xy: [0.2006, 0.2838], bri: 127)
+       
     }
     override func viewDidLoad() {
         super.viewDidLoad()
     }
     
+
 }
 
 extension MainVC: GetDelegate{
