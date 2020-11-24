@@ -103,6 +103,7 @@ class HueLightsCell: UITableViewCell {
         isOn = LightData.isOn
         brightness = LightData.brightness
         isReachable = LightData.isReachable
+        btnChangeColor.backgroundColor = LightData.lightColor
     }
     
     

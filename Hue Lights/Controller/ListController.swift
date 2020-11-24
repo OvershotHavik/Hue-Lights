@@ -24,7 +24,7 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
     private var hueResults = [HueModel]()
     private var pickedColor = UIColor.systemBlue
     private var colorPicker = UIColorPickerViewController()
-    private var tempButton = UIButton() // used to update the color of the cell's button
+    private var tempChangeColorButton : UIButton? // used to update the color of the cell's button
 
     lazy var tableView : UITableView = {
         let tableView = UITableView()
@@ -117,7 +117,7 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let filtered = filteredLights.filter({$0.name == rowName})
         for light in filtered{
             let reachable = light.state.reachable
-            let cellData = LightData(lightName: light.name, isOn: light.state.on, brightness: Float(light.state.bri), isReachable: reachable, lightColor: .white) // will need to update this once we get the color conversion figured out
+            let cellData = LightData(lightName: light.name, isOn: light.state.on, brightness: Float(light.state.bri), isReachable: reachable, lightColor: convertsRGBtoUIColor(xy: light.state.xy)) // will need to update this once we get the color conversion figured out
             cell.configureCell(LightData: cellData)
             for x in hueResults{
                 for i in x.lights{
@@ -136,6 +136,28 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
             
         }
         return cell
+    }
+    
+    func convertsRGBtoUIColor(xy: [Double]?) -> UIColor{
+        if xy == nil{
+            return .white
+        }
+        var components = [CGFloat]()
+        if let safexy = xy{
+            for i in safexy{
+                components.append(CGFloat(i))
+            }
+        }
+
+        components.append(contentsOf: [1, 1])
+            let sRGB = CGColorSpace(name: CGColorSpace.sRGB)
+            if let safesRGB = sRGB{
+                if let lightCGColor = CGColor(colorSpace: safesRGB, components: components){
+                    let lightUIColor = UIColor(cgColor: lightCGColor)
+                    return lightUIColor
+                }
+            }
+        return .white
     }
 }
 
@@ -177,16 +199,31 @@ extension ListController: HueCellDelegate{
     func changeLightColor(sender: UIButton) {
         print("change light color tapped")
         selectColor()
-        tempButton = sender
+        tempChangeColorButton = sender
     }
     
-    
+    func updatLightColor(){
+        guard let tempChangeColorButton = tempChangeColorButton else {return}
+        guard let delegate = delegate else { return}
+        tempChangeColorButton.backgroundColor = pickedColor
+        let red = pickedColor.components.red
+        let green = pickedColor.components.green
+        let blue = pickedColor.components.blue
+        let colorXY = ConvertColor.getXY(red: red, green: green, blue: blue)
+        let lightNumber = tempChangeColorButton.tag
+        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/lights/\(lightNumber)/state") else {return}
+        print(url)
+        let httpBody = [
+            "xy": colorXY,
+        ]
+        DataManager.put(url: url, httpBody: httpBody)
+    }
 }
-//MARK: - color picker
+//MARK: - Color picker
 extension ListController : UIColorPickerViewControllerDelegate{
     func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
         pickedColor = viewController.selectedColor
-        tempButton.backgroundColor = pickedColor
+        updatLightColor()
     }
     func colorPickerViewControllerDidFinish(_ viewController: UIColorPickerViewController) {
         print("color picker controler did finish")

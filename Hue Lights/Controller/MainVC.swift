@@ -35,17 +35,11 @@ class MainVC: UIViewController, ListSelectionControllerDelegate {
         bridgeUser = "kagaOXDCsywZ7IbOS3EJkOg1r5CD4DBvvVc9lKC7" // Steve's Bridge Username
 //        getTapped()
         discovery()
-        
-        // move to the cell so when user clicks on the color icon they can pick a color
-        
-        colorPicker.delegate = self
-        setupBarButton()
-        view.backgroundColor = pickedColor
     }
     override func viewDidLoad() {
         super.viewDidLoad()
     }
-
+    
 }
 
 extension MainVC: GetDelegate{
@@ -65,11 +59,17 @@ extension MainVC: GetDelegate{
                     let resultsFromBrdige = try JSONDecoder().decode(HueModel.self, from: data)
                     self.hueResults.append(resultsFromBrdige)
                     for light in resultsFromBrdige.lights{
+                        
+                        print("=================================================")
                         print("Key: \(light.key) light name: \(light.value.name), state on: \(light.value.state.on), Brightness: \(light.value.state.bri), is reachable: \(light.value.state.reachable)")
                         
                         if let safeHue = light.value.state.hue,
                            let safeSat = light.value.state.sat{
                             print("\(light.value.name)'s Hue: \(safeHue), Saturtation: \(safeSat)")
+                            
+                        }
+                        if let safeXY = light.value.state.xy{
+                            print("xy: \(safeXY)")
                         }
                         self.sourceItems.append(light.value.name)
                         self.hueLights.append(light.value)
