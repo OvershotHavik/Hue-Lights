@@ -62,6 +62,8 @@ extension MainVC: GetDelegate{
                     self.hueResults = []
                     let resultsFromBrdige = try JSONDecoder().decode(HueModel.self, from: data)
                     self.hueResults.append(resultsFromBrdige)
+                    
+                    
                     for light in resultsFromBrdige.lights{
                         
                         print("=================================================")
@@ -78,12 +80,20 @@ extension MainVC: GetDelegate{
                         self.sourceItems.append(light.value.name)
                         self.hueLights.append(light.value)
                     }
+                    
+                    for group in resultsFromBrdige.groups{
+                        print("Key: \(group.key) - group name: \(group.value.name)")
+                    }
+                    
+                    
+                    
                     DispatchQueue.main.async {
                         let listController = ListController()
                         listController.delegate = self
                         self.navigationController?.pushViewController(listController, animated: true)
                     }
 
+                    
                 } catch let e {
                     print("Error: \(e)")
                 }

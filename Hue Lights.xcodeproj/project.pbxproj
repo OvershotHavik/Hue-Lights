@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		B307539A256C199600C8CA4F /* ConvertColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3075399256C199600C8CA4F /* ConvertColor.swift */; };
-		B30753C2256D582B00C8CA4F /* UIColor+rgb.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30753C1256D582A00C8CA4F /* UIColor+rgb.swift */; };
+		B30753C2256D582B00C8CA4F /* UIColor+components.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30753C1256D582A00C8CA4F /* UIColor+components.swift */; };
 		B37EEA492561A975003FBC42 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA482561A975003FBC42 /* AppDelegate.swift */; };
 		B37EEA4B2561A975003FBC42 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA4A2561A975003FBC42 /* SceneDelegate.swift */; };
 		B37EEA522561A976003FBC42 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B37EEA512561A976003FBC42 /* Assets.xcassets */; };
@@ -44,7 +44,7 @@
 
 /* Begin PBXFileReference section */
 		B3075399256C199600C8CA4F /* ConvertColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvertColor.swift; sourceTree = "<group>"; };
-		B30753C1256D582A00C8CA4F /* UIColor+rgb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+rgb.swift"; sourceTree = "<group>"; };
+		B30753C1256D582A00C8CA4F /* UIColor+components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+components.swift"; sourceTree = "<group>"; };
 		B37EEA452561A975003FBC42 /* Hue Lights.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Hue Lights.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B37EEA482561A975003FBC42 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B37EEA4A2561A975003FBC42 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -203,7 +203,7 @@
 			children = (
 				B3DA93DF2561BC39004BF5E1 /* Hue Lights-Bridging-Header.h */,
 				B3AF8F082566A6B20060C968 /* Constants.swift */,
-				B30753C1256D582A00C8CA4F /* UIColor+rgb.swift */,
+				B30753C1256D582A00C8CA4F /* UIColor+components.swift */,
 			);
 			path = Resoources;
 			sourceTree = "<group>";
@@ -341,7 +341,7 @@
 				B3AF8EE92565A04C0060C968 /* Discovery.swift in Sources */,
 				B3AF8F092566A6B30060C968 /* Constants.swift in Sources */,
 				B37EEA492561A975003FBC42 /* AppDelegate.swift in Sources */,
-				B30753C2256D582B00C8CA4F /* UIColor+rgb.swift in Sources */,
+				B30753C2256D582B00C8CA4F /* UIColor+components.swift in Sources */,
 				B3AF8EFF25669CFB0060C968 /* ListController.swift in Sources */,
 				B3DA93CD2561B60E004BF5E1 /* DataManager.swift in Sources */,
 				B37EEA872561A9DE003FBC42 /* MainView.swift in Sources */,

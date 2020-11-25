@@ -9,7 +9,9 @@ import Foundation
 
 struct HueModel: Codable{
     let lights :  [String:Light]
+    let groups: [String: Groups]
 
+    
     struct Light: Codable{
         let state : State
         let type: String
@@ -62,4 +64,36 @@ struct HueModel: Codable{
         let configured : Bool
     }
  
+    
+    
+    
+    //MARK: - Groups
+    struct Groups: Codable{
+        let name: String
+        let lights: [String]
+        let sensors: [String] // I don't have any sensors, so it's blank in the json, not sure what it is by default
+        let type: String
+        let state: GroupState
+        let recycle: Bool
+//        let groupClass : String // CK needed - would be used to pick an icon for the group. Not sure if needed, not including right now
+        let action: GroupAction
+    }
+    
+    struct GroupState: Codable{
+        let all_on: Bool
+        let any_on: Bool
+    }
+    struct GroupAction: Codable{
+        //All lights in group
+        let on : Bool
+        let bri: Int
+        let alert : String
+        //Color lights
+        let hue: Int?
+        let sat: Int?
+        let effect: String?
+        let xy: [Double]?
+        let ct: Int?
+        let colormode : String?
+    }
 }

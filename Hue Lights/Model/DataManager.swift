@@ -44,7 +44,7 @@ class DataManager{
     static func put(url: URL, httpBody: [String: Any]){
         var request = URLRequest(url: url)
         request.httpMethod = "PUT"
-        
+        print(httpBody)
         if let jsonData = try? JSONSerialization.data(withJSONObject: httpBody, options: []){
             URLSession.shared.uploadTask(with: request, from: jsonData) { (data, response, error) in
                 if let httpresponse = response as? HTTPURLResponse{
