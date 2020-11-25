@@ -42,17 +42,13 @@ class MainVC: UIViewController, ListSelectionControllerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
     }
-    
-
 }
 
 extension MainVC: GetDelegate{
-    func getTapped() {
-        
-        print("Get info")
+    func getTapped(sender: String) {
+        print("Get Light Info")
         guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)") else {return}
         print(url)
-        
         DataManager.get(url: url) { (results) in
             switch results{
             case .success(let data):
@@ -62,8 +58,46 @@ extension MainVC: GetDelegate{
                     self.hueResults = []
                     let resultsFromBrdige = try JSONDecoder().decode(HueModel.self, from: data)
                     self.hueResults.append(resultsFromBrdige)
-                    
-                    
+                    switch sender{
+                    case UI.lights:
+                        for light in resultsFromBrdige.lights{
+                            
+                            print("=================================================")
+                            print("Key: \(light.key) light name: \(light.value.name), state on: \(light.value.state.on), Brightness: \(light.value.state.bri), is reachable: \(light.value.state.reachable)")
+                            
+                            if let safeHue = light.value.state.hue,
+                               let safeSat = light.value.state.sat{
+                                print("\(light.value.name)'s Hue: \(safeHue), Saturtation: \(safeSat)")
+                            
+                            }
+                            if let safeXY = light.value.state.xy{
+                                print("xy: \(safeXY)")
+                            }
+                            self.sourceItems.append(light.value.name)
+                            self.hueLights.append(light.value)
+                        }
+                        DispatchQueue.main.async {
+                            let lightlistVC = LightsListVC()
+                            lightlistVC.delegate = self
+                            lightlistVC.title = UI.lights
+                            self.navigationController?.pushViewController(lightlistVC, animated: true)
+                        }
+                    case UI.groups:
+                        for group in resultsFromBrdige.groups{
+                            print("Key: \(group.key) - group name: \(group.value.name)")
+                            self.sourceItems.append(group.value.name)
+                        }
+                        
+                        DispatchQueue.main.async {
+                            let GroupListController = GroupsListVC()
+                            GroupListController.delegate = self
+                            GroupListController.title = UI.groups
+                            self.navigationController?.pushViewController(GroupListController, animated: true)
+                        }
+                    case UI.scenese: print("Not setup yet")
+                    default: print("Not setup in get tapped on main vc")
+                    }
+                    /*
                     for light in resultsFromBrdige.lights{
                         
                         print("=================================================")
@@ -81,9 +115,10 @@ extension MainVC: GetDelegate{
                         self.hueLights.append(light.value)
                     }
                     
-                    for group in resultsFromBrdige.groups{
-                        print("Key: \(group.key) - group name: \(group.value.name)")
-                    }
+
+                    
+                    
+                    
                     
                     
                     
@@ -92,7 +127,21 @@ extension MainVC: GetDelegate{
                         listController.delegate = self
                         self.navigationController?.pushViewController(listController, animated: true)
                     }
-
+*/
+                
+                    
+                    /*
+                    for group in resultsFromBrdige.groups{
+                        print("Key: \(group.key) - group name: \(group.value.name)")
+                        self.sourceItems.append(group.value.name)
+                    }
+                    
+                    DispatchQueue.main.async {
+                        let GroupListController = GroupsListVC()
+                        GroupListController.delegate = self
+                        self.navigationController?.pushViewController(GroupListController, animated: true)
+                    }
+                    */
                     
                 } catch let e {
                     print("Error: \(e)")

@@ -9,16 +9,30 @@ import UIKit
 
 
 protocol GetDelegate: class{
-    func getTapped()
+    func getTapped(sender: String)
 }
 
 
 class MainView: UIView {
     weak var getDelegate: GetDelegate?
-    fileprivate var btnGetItems : UIButton = {
+    fileprivate var btnGetLightInfo : UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Get info", for: .normal)
+        button.setTitle(UI.lights, for: .normal)
+        button.addTarget(self, action: #selector(getInfo), for: .touchUpInside)
+        return button
+    }()
+    fileprivate var btnGetGroupInfo : UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(UI.groups, for: .normal)
+        button.addTarget(self, action: #selector(getInfo), for: .touchUpInside)
+        return button
+    }()
+    fileprivate var btnGetSceneInfo : UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(UI.scenese, for: .normal)
         button.addTarget(self, action: #selector(getInfo), for: .touchUpInside)
         return button
     }()
@@ -40,7 +54,9 @@ class MainView: UIView {
     
     func setup(){
         backgroundColor = .systemBlue
-        addSubview(btnGetItems)
+        addSubview(btnGetLightInfo)
+        addSubview(btnGetGroupInfo)
+        addSubview(btnGetSceneInfo)
         addSubview(lblTitle)
         setupConstraints()
     }
@@ -48,12 +64,20 @@ class MainView: UIView {
     func setupConstraints(){
         let safeArea = self.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
-            btnGetItems.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor),
-            btnGetItems.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            btnGetLightInfo.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor, constant: -100),
+            btnGetLightInfo.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            
+            btnGetGroupInfo.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor),
+            btnGetGroupInfo.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            
+            btnGetSceneInfo.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor, constant: 100),
+            btnGetSceneInfo.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
         ])
     }
     
-    @objc func getInfo(){
-        getDelegate?.getTapped()
+    @objc func getInfo(sender: UIButton){
+        if let safeTitle = sender.titleLabel?.text{
+            getDelegate?.getTapped(sender: safeTitle)
+        }
     }
 }

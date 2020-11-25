@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		B307539A256C199600C8CA4F /* ConvertColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3075399256C199600C8CA4F /* ConvertColor.swift */; };
 		B30753C2256D582B00C8CA4F /* UIColor+components.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30753C1256D582A00C8CA4F /* UIColor+components.swift */; };
+		B30753CA256EB56500C8CA4F /* SectionedListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30753C9256EB56400C8CA4F /* SectionedListController.swift */; };
+		B30753D3256EB6CD00C8CA4F /* GroupsListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30753D2256EB6CD00C8CA4F /* GroupsListVC.swift */; };
+		B30753DE256EC74B00C8CA4F /* LightsListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30753DD256EC74B00C8CA4F /* LightsListVC.swift */; };
 		B37EEA492561A975003FBC42 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA482561A975003FBC42 /* AppDelegate.swift */; };
 		B37EEA4B2561A975003FBC42 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA4A2561A975003FBC42 /* SceneDelegate.swift */; };
 		B37EEA522561A976003FBC42 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B37EEA512561A976003FBC42 /* Assets.xcassets */; };
@@ -19,7 +22,7 @@
 		B37EEA872561A9DE003FBC42 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA862561A9DE003FBC42 /* MainView.swift */; };
 		B3AF8EE92565A04C0060C968 /* Discovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AF8EE82565A04C0060C968 /* Discovery.swift */; };
 		B3AF8EF12565AC490060C968 /* HueModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AF8EF02565AC490060C968 /* HueModel.swift */; };
-		B3AF8EFF25669CFB0060C968 /* ListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AF8EFE25669CFA0060C968 /* ListController.swift */; };
+		B3AF8EFF25669CFB0060C968 /* LightListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AF8EFE25669CFA0060C968 /* LightListController.swift */; };
 		B3AF8F0425669EFE0060C968 /* HueLightsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AF8F0325669EFE0060C968 /* HueLightsCell.swift */; };
 		B3AF8F092566A6B30060C968 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AF8F082566A6B20060C968 /* Constants.swift */; };
 		B3DA93CD2561B60E004BF5E1 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DA93CC2561B60E004BF5E1 /* DataManager.swift */; };
@@ -45,6 +48,9 @@
 /* Begin PBXFileReference section */
 		B3075399256C199600C8CA4F /* ConvertColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvertColor.swift; sourceTree = "<group>"; };
 		B30753C1256D582A00C8CA4F /* UIColor+components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+components.swift"; sourceTree = "<group>"; };
+		B30753C9256EB56400C8CA4F /* SectionedListController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionedListController.swift; sourceTree = "<group>"; };
+		B30753D2256EB6CD00C8CA4F /* GroupsListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupsListVC.swift; sourceTree = "<group>"; };
+		B30753DD256EC74B00C8CA4F /* LightsListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightsListVC.swift; sourceTree = "<group>"; };
 		B37EEA452561A975003FBC42 /* Hue Lights.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Hue Lights.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B37EEA482561A975003FBC42 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B37EEA4A2561A975003FBC42 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -61,7 +67,7 @@
 		B37EEA862561A9DE003FBC42 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		B3AF8EE82565A04C0060C968 /* Discovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Discovery.swift; sourceTree = "<group>"; };
 		B3AF8EF02565AC490060C968 /* HueModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HueModel.swift; sourceTree = "<group>"; };
-		B3AF8EFE25669CFA0060C968 /* ListController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListController.swift; sourceTree = "<group>"; };
+		B3AF8EFE25669CFA0060C968 /* LightListController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightListController.swift; sourceTree = "<group>"; };
 		B3AF8F0325669EFE0060C968 /* HueLightsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HueLightsCell.swift; sourceTree = "<group>"; };
 		B3AF8F082566A6B20060C968 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		B3DA93CC2561B60E004BF5E1 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
@@ -100,6 +106,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B30753CE256EB5C300C8CA4F /* For Reference */ = {
+			isa = PBXGroup;
+			children = (
+				B30753C9256EB56400C8CA4F /* SectionedListController.swift */,
+			);
+			path = "For Reference";
+			sourceTree = "<group>";
+		};
 		B37EEA3C2561A975003FBC42 = {
 			isa = PBXGroup;
 			children = (
@@ -124,6 +138,7 @@
 		B37EEA472561A975003FBC42 /* Hue Lights */ = {
 			isa = PBXGroup;
 			children = (
+				B30753CE256EB5C300C8CA4F /* For Reference */,
 				B3DA93DE2561BC0C004BF5E1 /* Resoources */,
 				B3DA93CB2561B5EA004BF5E1 /* Model */,
 				B37EEA8F2561AB7A003FBC42 /* Controller */,
@@ -167,7 +182,9 @@
 			isa = PBXGroup;
 			children = (
 				B37EEA812561A9B4003FBC42 /* MainVC.swift */,
-				B3AF8EFE25669CFA0060C968 /* ListController.swift */,
+				B3AF8EFE25669CFA0060C968 /* LightListController.swift */,
+				B30753D2256EB6CD00C8CA4F /* GroupsListVC.swift */,
+				B30753DD256EC74B00C8CA4F /* LightsListVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -340,10 +357,13 @@
 			files = (
 				B3AF8EE92565A04C0060C968 /* Discovery.swift in Sources */,
 				B3AF8F092566A6B30060C968 /* Constants.swift in Sources */,
+				B30753D3256EB6CD00C8CA4F /* GroupsListVC.swift in Sources */,
 				B37EEA492561A975003FBC42 /* AppDelegate.swift in Sources */,
 				B30753C2256D582B00C8CA4F /* UIColor+components.swift in Sources */,
-				B3AF8EFF25669CFB0060C968 /* ListController.swift in Sources */,
+				B3AF8EFF25669CFB0060C968 /* LightListController.swift in Sources */,
+				B30753CA256EB56500C8CA4F /* SectionedListController.swift in Sources */,
 				B3DA93CD2561B60E004BF5E1 /* DataManager.swift in Sources */,
+				B30753DE256EC74B00C8CA4F /* LightsListVC.swift in Sources */,
 				B37EEA872561A9DE003FBC42 /* MainView.swift in Sources */,
 				B3AF8EF12565AC490060C968 /* HueModel.swift in Sources */,
 				B3AF8F0425669EFE0060C968 /* HueLightsCell.swift in Sources */,

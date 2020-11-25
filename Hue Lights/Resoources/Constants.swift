@@ -11,4 +11,7 @@ import UIKit
 class UI{
     static let horizontalSpacing = CGFloat(12)
     static let verticalSpacing = CGFloat(8)
+    static let lights = "Lights"
+    static let groups = "Groups"
+    static let scenese = "Scenes"
 }

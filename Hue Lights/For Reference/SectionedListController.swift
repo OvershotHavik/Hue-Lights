@@ -1,14 +1,19 @@
 //
-//  ListController.swift
+//  SectionedListController.swift
 //  Hue Lights
 //
-//  Created by Steve Plavetzky on 11/19/20.
+//  Created by Steve Plavetzky on 11/25/20.
 //
 
+/*
+ 
+ 
+setup to have the lights and groups in one big table view instead of seperate. Issue with this one is that the commands to change the color/brightness change depending if it's going to a specific light or to gorups, and the table view gets messy when the cells don't update correctly
+ 
 import UIKit
 protocol ListSelectionControllerDelegate : class {
-    var sourceItems : [String] {get}
-    var hueLights : [HueModel.Light] {get}
+//    var sourceItems : [String] {get}
+//    var hueLights : [HueModel.Light] {get}
     var hueResults : [HueModel] {get}
     var bridgeIP : String {get}
     var bridgeUser: String {get}
@@ -17,10 +22,30 @@ protocol ListSelectionControllerDelegate : class {
 protocol UpdateList : class{
     func updateList(items: [String])
 }
+
+enum Headers: String{
+    case groups = "Groups"
+    case lights = "Lights"
+}
+
+class ListData{
+    var source: Headers
+    var names: [String]
+    var isExpanded: Bool
+    init (source: Headers, names: [String], isExpanded: Bool = true) { // change to false later
+        self.source = source
+        self.names = names
+        self.isExpanded = isExpanded
+    }
+}
+
+
 class ListController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     weak var delegate: ListSelectionControllerDelegate?
+    private var listDataArray = [ListData]()
     private var filtered = [String]()
-    private var filteredLights = [HueModel.Light]()
+    private var hueGroups = [HueModel.Groups]()
+    private var hueLights = [HueModel.Light]()
     private var hueResults = [HueModel]()
     private var pickedColor = UIColor.systemBlue
     private var colorPicker = UIColorPickerViewController()
@@ -37,7 +62,6 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.backgroundColor = .none
         return tableView
     }()
-    fileprivate var hueLights = [HueModel]()
     struct Cells {
         static let cell = "HueLightsCell"
     }
@@ -68,15 +92,10 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        guard let delegate = delegate else {
-            assertionFailure("Set the delegate")
-            return
-        }
-        
-        filtered = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
-        filteredLights = delegate.hueLights
-        hueResults = delegate.hueResults
-        self.tableView.reloadData()
+
+        populateTable()
+
+//        self.tableView.reloadData()
         setup()
     }
     func updateList(items: [String]) {
@@ -100,45 +119,111 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
     }
-    // MARK: - Table view data source
+    
+    //MARK: - Populate Table
+    
+    func populateTable(){
+        guard let delegate = delegate else {
+            assertionFailure("Set the delegate")
+            return
+        }
+//        filtered = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
+        hueResults = delegate.hueResults
+        var lightNames = [String]()
+        var groupNames = [String]()
+        for x in hueResults{
+            for light in x.lights{
+                hueLights.append(light.value)
+                lightNames.append(light.value.name)
+            }
+            for group in x.groups{
+                hueGroups.append(group.value)
+                groupNames.append(group.value.name)
+            }
+        }
+        listDataArray.append(ListData(source: Headers.groups, names: groupNames, isExpanded: true))
+        listDataArray.append(ListData(source: Headers.lights, names: lightNames, isExpanded: true))
+        self.tableView.reloadData()
 
+//        filtered = lightNames.sorted(by: {$0.lowercased() < $1.lowercased()})
+    }
+    // MARK: - Table view data source
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        return listDataArray.count
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 40
+    }
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return listDataArray[section].source.rawValue
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return filtered.count
+        if listDataArray[section].isExpanded == false{
+            return 0
+        }
+        return listDataArray[section].names.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! HueLightsCell
         cell.cellDelegate = self
-        let rowName = filtered[indexPath.row]
-        let filtered = filteredLights.filter({$0.name == rowName})
-        for light in filtered{
-            let reachable = light.state.reachable
-            let cellData = LightData(lightName: light.name,
-                                     isOn: light.state.on,
-                                     brightness: Float(light.state.bri),
-                                     isReachable: reachable,
-                                     lightColor: ConvertColor.getRGB(xy: light.state.xy, bri: light.state.bri))
-            cell.configureCell(LightData: cellData)
-            for x in hueResults{
-                for i in x.lights{
-                    if i.value.name == light.name{
-                        if let tag = Int(i.key){
-                            cell.onSwitch.tag = tag
-                            cell.brightnessSlider.tag = tag
-                            cell.btnChangeColor.tag = tag
-    //                        print("tag: \(onSwitch.tag)")
+        switch listDataArray[indexPath.section].source{
+        case .groups:
+            let rowName = listDataArray[indexPath.section].names[indexPath.row]
+            let filtered = hueGroups.filter({$0.name == rowName})
+            for group in filtered{
+                let reachable = group.state.any_on
+                let cellData = LightData(lightName: group.name,
+                                         isOn: group.state.all_on,
+                                         brightness: Float(group.action.bri),
+                                         isReachable: reachable,
+                                         lightColor: ConvertColor.getRGB(xy: group.action.xy, bri: group.action.bri))
+                cell.configureCell(LightData: cellData)
+                for x in hueResults{
+                    for i in x.lights{
+                        if i.value.name == group.name{
+                            if let tag = Int(i.key){
+                                cell.onSwitch.tag = tag
+                                cell.brightnessSlider.tag = tag
+                                cell.btnChangeColor.tag = tag
+        //                        print("tag: \(onSwitch.tag)")
+                            }
                         }
                     }
                 }
             }
-            cell.backgroundColor = .clear
+        case .lights:
+            //        let lightRow = listDataArray[indexPath.section].names[indexPath.row]
             
             
+            //        let rowName = filtered[indexPath.row]
+            let rowName = listDataArray[indexPath.section].names[indexPath.row]
+            let filtered = hueLights.filter({$0.name == rowName})
+            for light in filtered{
+                let reachable = light.state.reachable
+                let cellData = LightData(lightName: light.name,
+                                         isOn: light.state.on,
+                                         brightness: Float(light.state.bri),
+                                         isReachable: reachable,
+                                         lightColor: ConvertColor.getRGB(xy: light.state.xy, bri: light.state.bri))
+                cell.configureCell(LightData: cellData)
+                for x in hueResults{
+                    for i in x.lights{
+                        if i.value.name == light.name{
+                            if let tag = Int(i.key){
+                                cell.onSwitch.tag = tag
+                                cell.brightnessSlider.tag = tag
+                                cell.btnChangeColor.tag = tag
+                                //                        print("tag: \(onSwitch.tag)")
+                            }
+                        }
+                    }
+                }
+            }
         }
+        cell.backgroundColor = .clear
         return cell
     }
 }
@@ -203,16 +288,29 @@ extension ListController: HueCellDelegate{
 }
 //MARK: - Color picker
 extension ListController : UIColorPickerViewControllerDelegate{
+    
     func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
         pickedColor = viewController.selectedColor
+        print("color selected")
         updatLightColor()
     }
+ 
+    /*
+    func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
+        print("color selected")
+    }
+ */
     func colorPickerViewControllerDidFinish(_ viewController: UIColorPickerViewController) {
         print("color picker controler did finish")
     }
     private func selectColor(){
         colorPicker.supportsAlpha = false
-        colorPicker.selectedColor = pickedColor
+        if let safeColor = tempChangeColorButton?.backgroundColor{
+            colorPicker.selectedColor = safeColor
+        } else {
+            colorPicker.selectedColor = pickedColor
+        }
         self.present(colorPicker, animated: true)
     }
 }
+ */
