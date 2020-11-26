@@ -8,7 +8,7 @@
 import UIKit
 protocol ListSelectionControllerDelegate : class {
     var sourceItems : [String] {get}
-    var hueLights : [HueModel.Light] {get}
+//    var hueLights : [HueModel.Light] {get}
     var hueResults : [HueModel] {get}
     var bridgeIP : String {get}
     var bridgeUser: String {get}
@@ -29,7 +29,7 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.delegate = self
         tableView.dataSource = self
         tableView.rowHeight = 80
-        tableView.allowsSelection = false
+//        tableView.allowsSelection = false
         tableView.register(HueLightsCell.self, forCellReuseIdentifier: Cells.cell)
         tableView.backgroundColor = .none
         return tableView
@@ -61,7 +61,7 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
         colorPicker.delegate = self
         searchController.searchBar.isTranslucent = false
         navigationItem.searchController = searchController
-        searchController.searchBar.delegate = self
+//        searchController.searchBar.delegate = self
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -105,17 +105,12 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         let cell = UITableViewCell()
         return cell
     }
     func updatLightColor(){
         //being overriden in sub classess
     }
-}
-
-extension ListController: UISearchBarDelegate{
-    
 }
 
 //MARK: - Color picker

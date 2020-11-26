@@ -8,8 +8,8 @@
 import UIKit
 
 class LightsListVC: ListController{
-    private var filtered = [String]()
-    private var filteredLights = [HueModel.Light]()
+    private var lightsArray = [String]()
+    private var hueLights = [HueModel.Light]()
     private var hueResults = [HueModel]()
     
     override func viewWillAppear(_ animated: Bool) {
@@ -18,18 +18,30 @@ class LightsListVC: ListController{
             assertionFailure("Set the delegate")
             return
         }
-        filtered = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
-        filteredLights = delegate.hueLights
+        
+        lightsArray = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
         hueResults = delegate.hueResults
+        for x in hueResults{
+            hueLights.append(contentsOf: x.lights.values)
+        }
         self.tableView.reloadData()
+        searchController.searchBar.delegate = self
         setup()
     }
     
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return lightsArray.count
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        print("Take user to modify the individual light, change name, add to gorup, etc...")
+    }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! HueLightsCell
         cell.cellDelegate = self
-        let rowName = filtered[indexPath.row]
-        let filtered = filteredLights.filter({$0.name == rowName})
+        let rowName = lightsArray[indexPath.row]
+        let filtered = hueLights.filter({$0.name == rowName})
         for light in filtered{
             let reachable = light.state.reachable
             let cellData = LightData(lightName: light.name,
@@ -53,6 +65,7 @@ class LightsListVC: ListController{
         }
         return cell
     }
+    
     override func updatLightColor(){
         guard let tempChangeColorButton = tempChangeColorButton else {return}
         guard let delegate = delegate else { return}
@@ -70,6 +83,7 @@ class LightsListVC: ListController{
         DataManager.put(url: url, httpBody: httpBody)
     }
 }
+//MARK: - Hue Cell Delegate
 extension LightsListVC: HueCellDelegate{
     func onSwitchToggled(sender: UISwitch) {
         guard let delegate = delegate else { return}
@@ -103,4 +117,27 @@ extension LightsListVC: HueCellDelegate{
         tempChangeColorButton = sender
     }
 
+}
+//MARK: - UI Search Bar Delegate
+extension LightsListVC: UISearchBarDelegate{
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        guard let delegate = delegate else {
+            assertionFailure("Set the delegate bitch")
+            return
+        }
+        lightsArray = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
+        tableView.reloadData()
+    }
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        let searchText = searchText
+        searchBar.text = searchText
+        guard let delegate = delegate else {
+            assertionFailure("Set the delegate")
+            return
+        }
+        print("SearchText: \(searchText)")
+        let filtered = delegate.sourceItems.filter( {$0.contains(searchText) })
+        self.lightsArray = filtered.isEmpty ? [] : filtered
+        tableView.reloadData()
+    }
 }

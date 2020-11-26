@@ -84,7 +84,7 @@ extension MainVC: GetDelegate{
                         }
                     case UI.groups:
                         for group in resultsFromBrdige.groups{
-                            print("Key: \(group.key) - group name: \(group.value.name)")
+                            print("Key: \(group.key) - Group Name: \(group.value.name)")
                             self.sourceItems.append(group.value.name)
                         }
                         

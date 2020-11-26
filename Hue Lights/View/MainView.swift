@@ -29,13 +29,6 @@ class MainView: UIView {
         button.addTarget(self, action: #selector(getInfo), for: .touchUpInside)
         return button
     }()
-    fileprivate var btnGetSceneInfo : UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(UI.scenese, for: .normal)
-        button.addTarget(self, action: #selector(getInfo), for: .touchUpInside)
-        return button
-    }()
     lazy var lblTitle : UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -56,7 +49,6 @@ class MainView: UIView {
         backgroundColor = .systemBlue
         addSubview(btnGetLightInfo)
         addSubview(btnGetGroupInfo)
-        addSubview(btnGetSceneInfo)
         addSubview(lblTitle)
         setupConstraints()
     }
@@ -64,14 +56,11 @@ class MainView: UIView {
     func setupConstraints(){
         let safeArea = self.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
-            btnGetLightInfo.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor, constant: -100),
+            btnGetLightInfo.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor, constant: -50),
             btnGetLightInfo.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
             
-            btnGetGroupInfo.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor),
+            btnGetGroupInfo.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor, constant: 50),
             btnGetGroupInfo.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
-            
-            btnGetSceneInfo.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor, constant: 100),
-            btnGetSceneInfo.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
         ])
     }
     
