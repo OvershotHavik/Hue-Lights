@@ -12,7 +12,7 @@
 		B30753CA256EB56500C8CA4F /* SectionedListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30753C9256EB56400C8CA4F /* SectionedListController.swift */; };
 		B30753D3256EB6CD00C8CA4F /* GroupsListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30753D2256EB6CD00C8CA4F /* GroupsListVC.swift */; };
 		B30753DE256EC74B00C8CA4F /* LightsListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30753DD256EC74B00C8CA4F /* LightsListVC.swift */; };
-		B30753E325718CEC00C8CA4F /* EditGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30753E225718CEC00C8CA4F /* EditGroupView.swift */; };
+		B30753E325718CEC00C8CA4F /* EditItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30753E225718CEC00C8CA4F /* EditItemView.swift */; };
 		B30753E825718DA900C8CA4F /* EditGroupVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30753E725718DA900C8CA4F /* EditGroupVC.swift */; };
 		B37EEA492561A975003FBC42 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA482561A975003FBC42 /* AppDelegate.swift */; };
 		B37EEA4B2561A975003FBC42 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA4A2561A975003FBC42 /* SceneDelegate.swift */; };
@@ -22,6 +22,8 @@
 		B37EEA6B2561A976003FBC42 /* Hue_LightsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA6A2561A976003FBC42 /* Hue_LightsUITests.swift */; };
 		B37EEA822561A9B4003FBC42 /* MainVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA812561A9B4003FBC42 /* MainVC.swift */; };
 		B37EEA872561A9DE003FBC42 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA862561A9DE003FBC42 /* MainView.swift */; };
+		B3A66A762573FEF100EAAB8C /* EditLightVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A66A752573FEF100EAAB8C /* EditLightVC.swift */; };
+		B3A66A8125742AEA00EAAB8C /* Sequence+UniqueHash.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A66A8025742AEA00EAAB8C /* Sequence+UniqueHash.swift */; };
 		B3AF8EE92565A04C0060C968 /* Discovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AF8EE82565A04C0060C968 /* Discovery.swift */; };
 		B3AF8EF12565AC490060C968 /* HueModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AF8EF02565AC490060C968 /* HueModel.swift */; };
 		B3AF8EFF25669CFB0060C968 /* ListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AF8EFE25669CFA0060C968 /* ListController.swift */; };
@@ -56,7 +58,7 @@
 		B30753C9256EB56400C8CA4F /* SectionedListController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionedListController.swift; sourceTree = "<group>"; };
 		B30753D2256EB6CD00C8CA4F /* GroupsListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupsListVC.swift; sourceTree = "<group>"; };
 		B30753DD256EC74B00C8CA4F /* LightsListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightsListVC.swift; sourceTree = "<group>"; };
-		B30753E225718CEC00C8CA4F /* EditGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditGroupView.swift; sourceTree = "<group>"; };
+		B30753E225718CEC00C8CA4F /* EditItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditItemView.swift; sourceTree = "<group>"; };
 		B30753E725718DA900C8CA4F /* EditGroupVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditGroupVC.swift; sourceTree = "<group>"; };
 		B37EEA452561A975003FBC42 /* Hue Lights.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Hue Lights.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B37EEA482561A975003FBC42 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -72,6 +74,8 @@
 		B37EEA6C2561A976003FBC42 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B37EEA812561A9B4003FBC42 /* MainVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainVC.swift; sourceTree = "<group>"; };
 		B37EEA862561A9DE003FBC42 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		B3A66A752573FEF100EAAB8C /* EditLightVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditLightVC.swift; sourceTree = "<group>"; };
+		B3A66A8025742AEA00EAAB8C /* Sequence+UniqueHash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sequence+UniqueHash.swift"; sourceTree = "<group>"; };
 		B3AF8EE82565A04C0060C968 /* Discovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Discovery.swift; sourceTree = "<group>"; };
 		B3AF8EF02565AC490060C968 /* HueModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HueModel.swift; sourceTree = "<group>"; };
 		B3AF8EFE25669CFA0060C968 /* ListController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListController.swift; sourceTree = "<group>"; };
@@ -184,7 +188,7 @@
 			isa = PBXGroup;
 			children = (
 				B37EEA862561A9DE003FBC42 /* MainView.swift */,
-				B30753E225718CEC00C8CA4F /* EditGroupView.swift */,
+				B30753E225718CEC00C8CA4F /* EditItemView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -196,8 +200,9 @@
 				B3AF8EFE25669CFA0060C968 /* ListController.swift */,
 				B30753D2256EB6CD00C8CA4F /* GroupsListVC.swift */,
 				B30753DD256EC74B00C8CA4F /* LightsListVC.swift */,
-				B30753E725718DA900C8CA4F /* EditGroupVC.swift */,
 				B3D2E0EA2572939100B4B46B /* ModifyGroupList.swift */,
+				B30753E725718DA900C8CA4F /* EditGroupVC.swift */,
+				B3A66A752573FEF100EAAB8C /* EditLightVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -236,6 +241,7 @@
 				B3AF8F082566A6B20060C968 /* Constants.swift */,
 				B30753C1256D582A00C8CA4F /* UIColor+components.swift */,
 				B3D2E0F52573CF3F00B4B46B /* Alert.swift */,
+				B3A66A8025742AEA00EAAB8C /* Sequence+UniqueHash.swift */,
 			);
 			path = Resoources;
 			sourceTree = "<group>";
@@ -373,9 +379,11 @@
 				B3AF8EE92565A04C0060C968 /* Discovery.swift in Sources */,
 				B3AF8F092566A6B30060C968 /* Constants.swift in Sources */,
 				B30753D3256EB6CD00C8CA4F /* GroupsListVC.swift in Sources */,
+				B3A66A8125742AEA00EAAB8C /* Sequence+UniqueHash.swift in Sources */,
 				B37EEA492561A975003FBC42 /* AppDelegate.swift in Sources */,
 				B3D2E0F02572949A00B4B46B /* ListCell.swift in Sources */,
 				B30753C2256D582B00C8CA4F /* UIColor+components.swift in Sources */,
+				B3A66A762573FEF100EAAB8C /* EditLightVC.swift in Sources */,
 				B3AF8EFF25669CFB0060C968 /* ListController.swift in Sources */,
 				B30753CA256EB56500C8CA4F /* SectionedListController.swift in Sources */,
 				B3D2E0EB2572939100B4B46B /* ModifyGroupList.swift in Sources */,
@@ -385,7 +393,7 @@
 				B3AF8EF12565AC490060C968 /* HueModel.swift in Sources */,
 				B30753E825718DA900C8CA4F /* EditGroupVC.swift in Sources */,
 				B3AF8F0425669EFE0060C968 /* HueLightsCell.swift in Sources */,
-				B30753E325718CEC00C8CA4F /* EditGroupView.swift in Sources */,
+				B30753E325718CEC00C8CA4F /* EditItemView.swift in Sources */,
 				B37EEA822561A9B4003FBC42 /* MainVC.swift in Sources */,
 				B307539A256C199600C8CA4F /* ConvertColor.swift in Sources */,
 				B3D2E0F62573CF3F00B4B46B /* Alert.swift in Sources */,

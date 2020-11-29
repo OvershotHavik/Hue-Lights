@@ -51,6 +51,11 @@ class LightsListVC: ListController, ListSelectionControllerDelegate{
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        DispatchQueue.main.async {
+            let editLight = EditLightVC(lightName: self.lightsArray[indexPath.row])
+            editLight.delegate = self
+            self.navigationController?.pushViewController(editLight, animated: true)
+        }
         print("Take user to modify the individual light, change name, add to gorup, etc...")
     }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

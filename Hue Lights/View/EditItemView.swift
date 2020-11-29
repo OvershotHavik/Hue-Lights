@@ -7,20 +7,20 @@
 
 import UIKit
 
-protocol UpdateGroup: class {
+protocol UpdateItem: class {
     func saveTapped(name: String)
-    func editLights()
+    func editList()
 }
 
 protocol editLightsTapped: class{
 }
 
-class EditGroupView: UIView{
-    weak var updateGroupDelegate: UpdateGroup?
-    fileprivate var hueResults : [HueModel]
-    fileprivate var groupName : String
+class EditItemView: UIView{
+    weak var updateGroupDelegate: UpdateItem?
+//    fileprivate var hueResults : [HueModel]
+    fileprivate var itemName : String
     
-    lazy var lblListOfLights : UILabel = {
+    lazy var label : UILabel = {
        let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
@@ -28,16 +28,16 @@ class EditGroupView: UIView{
         return label
     }()
     
-    lazy var tfGroupName : UITextField = {
+    lazy var tfChangeName : UITextField = {
        let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.text = groupName
+        textField.text = itemName
         textField.backgroundColor = .white
         textField.textAlignment = .center
         textField.textColor = .black
         return textField
     }()
-    private var btnEditLights: UIButton = {
+    private var btnEdit: UIButton = {
        let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Edit Lights In Group", for: .normal)
@@ -53,9 +53,8 @@ class EditGroupView: UIView{
         return button
     }()
     
-    init(hueResults: [HueModel], groupName: String,  frame: CGRect = .zero)  {
-        self.hueResults = hueResults
-        self.groupName = groupName
+    init(itemName: String,  frame: CGRect = .zero)  {
+        self.itemName = itemName
         super.init(frame: .zero)
         setup()
     }
@@ -66,9 +65,9 @@ class EditGroupView: UIView{
     
     func setup(){
         backgroundColor = UI.backgroundColor
-        self.addSubview(tfGroupName)
-        self.addSubview(lblListOfLights)
-        self.addSubview(btnEditLights)
+        self.addSubview(tfChangeName)
+        self.addSubview(label)
+        self.addSubview(btnEdit)
         self.addSubview(btnSave)
         setupConstraints()
     }
@@ -76,16 +75,16 @@ class EditGroupView: UIView{
     func setupConstraints(){
         let safeArea = self.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
-            tfGroupName.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: UI.verticalSpacing),
-            tfGroupName.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
-            tfGroupName.widthAnchor.constraint(equalToConstant: 150),
-            tfGroupName.heightAnchor.constraint(equalToConstant: 35),
+            tfChangeName.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: UI.verticalSpacing),
+            tfChangeName.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            tfChangeName.widthAnchor.constraint(equalToConstant: 150),
+            tfChangeName.heightAnchor.constraint(equalToConstant: 35),
             
-            lblListOfLights.topAnchor.constraint(equalTo: tfGroupName.bottomAnchor, constant: UI.verticalSpacing),
-            lblListOfLights.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            label.topAnchor.constraint(equalTo: tfChangeName.bottomAnchor, constant: UI.verticalSpacing),
+            label.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
             
-            btnEditLights.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
-            btnEditLights.topAnchor.constraint(equalTo: lblListOfLights.bottomAnchor, constant: UI.verticalSpacing),
+            btnEdit.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            btnEdit.topAnchor.constraint(equalTo: label.bottomAnchor, constant: UI.verticalSpacing),
             
             
             
@@ -96,17 +95,17 @@ class EditGroupView: UIView{
     
     @objc func saveTapped(){
         print("Save tapped")
-        updateGroupDelegate?.saveTapped(name: tfGroupName.text!)
+        updateGroupDelegate?.saveTapped(name: tfChangeName.text!)
     }
     
     @objc func editLightsTapped(){
         print("edit tapped")
-        updateGroupDelegate?.editLights()
+        updateGroupDelegate?.editList()
     }
     
-    func updateListOfLights(text: String){
+    func updateLabel(text: String){
         DispatchQueue.main.async {
-            self.lblListOfLights.text = text
+            self.label.text = text
         }
     }
 }

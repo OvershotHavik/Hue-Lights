@@ -22,9 +22,10 @@ class ModifyGroupList: UIViewController, UITableViewDelegate, UpdateList{
     fileprivate var searchBar = UISearchBar()
     fileprivate var selectedItems : [String]
     fileprivate var ID : String? // modified by fetch data to determine who sent the info, so it can back feed and update fileprivate any labels
-    
+    var limit : Int
 
-    init(selectedItems: [String]){
+    init(limit: Int, selectedItems: [String]){
+        self.limit = limit
         self.selectedItems = selectedItems
         super.init(nibName: nil, bundle: nil)
     }
@@ -121,16 +122,31 @@ extension ModifyGroupList: UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        
         let selectedVal = filtered[indexPath.row]
-        if let item = selectedItems.firstIndex(of: selectedVal){
-            selectedItems.remove(at: item)
-            tableView.cellForRow(at: indexPath)?.accessoryType = .none
-            print("Removed \(selectedVal)")
-        } else {
-            selectedItems.append(selectedVal)
-            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
+        if selectedItems.count <= limit{
+            if selectedItems.count == limit{
+                if let item = selectedItems.firstIndex(of: selectedVal){
+                    selectedItems.remove(at: item)
+                    tableView.cellForRow(at: indexPath)?.accessoryType = .none
+                    print("Removed \(selectedVal) in limit reached ")
+                } else {
+                    Alert.showBasic(title: "There can only be One.", message: "Hue lights can only be in one group. ", vc: self)
+                }
+            } else {
+                if let item = selectedItems.firstIndex(of: selectedVal){
+                    selectedItems.remove(at: item)
+                    tableView.cellForRow(at: indexPath)?.accessoryType = .none
+                    print("Removed \(selectedVal)")
+                } else {
+                    selectedItems.append(selectedVal)
+                    tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
+                }
+            }
         }
         print("Selected items: \(selectedItems)")
+        tableView.deselectRow(at: indexPath, animated: true)
     }
 }
 

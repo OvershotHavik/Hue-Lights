@@ -22,7 +22,7 @@ class EditGroupVC: UIViewController, ListSelectionControllerDelegate{
     weak var delegate : ListSelectionControllerDelegate?
     weak var updateTitleDelegate : UpdateTitle?
     weak var updateDelegate : UpdatedHueResults?
-    fileprivate var rootView : EditGroupView!
+    fileprivate var rootView : EditItemView!
     fileprivate var lightNameInGroup = [String]()
     fileprivate var lightNumbersInGroup = [String()]
     internal var sourceItems = [String]()
@@ -43,7 +43,7 @@ class EditGroupVC: UIViewController, ListSelectionControllerDelegate{
             print("setup delegate for EditGroupVC")
             return
         }
-        rootView = EditGroupView(hueResults: delegate.hueResults, groupName: groupName)
+        rootView = EditItemView(itemName: groupName)
         bridgeIP = delegate.bridgeIP
         bridgeUser = delegate.bridgeUser
         self.view = rootView
@@ -65,7 +65,7 @@ class EditGroupVC: UIViewController, ListSelectionControllerDelegate{
         for light in lightNameInGroup{
             text += "\(light)\n"
         }
-        rootView.updateListOfLights(text: text)
+        rootView.updateLabel(text: text)
     }
 
     //MARK: - Update Light List In Group
@@ -95,14 +95,14 @@ class EditGroupVC: UIViewController, ListSelectionControllerDelegate{
  
 }
 //MARK: - Update Group Delegate
-extension EditGroupVC: UpdateGroup, SelectedItems{
+extension EditGroupVC: UpdateItem, SelectedItems{
     func setSelectedItems(items: [String], ID: String) {
         lightNameInGroup = items.sorted { $0 < $1}
         var text = String()
         for light in lightNameInGroup{
             text += "\(light)\n"
         }
-        rootView.updateListOfLights(text: text)
+        rootView.updateLabel(text: text)
     }
     
     
@@ -155,9 +155,9 @@ extension EditGroupVC: UpdateGroup, SelectedItems{
     
     
     //MARK: - Take user to edit lights in the group
-    func editLights() {
+    func editList() {
         DispatchQueue.main.async {
-            let lightList = ModifyGroupList(selectedItems: self.lightNameInGroup)
+            let lightList = ModifyGroupList(limit: 9999, selectedItems: self.lightNameInGroup)
             lightList.delegate = self
             lightList.selectedItemsDelegate = self
             self.navigationController?.pushViewController(lightList, animated: true)
