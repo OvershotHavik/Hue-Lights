@@ -9,7 +9,6 @@ import UIKit
 
 class MainVC: UIViewController, ListSelectionControllerDelegate {
     var hueResults = [HueModel]()
-    var hueLights = [HueModel.Light]()
     var sourceItems = [String]()
     
     fileprivate var rootView : MainView!
@@ -22,22 +21,13 @@ class MainVC: UIViewController, ListSelectionControllerDelegate {
     private var pickedColor = UIColor.systemBlue
     private var colorPicker = UIColorPickerViewController()
     
-    
-    
-    
-    
-    
     override func loadView() {
         super.loadView()
         rootView = MainView()
         self.view = rootView
         rootView.getDelegate = self
         bridgeUser = "kagaOXDCsywZ7IbOS3EJkOg1r5CD4DBvvVc9lKC7" // Steve's Bridge Username
-//        getTapped()
         discovery()
-        
-//        view.backgroundColor = ConvertColor.getRGB(xy: [0.2006, 0.2838], bri: 127)
-       
     }
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,7 +36,7 @@ class MainVC: UIViewController, ListSelectionControllerDelegate {
 
 extension MainVC: GetDelegate{
     func getTapped(sender: String) {
-        print("Get Light Info")
+        print("Get Info")
         guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)") else {return}
         print(url)
         DataManager.get(url: url) { (results) in
@@ -54,7 +44,6 @@ extension MainVC: GetDelegate{
             case .success(let data):
                 do {
                     self.sourceItems = []
-                    self.hueLights = []
                     self.hueResults = []
                     let resultsFromBrdige = try JSONDecoder().decode(HueModel.self, from: data)
                     self.hueResults.append(resultsFromBrdige)
@@ -74,7 +63,6 @@ extension MainVC: GetDelegate{
                                 print("xy: \(safeXY)")
                             }
                             self.sourceItems.append(light.value.name)
-                            self.hueLights.append(light.value)
                         }
                         DispatchQueue.main.async {
                             let lightlistVC = LightsListVC()
@@ -97,52 +85,6 @@ extension MainVC: GetDelegate{
                     case UI.scenese: print("Not setup yet")
                     default: print("Not setup in get tapped on main vc")
                     }
-                    /*
-                    for light in resultsFromBrdige.lights{
-                        
-                        print("=================================================")
-                        print("Key: \(light.key) light name: \(light.value.name), state on: \(light.value.state.on), Brightness: \(light.value.state.bri), is reachable: \(light.value.state.reachable)")
-                        
-                        if let safeHue = light.value.state.hue,
-                           let safeSat = light.value.state.sat{
-                            print("\(light.value.name)'s Hue: \(safeHue), Saturtation: \(safeSat)")
-                            
-                        }
-                        if let safeXY = light.value.state.xy{
-                            print("xy: \(safeXY)")
-                        }
-                        self.sourceItems.append(light.value.name)
-                        self.hueLights.append(light.value)
-                    }
-                    
-
-                    
-                    
-                    
-                    
-                    
-                    
-                    DispatchQueue.main.async {
-                        let listController = ListController()
-                        listController.delegate = self
-                        self.navigationController?.pushViewController(listController, animated: true)
-                    }
-*/
-                
-                    
-                    /*
-                    for group in resultsFromBrdige.groups{
-                        print("Key: \(group.key) - group name: \(group.value.name)")
-                        self.sourceItems.append(group.value.name)
-                    }
-                    
-                    DispatchQueue.main.async {
-                        let GroupListController = GroupsListVC()
-                        GroupListController.delegate = self
-                        self.navigationController?.pushViewController(GroupListController, animated: true)
-                    }
-                    */
-                    
                 } catch let e {
                     print("Error: \(e)")
                 }
@@ -170,9 +112,7 @@ extension MainVC{
                         print("Bridge ID: \(bridge.id)")
                         print("Brdige IP: \(bridge.internalipaddress)")
                         self.bridgeIP = bridge.internalipaddress
-                        
                     }
-
                 } catch let e{
                     print("Error: \(e)")
                 }

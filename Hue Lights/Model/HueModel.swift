@@ -86,8 +86,8 @@ struct HueModel: Codable{
     struct GroupAction: Codable{
         //All lights in group
         let on : Bool
-        let bri: Int
-        let alert : String
+        let bri: Int?
+        let alert : String?
         //Color lights
         let hue: Int?
         let sat: Int?

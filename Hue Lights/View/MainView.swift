@@ -46,7 +46,7 @@ class MainView: UIView {
     }
     
     func setup(){
-        backgroundColor = .systemBlue
+        backgroundColor = UI.backgroundColor
         addSubview(btnGetLightInfo)
         addSubview(btnGetGroupInfo)
         addSubview(lblTitle)

@@ -7,18 +7,34 @@
 
 import UIKit
 
-class LightsListVC: ListController{
+protocol editingGroup: class{
+    var groupName : String {get}
+    var groupNumber: String {get}
+}
+
+class LightsListVC: ListController, ListSelectionControllerDelegate{
+    weak var editingGroupDelegate: editingGroup?
+    var sourceItems = [String]()
+    var bridgeIP = String()
+    var bridgeUser = String()
+    
     private var lightsArray = [String]()
     private var hueLights = [HueModel.Light]()
-    private var hueResults = [HueModel]()
-    
+    internal var hueResults = [HueModel]()
+//    fileprivate var groupName : String?
+//    fileprivate var groupNumber : String?
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         guard let delegate = delegate else {
             assertionFailure("Set the delegate")
             return
         }
+        bridgeIP = delegate.bridgeIP
+        bridgeUser = delegate.bridgeUser
         
+        if self.title != UI.lights{
+            navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(self.editGroup))
+        }
         lightsArray = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
         hueResults = delegate.hueResults
         for x in hueResults{
@@ -139,5 +155,79 @@ extension LightsListVC: UISearchBarDelegate{
         let filtered = delegate.sourceItems.filter( {$0.contains(searchText) })
         self.lightsArray = filtered.isEmpty ? [] : filtered
         tableView.reloadData()
+    }
+}
+
+
+extension LightsListVC{
+    //MARK: -  Edit Group
+    @objc func editGroup(){
+        print("edit tapped - in light list vc")
+        DispatchQueue.main.async {
+            guard let groupDelegate = self.editingGroupDelegate else {return}
+             let safeGroupName = groupDelegate.groupName
+               let safeGroupNumber = groupDelegate.groupNumber
+                let editGroupVC = EditGroupVC(groupName: safeGroupName, groupNumber: safeGroupNumber)
+                editGroupVC.delegate = self
+//                editGroupVC.updateTitleDelegate = self
+                editGroupVC.updateDelegate = self
+                editGroupVC.title = "Editing \(safeGroupName)"
+                self.navigationController?.pushViewController(editGroupVC, animated: true)
+            
+        }
+    }
+}
+//MARK: - Update Hue Results to update the list
+extension LightsListVC: UpdatedHueResults{
+    func getUpdatedHueResults(hueResults: [HueModel]) {
+        print("update the list...")
+        /*
+        self.hueResults = hueResults
+//        self.sourceItems = []
+        var lightsInGroup = [String]()
+//        for x in hueGroups{
+//            if x.name == groupName{
+//                lightsInGroup.append(contentsOf: x.lights)
+//            }
+//        }
+        print("Lights in group: \(lightsInGroup)")
+        self.sourceItems = []
+        for x in hueResults{
+            for light in x.lights{
+                if lightsInGroup.contains(light.key){
+                    self.sourceItems.append(light.value.name)
+                }
+            }
+        }
+        
+        
+        
+        var lightsInGroup = [String]()
+        for x in self.hueResults{
+            for group in x.groups{
+                if group.value.name == self.groupName{
+                    var lightsInGroup = group.value.lights
+                    
+//                    sourceItems = group.value.lights
+//                    lightsArray = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
+                    lightsArray =
+//                    hueResults = delegate.hueResults
+//                    hueLights.append(contentsOf: group.value.lights)
+                    self.tableView.reloadData()
+                }
+            }
+        }
+         */
+    }
+    
+    
+    
+
+}
+
+//MARK: - Update Title
+extension LightsListVC: UpdateTitle{
+    func updateTitle(newTitle: String) {
+        self.title = newTitle
     }
 }

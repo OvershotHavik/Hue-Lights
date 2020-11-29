@@ -90,11 +90,21 @@ class HueLightsCell: UITableViewCell {
             }
         }
     }
+    var noLightsInGroup = Bool(){
+        didSet{
+            if noLightsInGroup == true{
+                self.lblLightName.alpha = 0.5
+                self.lblLightName.text! += " - No lights in group"
+                self.onSwitch.isHidden = true
+                self.brightnessSlider.isHidden = true
+                self.lblBrightness.isHidden = true
+            }
+        }
+    }
     
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
         setup()
-
     }
     
     
@@ -102,6 +112,9 @@ class HueLightsCell: UITableViewCell {
         lightName = LightData.lightName
         isOn = LightData.isOn
         brightness = LightData.brightness
+        if brightness == 0{
+            noLightsInGroup = true
+        }
         isReachable = LightData.isReachable
         btnChangeColor.backgroundColor = LightData.lightColor
     }

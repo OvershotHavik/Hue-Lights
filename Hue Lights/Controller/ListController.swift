@@ -31,7 +31,7 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.rowHeight = 80
 //        tableView.allowsSelection = false
         tableView.register(HueLightsCell.self, forCellReuseIdentifier: Cells.cell)
-        tableView.backgroundColor = .none
+        tableView.backgroundColor = .clear
         return tableView
     }()
     fileprivate var hueLights = [HueModel]()
@@ -73,14 +73,11 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
         self.tableView.reloadData()
         setup()
     }
-    func updateList(items: [String]) {
-        filtered = items
-        tableView.reloadData()
-    }
+
     
     //MARK: - setup layout and constrains
     func setup(){
-        self.view.backgroundColor = .systemBlue
+        self.view.backgroundColor = UI.backgroundColor
         view.addSubview(tableView)
         setupConstraints()
     }
