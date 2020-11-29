@@ -112,6 +112,7 @@ extension EditGroupVC: UpdateGroup, SelectedItems{
         guard let delegate = delegate else {return []}
         var lightNumbers = [String]()
         var lightNames = [String]()
+        var lightsInGroupsAlready = [String]()
         for x in delegate.hueResults{
             for group in x.groups{
                 if group.value.name == groupName{
@@ -119,11 +120,18 @@ extension EditGroupVC: UpdateGroup, SelectedItems{
                         lightNumbers.append(light) // get number of the lights that are currently in the group
                     }
                 }
+                lightsInGroupsAlready.append(contentsOf: group.value.lights)
             }
+            print("Lights in groups already: \(lightsInGroupsAlready.sorted())")
             for light in x.lights{
-                sourceItems.append(light.value.name)
+                if lightsInGroupsAlready.contains(light.key){
+                } else {
+                    print("\(light.value.name) added to list")
+                    sourceItems.append(light.value.name)
+                }
                 if lightNumbers.contains(light.key){ // based on the number, get the name of the light
                     lightNames.append(light.value.name)
+                    sourceItems.append(light.value.name) // adds lights in this group
                 }
             }
         }
