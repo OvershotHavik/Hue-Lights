@@ -13,7 +13,7 @@ struct ListData {
 
 class ListCell: UITableViewCell{
     var lblListItem = UILabel()
-    var ivImage = UIImageView()
+    var ivImage = GetImageFromURLIV()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)

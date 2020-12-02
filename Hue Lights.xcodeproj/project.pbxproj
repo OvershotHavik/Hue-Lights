@@ -15,6 +15,8 @@
 		B30753E325718CEC00C8CA4F /* EditItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30753E225718CEC00C8CA4F /* EditItemView.swift */; };
 		B30753E825718DA900C8CA4F /* EditGroupVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30753E725718DA900C8CA4F /* EditGroupVC.swift */; };
 		B318246525779F6600D9D06E /* SchedulesListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B318246425779F6600D9D06E /* SchedulesListVC.swift */; };
+		B31824902577F13900D9D06E /* GetImageFromURLIV.swift in Sources */ = {isa = PBXBuildFile; fileRef = B318248F2577F13900D9D06E /* GetImageFromURLIV.swift */; };
+		B318249C2577F24E00D9D06E /* SceneListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B318249B2577F24E00D9D06E /* SceneListVC.swift */; };
 		B37EEA492561A975003FBC42 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA482561A975003FBC42 /* AppDelegate.swift */; };
 		B37EEA4B2561A975003FBC42 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA4A2561A975003FBC42 /* SceneDelegate.swift */; };
 		B37EEA522561A976003FBC42 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B37EEA512561A976003FBC42 /* Assets.xcassets */; };
@@ -62,6 +64,8 @@
 		B30753E225718CEC00C8CA4F /* EditItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditItemView.swift; sourceTree = "<group>"; };
 		B30753E725718DA900C8CA4F /* EditGroupVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditGroupVC.swift; sourceTree = "<group>"; };
 		B318246425779F6600D9D06E /* SchedulesListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulesListVC.swift; sourceTree = "<group>"; };
+		B318248F2577F13900D9D06E /* GetImageFromURLIV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetImageFromURLIV.swift; sourceTree = "<group>"; };
+		B318249B2577F24E00D9D06E /* SceneListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneListVC.swift; sourceTree = "<group>"; };
 		B37EEA452561A975003FBC42 /* Hue Lights.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Hue Lights.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B37EEA482561A975003FBC42 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B37EEA4A2561A975003FBC42 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -128,13 +132,6 @@
 				B30753C9256EB56400C8CA4F /* SectionedListController.swift */,
 			);
 			path = "For Reference";
-			sourceTree = "<group>";
-		};
-		B31824692577DD3500D9D06E /* Hue Model */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = "Hue Model";
 			sourceTree = "<group>";
 		};
 		B37EEA3C2561A975003FBC42 = {
@@ -213,6 +210,7 @@
 				B30753E725718DA900C8CA4F /* EditGroupVC.swift */,
 				B3A66A752573FEF100EAAB8C /* EditLightVC.swift */,
 				B318246425779F6600D9D06E /* SchedulesListVC.swift */,
+				B318249B2577F24E00D9D06E /* SceneListVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -223,10 +221,10 @@
 				B3DA93CC2561B60E004BF5E1 /* DataManager.swift */,
 				B3AF8EE82565A04C0060C968 /* Discovery.swift */,
 				B3AF8EF02565AC490060C968 /* HueModel.swift */,
-				B31824692577DD3500D9D06E /* Hue Model */,
 				B3AF8F0325669EFE0060C968 /* HueLightsCell.swift */,
 				B3075399256C199600C8CA4F /* ConvertColor.swift */,
 				B3D2E0EF2572949A00B4B46B /* ListCell.swift */,
+				B318248F2577F13900D9D06E /* GetImageFromURLIV.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -389,12 +387,14 @@
 			files = (
 				B3AF8EE92565A04C0060C968 /* Discovery.swift in Sources */,
 				B3AF8F092566A6B30060C968 /* Constants.swift in Sources */,
+				B31824902577F13900D9D06E /* GetImageFromURLIV.swift in Sources */,
 				B30753D3256EB6CD00C8CA4F /* GroupsListVC.swift in Sources */,
 				B3A66A8125742AEA00EAAB8C /* Sequence+UniqueHash.swift in Sources */,
 				B37EEA492561A975003FBC42 /* AppDelegate.swift in Sources */,
 				B3D2E0F02572949A00B4B46B /* ListCell.swift in Sources */,
 				B30753C2256D582B00C8CA4F /* UIColor+components.swift in Sources */,
 				B3A66A762573FEF100EAAB8C /* EditLightVC.swift in Sources */,
+				B318249C2577F24E00D9D06E /* SceneListVC.swift in Sources */,
 				B3AF8EFF25669CFB0060C968 /* ListController.swift in Sources */,
 				B30753CA256EB56500C8CA4F /* SectionedListController.swift in Sources */,
 				B3D2E0EB2572939100B4B46B /* ModifyGroupList.swift in Sources */,

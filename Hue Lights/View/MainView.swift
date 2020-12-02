@@ -36,6 +36,13 @@ class MainView: UIView {
         button.addTarget(self, action: #selector(getInfo), for: .touchUpInside)
         return button
     }()
+    fileprivate var btnShowScenes : UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(UI.scenes, for: .normal)
+        button.addTarget(self, action: #selector(getInfo), for: .touchUpInside)
+        return button
+    }()
     lazy var lblTitle : UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -57,7 +64,7 @@ class MainView: UIView {
         addSubview(btnGetLightInfo)
         addSubview(btnGetGroupInfo)
         addSubview(btnGetSchedulesInfo)
-        addSubview(lblTitle)
+        addSubview(btnShowScenes)
         setupConstraints()
     }
 
@@ -72,6 +79,10 @@ class MainView: UIView {
             
             btnGetSchedulesInfo.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor, constant: 100),
             btnGetSchedulesInfo.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            
+
+            btnShowScenes.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor, constant: 200),
+            btnShowScenes.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
         ])
     }
     

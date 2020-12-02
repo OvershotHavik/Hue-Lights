@@ -93,6 +93,17 @@ extension MainVC: GetDelegate{
                             scheduleList.title = UI.schedules
                             self.navigationController?.pushViewController(scheduleList, animated: true)
                         }
+                    case UI.scenes:
+                        for scene in resultsFromBrdige.scenes{
+                            print("Scene name: \(scene.value.name)")
+                            self.sourceItems.append(scene.value.name)
+                        }
+                        DispatchQueue.main.async {
+                            let sceneList = SceneListVC()
+                            sceneList.delegate = self
+                            sceneList.title = UI.scenes
+                            self.navigationController?.pushViewController(sceneList, animated: true)
+                        }
                     default: print("Not setup in get tapped on main vc")
                     }
                 } catch let e {

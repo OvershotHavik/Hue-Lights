@@ -14,5 +14,6 @@ class UI{
     static let lights = "Lights"
     static let groups = "Groups"
     static let schedules = "Schedules"
+    static let scenes = "Scenes"
     static let backgroundColor = UIColor.systemBlue
 }
