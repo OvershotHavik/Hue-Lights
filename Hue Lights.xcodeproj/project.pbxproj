@@ -130,6 +130,13 @@
 			path = "For Reference";
 			sourceTree = "<group>";
 		};
+		B31824692577DD3500D9D06E /* Hue Model */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "Hue Model";
+			sourceTree = "<group>";
+		};
 		B37EEA3C2561A975003FBC42 = {
 			isa = PBXGroup;
 			children = (
@@ -216,6 +223,7 @@
 				B3DA93CC2561B60E004BF5E1 /* DataManager.swift */,
 				B3AF8EE82565A04C0060C968 /* Discovery.swift */,
 				B3AF8EF02565AC490060C968 /* HueModel.swift */,
+				B31824692577DD3500D9D06E /* Hue Model */,
 				B3AF8F0325669EFE0060C968 /* HueLightsCell.swift */,
 				B3075399256C199600C8CA4F /* ConvertColor.swift */,
 				B3D2E0EF2572949A00B4B46B /* ListCell.swift */,

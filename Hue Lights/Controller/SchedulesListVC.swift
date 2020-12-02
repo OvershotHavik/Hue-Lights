@@ -59,7 +59,6 @@ class ScheduleListVC: ListController{
                 }
             }
         }
-
         onSwitch.addTarget(self, action: #selector(onToggled), for: .valueChanged)
         cell.accessoryView = onSwitch
         return cell
@@ -78,7 +77,6 @@ class ScheduleListVC: ListController{
         } else {
             httpBody["status"] = "disabled"
         }
-        
         DataManager.put(url: url, httpBody: httpBody)
     }
 }
