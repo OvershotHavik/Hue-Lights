@@ -13,6 +13,6 @@ class UI{
     static let verticalSpacing = CGFloat(8)
     static let lights = "Lights"
     static let groups = "Groups"
-    static let scenese = "Scenes"
+    static let schedules = "Schedules"
     static let backgroundColor = UIColor.systemBlue
 }

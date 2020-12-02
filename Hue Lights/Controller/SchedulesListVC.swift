@@ -1,28 +1,19 @@
 //
-//  ListController.swift
+//  SchedulesListVC.swift
 //  Hue Lights
 //
-//  Created by Steve Plavetzky on 11/19/20.
+//  Created by Steve Plavetzky on 12/2/20.
 //
 
 import UIKit
-protocol ListSelectionControllerDelegate : class {
-    var sourceItems : [String] {get}
-//    var hueLights : [HueModel.Light] {get}
-    var hueResults : [HueModel] {get}
-    var bridgeIP : String {get}
-    var bridgeUser: String {get}
-}
-protocol UpdateList : class{
-    func updateList(items: [String])
-}
-class ListController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+
+class ScheduleListVC: UIViewController, UITableViewDelegate, UITableViewDataSource{
     weak var delegate: ListSelectionControllerDelegate?
     private var filtered = [String]()
-    var pickedColor = UIColor.systemBlue
-    var colorPicker = UIColorPickerViewController()
-    var tempChangeColorButton : UIButton? // used to update the color of the cell's button
-
+    
+    struct Cells {
+        static let cell = "HueLightsCell"
+    }
     lazy var tableView : UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -30,15 +21,10 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.dataSource = self
         tableView.rowHeight = 80
 //        tableView.allowsSelection = false
-        tableView.register(HueLightsCell.self, forCellReuseIdentifier: Cells.cell)
+        tableView.register(ListCell.self, forCellReuseIdentifier: Cells.cell)
         tableView.backgroundColor = .clear
         return tableView
     }()
-    fileprivate var hueLights = [HueModel]()
-    struct Cells {
-        static let cell = "HueLightsCell"
-    }
-
     let searchController: UISearchController = {
         let searchController = UISearchController(searchResultsController: nil)
         searchController.searchBar.translatesAutoresizingMaskIntoConstraints = false
@@ -49,19 +35,10 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
         searchController.searchBar.returnKeyType = .done
         return searchController
     }()
-
-
-
-//    required init?(coder: NSCoder) {
-//        fatalError("init(coder:) has not been implemented")
-//    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        colorPicker.delegate = self
         searchController.searchBar.isTranslucent = false
         navigationItem.searchController = searchController
-//        searchController.searchBar.delegate = self
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -91,38 +68,17 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
     }
-    // MARK: - Table view data source
-
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-
+    
+    
+    
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return filtered.count
     }
-
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        //being overridden in sub classess
         let cell = UITableViewCell()
+        cell.textLabel?.text = filtered[indexPath.row]
         return cell
-    }
-    func updatLightColor(){
-        //being overriden in sub classess
-    }
-}
-
-//MARK: - Color picker
-extension ListController : UIColorPickerViewControllerDelegate{
-    func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
-        pickedColor = viewController.selectedColor
-        updatLightColor()
-    }
-    func colorPickerViewControllerDidFinish(_ viewController: UIColorPickerViewController) {
-        print("color picker controler did finish")
-    }
-    func selectColor(){
-        colorPicker.supportsAlpha = false
-        colorPicker.selectedColor = pickedColor
-        self.present(colorPicker, animated: true)
     }
 }

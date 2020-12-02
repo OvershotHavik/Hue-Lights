@@ -14,6 +14,7 @@
 		B30753DE256EC74B00C8CA4F /* LightsListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30753DD256EC74B00C8CA4F /* LightsListVC.swift */; };
 		B30753E325718CEC00C8CA4F /* EditItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30753E225718CEC00C8CA4F /* EditItemView.swift */; };
 		B30753E825718DA900C8CA4F /* EditGroupVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30753E725718DA900C8CA4F /* EditGroupVC.swift */; };
+		B318246525779F6600D9D06E /* SchedulesListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B318246425779F6600D9D06E /* SchedulesListVC.swift */; };
 		B37EEA492561A975003FBC42 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA482561A975003FBC42 /* AppDelegate.swift */; };
 		B37EEA4B2561A975003FBC42 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA4A2561A975003FBC42 /* SceneDelegate.swift */; };
 		B37EEA522561A976003FBC42 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B37EEA512561A976003FBC42 /* Assets.xcassets */; };
@@ -60,6 +61,7 @@
 		B30753DD256EC74B00C8CA4F /* LightsListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightsListVC.swift; sourceTree = "<group>"; };
 		B30753E225718CEC00C8CA4F /* EditItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditItemView.swift; sourceTree = "<group>"; };
 		B30753E725718DA900C8CA4F /* EditGroupVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditGroupVC.swift; sourceTree = "<group>"; };
+		B318246425779F6600D9D06E /* SchedulesListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulesListVC.swift; sourceTree = "<group>"; };
 		B37EEA452561A975003FBC42 /* Hue Lights.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Hue Lights.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B37EEA482561A975003FBC42 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B37EEA4A2561A975003FBC42 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -203,6 +205,7 @@
 				B3D2E0EA2572939100B4B46B /* ModifyGroupList.swift */,
 				B30753E725718DA900C8CA4F /* EditGroupVC.swift */,
 				B3A66A752573FEF100EAAB8C /* EditLightVC.swift */,
+				B318246425779F6600D9D06E /* SchedulesListVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -394,6 +397,7 @@
 				B30753E825718DA900C8CA4F /* EditGroupVC.swift in Sources */,
 				B3AF8F0425669EFE0060C968 /* HueLightsCell.swift in Sources */,
 				B30753E325718CEC00C8CA4F /* EditItemView.swift in Sources */,
+				B318246525779F6600D9D06E /* SchedulesListVC.swift in Sources */,
 				B37EEA822561A9B4003FBC42 /* MainVC.swift in Sources */,
 				B307539A256C199600C8CA4F /* ConvertColor.swift in Sources */,
 				B3D2E0F62573CF3F00B4B46B /* Alert.swift in Sources */,

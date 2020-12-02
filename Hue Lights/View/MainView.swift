@@ -29,6 +29,13 @@ class MainView: UIView {
         button.addTarget(self, action: #selector(getInfo), for: .touchUpInside)
         return button
     }()
+    fileprivate var btnGetSchedulesInfo : UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(UI.schedules, for: .normal)
+        button.addTarget(self, action: #selector(getInfo), for: .touchUpInside)
+        return button
+    }()
     lazy var lblTitle : UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -49,6 +56,7 @@ class MainView: UIView {
         backgroundColor = UI.backgroundColor
         addSubview(btnGetLightInfo)
         addSubview(btnGetGroupInfo)
+        addSubview(btnGetSchedulesInfo)
         addSubview(lblTitle)
         setupConstraints()
     }
@@ -56,11 +64,14 @@ class MainView: UIView {
     func setupConstraints(){
         let safeArea = self.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
-            btnGetLightInfo.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor, constant: -50),
+            btnGetLightInfo.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor, constant: -100),
             btnGetLightInfo.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
             
-            btnGetGroupInfo.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor, constant: 50),
+            btnGetGroupInfo.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor),
             btnGetGroupInfo.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            
+            btnGetSchedulesInfo.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor, constant: 100),
+            btnGetSchedulesInfo.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
         ])
     }
     

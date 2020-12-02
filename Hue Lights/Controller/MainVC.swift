@@ -82,7 +82,7 @@ extension MainVC: GetDelegate{
                             GroupListController.title = UI.groups
                             self.navigationController?.pushViewController(GroupListController, animated: true)
                         }
-                    case UI.scenese: print("Not setup yet")
+                    case UI.schedules: print("Not setup yet")
                     default: print("Not setup in get tapped on main vc")
                     }
                 } catch let e {
