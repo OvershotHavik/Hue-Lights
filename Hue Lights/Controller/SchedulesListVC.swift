@@ -7,39 +7,10 @@
 
 import UIKit
 
-class ScheduleListVC: UIViewController, UITableViewDelegate, UITableViewDataSource{
-    weak var delegate: ListSelectionControllerDelegate?
-    private var filtered = [String]()
-    
-    struct Cells {
-        static let cell = "HueLightsCell"
-    }
-    lazy var tableView : UITableView = {
-        let tableView = UITableView()
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.rowHeight = 80
-//        tableView.allowsSelection = false
-        tableView.register(ListCell.self, forCellReuseIdentifier: Cells.cell)
-        tableView.backgroundColor = .clear
-        return tableView
-    }()
-    let searchController: UISearchController = {
-        let searchController = UISearchController(searchResultsController: nil)
-        searchController.searchBar.translatesAutoresizingMaskIntoConstraints = false
-        searchController.searchBar.accessibilityIdentifier = "SearchBar"
-        searchController.searchBar.placeholder = "Search"
-        searchController.searchBar.sizeToFit()
-        searchController.hidesNavigationBarDuringPresentation = false
-        searchController.searchBar.returnKeyType = .done
-        return searchController
-    }()
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        searchController.searchBar.isTranslucent = false
-        navigationItem.searchController = searchController
-    }
+class ScheduleListVC: ListController{
+    fileprivate var filtered = [String]()
+    fileprivate var scheduleArray = [HueModel.Schedules]()
+    fileprivate var hueResults = [HueModel]()
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         guard let delegate = delegate else {
@@ -47,38 +18,67 @@ class ScheduleListVC: UIViewController, UITableViewDelegate, UITableViewDataSour
             return
         }
         filtered = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
+        hueResults = delegate.hueResults
+        for schedule in hueResults{
+            scheduleArray.append(contentsOf: schedule.schedules.values)
+        }
         self.tableView.reloadData()
         setup()
     }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        colorPicker.delegate = self
+        tableView.register(ListCell.self, forCellReuseIdentifier: Cells.cell) // change the cell depending on which VC is using this
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.rowHeight = 50
+        searchController.searchBar.isTranslucent = false
+        navigationItem.searchController = searchController
+//        searchController.searchBar.delegate = self
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! ListCell
+        cell.accessoryType = .none
+        cell.backgroundColor = .systemBackground
+        let itemRow = filtered[indexPath.row]
+        cell.lblListItem.text = itemRow
+        let onSwitch = UISwitch()
+        for x in hueResults{
+            for schedule in x.schedules{
+                if schedule.value.name == itemRow{
+                    if schedule.value.status == "disabled"{
+                        onSwitch.isOn = false
+                    } else {
+                        onSwitch.isOn = true
+                    }
+                    if let tag = Int(schedule.key){
+                        onSwitch.tag = tag
+                    }
+                }
+            }
+        }
 
-    
-    //MARK: - setup layout and constrains
-    func setup(){
-        self.view.backgroundColor = UI.backgroundColor
-        view.addSubview(tableView)
-        setupConstraints()
-    }
-    //MARK: - Setup Constraints
-    func setupConstraints(){
-        let safeArea = view.safeAreaLayoutGuide
-        NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: safeArea.topAnchor),
-            tableView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ])
-    }
-    
-    
-    
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return filtered.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell()
-        cell.textLabel?.text = filtered[indexPath.row]
+        onSwitch.addTarget(self, action: #selector(onToggled), for: .valueChanged)
+        cell.accessoryView = onSwitch
         return cell
+    }
+    
+    @objc func onToggled(sender: UISwitch){
+
+        guard let delegate = delegate else { return}
+        let scheduleNumber = sender.tag
+        print("sender tag: \(sender.tag)")
+        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/schedules/\(scheduleNumber)") else {return}
+        print(url)
+        var httpBody = [String: String]()
+        if sender.isOn == true{
+            httpBody["status"] = "enabled"
+        } else {
+            httpBody["status"] = "disabled"
+        }
+        
+        DataManager.put(url: url, httpBody: httpBody)
     }
 }

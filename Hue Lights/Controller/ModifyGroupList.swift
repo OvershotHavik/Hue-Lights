@@ -10,20 +10,11 @@ import UIKit
 protocol SelectedItems: class{
     func setSelectedItems(items: [String], ID: String)
 }
-
-class ModifyGroupList: UIViewController, UITableViewDelegate, UpdateList{
-    //    weak var updateDelegate: UpdateList?
+class ModifyGroupList: ListController{
     weak var selectedItemsDelegate : SelectedItems?
-    weak var delegate : ListSelectionControllerDelegate?
-    private var filtered : [String] = []
-    private var spinner = UIActivityIndicatorView(style: .large)
-    fileprivate var searchText = String()
-    fileprivate var tableView = UITableView()
-    fileprivate var searchBar = UISearchBar()
+    fileprivate var filtered = [String]()
     fileprivate var selectedItems : [String]
-    fileprivate var ID : String? // modified by fetch data to determine who sent the info, so it can back feed and update fileprivate any labels
-    var limit : Int
-
+    fileprivate var limit: Int
     init(limit: Int, selectedItems: [String]){
         self.limit = limit
         self.selectedItems = selectedItems
@@ -33,31 +24,6 @@ class ModifyGroupList: UIViewController, UITableViewDelegate, UpdateList{
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    
-    struct Cells {
-        static let cell = "ItemCell"
-    }
-    
-    private let searchController: UISearchController = {
-        let searchController = UISearchController(searchResultsController: nil)
-        searchController.searchBar.translatesAutoresizingMaskIntoConstraints = false
-        searchController.searchBar.accessibilityIdentifier = "SearchBar"
-        searchController.searchBar.placeholder = "Search"
-        searchController.searchBar.sizeToFit()
-        searchController.hidesNavigationBarDuringPresentation = false
-        searchController.searchBar.returnKeyType = .done
-        return searchController
-    }()
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = UI.backgroundColor
-        searchController.searchBar.isTranslucent = false
-        navigationItem.searchController = searchController
-        searchController.searchBar.delegate = self
-    }
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         guard let delegate = delegate else {
@@ -68,32 +34,18 @@ class ModifyGroupList: UIViewController, UITableViewDelegate, UpdateList{
         self.tableView.reloadData()
         setup()
     }
-    func updateList(items: [String]) {
-        filtered = items
-        tableView.reloadData()
-    }
-    //MARK: - setup layout and constrains
-    func setup(){
-        view.addSubview(tableView)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        colorPicker.delegate = self
+        tableView.register(ListCell.self, forCellReuseIdentifier: Cells.cell) // change the cell depending on which VC is using this
         tableView.delegate = self
         tableView.dataSource = self
         tableView.rowHeight = 50
-        tableView.register(ListCell.self, forCellReuseIdentifier: Cells.cell)
-        tableView.backgroundColor = .clear
-        setupConstraints()
+        searchController.searchBar.isTranslucent = false
+        navigationItem.searchController = searchController
+//        searchController.searchBar.delegate = self
     }
-    //MARK: - Setup Constraints
-    func setupConstraints(){
-        let safeArea = view.safeAreaLayoutGuide
-        NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: safeArea.topAnchor),
-            tableView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ])
-    }
-    
     //MARK: - view will disappear
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
@@ -102,14 +54,7 @@ class ModifyGroupList: UIViewController, UITableViewDelegate, UpdateList{
 //        }
         selectedItems = []
     }
-}
-
-//MARK: - UITableview Delegate and Datasource
-extension ModifyGroupList: UITableViewDataSource{
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return filtered.count
-    }
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! ListCell
         cell.accessoryType = .none
         cell.backgroundColor = .systemBackground
@@ -149,8 +94,6 @@ extension ModifyGroupList: UITableViewDataSource{
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }
-
-
 //MARK: - UISearchbar Delegate
 extension ModifyGroupList: UISearchBarDelegate {
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
@@ -173,7 +116,6 @@ extension ModifyGroupList: UISearchBarDelegate {
         tableView.reloadData()
     }
 }
-
 
 
 

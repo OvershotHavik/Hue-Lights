@@ -77,12 +77,22 @@ extension MainVC: GetDelegate{
                         }
                         
                         DispatchQueue.main.async {
-                            let GroupListController = GroupsListVC()
-                            GroupListController.delegate = self
-                            GroupListController.title = UI.groups
-                            self.navigationController?.pushViewController(GroupListController, animated: true)
+                            let groupListController = GroupsListVC()
+                            groupListController.delegate = self
+                            groupListController.title = UI.groups
+                            self.navigationController?.pushViewController(groupListController, animated: true)
                         }
                     case UI.schedules: print("Not setup yet")
+                        for schedule in resultsFromBrdige.schedules{
+                            print("Key: \(schedule.key) - Schedule Name: \(schedule.value.name)")
+                            self.sourceItems.append(schedule.value.name)
+                        }
+                        DispatchQueue.main.async {
+                            let scheduleList = ScheduleListVC()
+                            scheduleList.delegate = self
+                            scheduleList.title = UI.schedules
+                            self.navigationController?.pushViewController(scheduleList, animated: true)
+                        }
                     default: print("Not setup in get tapped on main vc")
                     }
                 } catch let e {

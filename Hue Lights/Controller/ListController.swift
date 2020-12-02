@@ -23,14 +23,12 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
     var colorPicker = UIColorPickerViewController()
     var tempChangeColorButton : UIButton? // used to update the color of the cell's button
 
-    lazy var tableView : UITableView = {
+    var tableView : UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.delegate = self
-        tableView.dataSource = self
         tableView.rowHeight = 80
 //        tableView.allowsSelection = false
-        tableView.register(HueLightsCell.self, forCellReuseIdentifier: Cells.cell)
+//        tableView.register(HueLightsCell.self, forCellReuseIdentifier: Cells.cell)
         tableView.backgroundColor = .clear
         return tableView
     }()
@@ -49,16 +47,13 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
         searchController.searchBar.returnKeyType = .done
         return searchController
     }()
-
-
-
-//    required init?(coder: NSCoder) {
-//        fatalError("init(coder:) has not been implemented")
-//    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         colorPicker.delegate = self
+        tableView.register(HueLightsCell.self, forCellReuseIdentifier: Cells.cell) // change the cell depending on which VC is using this
+        tableView.delegate = self
+        tableView.dataSource = self
         searchController.searchBar.isTranslucent = false
         navigationItem.searchController = searchController
 //        searchController.searchBar.delegate = self
@@ -79,6 +74,7 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func setup(){
         self.view.backgroundColor = UI.backgroundColor
         view.addSubview(tableView)
+
         setupConstraints()
     }
     //MARK: - Setup Constraints
