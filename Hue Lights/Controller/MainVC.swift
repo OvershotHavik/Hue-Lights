@@ -14,6 +14,7 @@ class MainVC: UIViewController, ListSelectionControllerDelegate {
     fileprivate var rootView : MainView!
     internal var bridgeIP = String()
     internal var bridgeUser = String()
+    internal var bridgeKey = String()
     let decoder = JSONDecoder()
     
     
@@ -26,7 +27,8 @@ class MainVC: UIViewController, ListSelectionControllerDelegate {
         rootView = MainView()
         self.view = rootView
         rootView.getDelegate = self
-        bridgeUser = "kagaOXDCsywZ7IbOS3EJkOg1r5CD4DBvvVc9lKC7" // Steve's Bridge Username
+        bridgeUser = "0ZaZRrSyiEoQYiw05AKrHmKsOuIcpcu1W8mb0Qox" // Steve's Bridge Username
+        bridgeKey = "68D5D9EC03F6AD7A73F95D4E148102E1" // Steve's Bridge Key
         discovery()
     }
     override func viewDidLoad() {

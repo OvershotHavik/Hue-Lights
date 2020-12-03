@@ -77,7 +77,7 @@ struct HueModel: Codable{
     struct Groups: Codable{
         
         enum CodingKeys: String, CodingKey{
-            case name, lights, sensors, type, state, recycle, action
+            case name, lights, sensors, type, state, recycle, action, stream, locations
             case groupClass = "class"
         }
         let name: String
@@ -88,6 +88,8 @@ struct HueModel: Codable{
         let recycle: Bool
         let groupClass : String
         let action: GroupAction
+        let stream: Stream?
+        let locations: [String: [Double]]?
     }
     
     //MARK: - Group State
@@ -109,6 +111,19 @@ struct HueModel: Codable{
         let ct: Int?
         let colormode : String?
     }
+    //MARK: - Groups - Stream
+    struct Stream: Codable {
+        let proxymode: String
+        let proxynode: String
+        let active: Bool
+        let owner: String?
+    }
+    //MARK: - Groups - Locations
+//    struct Locations: Codable{
+//
+//    }
+    
+    
     //MARK: - Config
     struct Config: Codable{
         let name: String
