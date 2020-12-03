@@ -9,7 +9,7 @@ import UIKit
 enum NetworkError: Error{
     case badResponse(URLResponse)
     case badURL(Error)
-    case badData(Data)
+    case badData
     case failure(Error)
 }
 enum HttpMethod: String {
@@ -33,7 +33,7 @@ class DataManager{
             }
             print("\(httpResponse.statusCode) \(httpResponse.mimeType!)")
             guard let safeData = data else {
-                try? completionHandler(.failure(.badData(data!)))
+                try? completionHandler(.failure(.badData))
                 return
             }
             try? completionHandler(.success(safeData))
@@ -41,7 +41,7 @@ class DataManager{
         task.resume()
     }
     
-    static func put(url: URL, httpBody: [String: Any]){
+    static func put(url: URL, httpBody: [String: Any], completionHandler: @escaping (Result<String, NetworkError>) throws -> Void){
         var request = URLRequest(url: url)
         request.httpMethod = "PUT"
         print(httpBody)
@@ -53,7 +53,10 @@ class DataManager{
                 if let data = data{
                     if let JSONString = String(data: data, encoding: String.Encoding.utf8){
                         print(JSONString)
+                        try? completionHandler(.success(JSONString))
                     }
+                } else {
+                    try? completionHandler(.failure(.badData))
                 }
             }.resume()
         }

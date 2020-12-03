@@ -77,6 +77,18 @@ class ScheduleListVC: ListController{
         } else {
             httpBody["status"] = "disabled"
         }
-        DataManager.put(url: url, httpBody: httpBody)
+        DataManager.put(url: url, httpBody: httpBody) { result in
+            DispatchQueue.main.async {
+                switch result{
+                case .success(let response):
+                    if response.contains("success"){
+                        //don't display an erlt if successful
+                    } else {
+                        Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                    }
+                case .failure(let e): print("Error occured: \(e)")
+                }
+            }
+        }
     }
 }

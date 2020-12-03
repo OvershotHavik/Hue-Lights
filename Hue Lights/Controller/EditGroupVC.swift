@@ -172,8 +172,18 @@ extension EditGroupVC: UpdateItem, SelectedItems{
         var httpBody = [String: Any]()
         httpBody["name"] = name
         httpBody["lights"] = self.lightNumbersInGroup
-        //will need an alert that if all lights are gone to give user an option to delete the group
-        DataManager.put(url: url, httpBody: httpBody)
-        Alert.showBasic(title: "Saved", message: "Success!", vc: self)
+        DataManager.put(url: url, httpBody: httpBody) { result in
+            DispatchQueue.main.async {
+                switch result{
+                case .success(let response):
+                    if response.contains("Success"){
+                        Alert.showBasic(title: "Saved!", message: "Successfully updated \(self.groupName)", vc: self)
+                    } else {
+                        Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                    }
+                case .failure(let e): print("Error occured: \(e)")
+                }
+            }
+        }
     }
 }

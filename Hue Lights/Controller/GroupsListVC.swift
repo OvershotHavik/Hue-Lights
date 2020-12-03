@@ -123,7 +123,19 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
         let httpBody = [
             "xy": colorXY,
         ]
-        DataManager.put(url: url, httpBody: httpBody)
+        DataManager.put(url: url, httpBody: httpBody) { result in
+            DispatchQueue.main.async {
+                switch result{
+                case .success(let response):
+                    if response.contains("success"){
+                        //don't display an erlt if successful
+                    } else {
+                        Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                    }
+                case .failure(let e): print("Error occured: \(e)")
+                }
+            }
+        }
     }
 }
 //MARK: - Hue Cell Delegate
@@ -137,7 +149,19 @@ extension GroupsListVC: HueCellDelegate{
         let httpBody = [
             "on": sender.isOn,
         ]
-        DataManager.put(url: url, httpBody: httpBody)
+        DataManager.put(url: url, httpBody: httpBody) { result in
+            DispatchQueue.main.async {
+                switch result{
+                case .success(let response):
+                    if response.contains("success"){
+                        //don't display an erlt if successful
+                    } else {
+                        Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                    }
+                case .failure(let e): print("Error occured: \(e)")
+                }
+            }
+        }
     }
     
     func brightnessSliderChanged(sender: UISlider) {
@@ -151,8 +175,19 @@ extension GroupsListVC: HueCellDelegate{
         let httpBody = [
             "bri": Int(sender.value),
         ]
-        DataManager.put(url: url, httpBody: httpBody)
-        
+        DataManager.put(url: url, httpBody: httpBody) { result in
+            DispatchQueue.main.async {
+                switch result{
+                case .success(let response):
+                    if response.contains("success"){
+                        //don't display an erlt if successful
+                    } else {
+                        Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                    }
+                case .failure(let e): print("Error occured: \(e)")
+                }
+            }
+        }
     }
     func changeLightColor(sender: UIButton) {
         print("change light color tapped")

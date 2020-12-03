@@ -126,8 +126,19 @@ extension EditLightVC: UpdateItem, SelectedItems{
                 guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights/\(safeKey)") else {return}
                 print(url)
                 let httpBody = ["name" : name]
-                DataManager.put(url: url, httpBody: httpBody)
-                //                Alert.showBasic(title: "Saved", message: "Success!", vc: self)
+                DataManager.put(url: url, httpBody: httpBody) { result in
+                    DispatchQueue.main.async {
+                        switch result{
+                        case .success(let response):
+                            if response.contains("Success"){
+                                Alert.showBasic(title: "Saved!", message: "Successfully updated \(self.lightName)", vc: self)
+                            } else {
+                                Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                            }
+                        case .failure(let e): print("Error occured: \(e)")
+                        }
+                    }
+                }
             }
         }
         
@@ -167,7 +178,19 @@ extension EditLightVC: UpdateItem, SelectedItems{
                 groupLights.append(safeKey)
                 groupLights = groupLights.unique()
                 let httpBody = ["lights":  groupLights]
-                DataManager.put(url: url, httpBody: httpBody)
+                DataManager.put(url: url, httpBody: httpBody) { result in
+                    DispatchQueue.main.async {
+                        switch result{
+                        case .success(let response):
+                            if response.contains("success"){
+                                //don't display an erlt if successful
+                            } else {
+                                Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                            }
+                        case .failure(let e): print("Error occured: \(e)")
+                        }
+                    }
+                }
             }
         }
     }
@@ -192,7 +215,19 @@ extension EditLightVC: UpdateItem, SelectedItems{
             guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(safeGroupNumber)") else {return}
             print(url)
             let httpBody = ["lights": safeGroupLights]
-            DataManager.put(url: url, httpBody: httpBody)
+            DataManager.put(url: url, httpBody: httpBody) { result in
+                DispatchQueue.main.async {
+                    switch result{
+                    case .success(let response):
+                        if response.contains("success"){
+                            //don't display an erlt if successful
+                        } else {
+                            Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                        }
+                    case .failure(let e): print("Error occured: \(e)")
+                    }
+                }
+            }
         }
     }
     
