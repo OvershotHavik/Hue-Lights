@@ -9,7 +9,7 @@ import UIKit
 
 class SceneListVC: ListController{
     fileprivate var filtered = [String]()
-//    fileprivate var scheduleArray = [HueModel.Schedules]()
+    fileprivate var sceneArray = [HueModel.Scenes]()
     fileprivate var hueResults = [HueModel]()
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -19,11 +19,11 @@ class SceneListVC: ListController{
         }
         filtered = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
         hueResults = delegate.hueResults
-        /*
-        for schedule in hueResults{
-            scheduleArray.append(contentsOf: schedule.schedules.values)
+        
+        for x in hueResults{
+            sceneArray.append(contentsOf: x.scenes.values)
         }
-        */
+        
         self.tableView.reloadData()
         setup()
     }
@@ -77,5 +77,25 @@ class SceneListVC: ListController{
         cell.accessoryView = onSwitch
  */
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let delegate = delegate else {
+            assertionFailure("Set the delegate")
+            return
+        }
+        print("scene: \(filtered[indexPath.row])")
+        let selectedScene = filtered[indexPath.row]
+        var sceneID = String()
+        for x in hueResults{
+            for scene in x.scenes{
+                if scene.value.name == selectedScene{
+                    sceneID = scene.key
+                }
+            }
+        }
+//        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/scenes/\(sceneID)/state") else {return}
+//        url will need corrected for the scene api
+//        enable the scene when user clicks the row
     }
 }

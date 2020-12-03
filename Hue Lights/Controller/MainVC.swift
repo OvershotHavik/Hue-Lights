@@ -72,6 +72,8 @@ extension MainVC: GetDelegate{
                             lightlistVC.title = UI.lights
                             self.navigationController?.pushViewController(lightlistVC, animated: true)
                         }
+                        
+//MARK: - Groups
                     case UI.groups:
                         for group in resultsFromBrdige.groups{
                             print("Key: \(group.key) - Group Name: \(group.value.name)")
@@ -84,6 +86,8 @@ extension MainVC: GetDelegate{
                             groupListController.title = UI.groups
                             self.navigationController?.pushViewController(groupListController, animated: true)
                         }
+                        
+//MARK: - Schedules
                     case UI.schedules: print("Not setup yet")
                         for schedule in resultsFromBrdige.schedules{
                             print("Key: \(schedule.key) - Schedule Name: \(schedule.value.name)")
@@ -94,17 +98,6 @@ extension MainVC: GetDelegate{
                             scheduleList.delegate = self
                             scheduleList.title = UI.schedules
                             self.navigationController?.pushViewController(scheduleList, animated: true)
-                        }
-                    case UI.scenes:
-                        for scene in resultsFromBrdige.scenes{
-                            print("Scene name: \(scene.value.name)")
-                            self.sourceItems.append(scene.value.name)
-                        }
-                        DispatchQueue.main.async {
-                            let sceneList = SceneListVC()
-                            sceneList.delegate = self
-                            sceneList.title = UI.scenes
-                            self.navigationController?.pushViewController(sceneList, animated: true)
                         }
                     default: print("Not setup in get tapped on main vc")
                     }
