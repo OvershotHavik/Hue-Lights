@@ -47,7 +47,7 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
         searchController.searchBar.returnKeyType = .done
         return searchController
     }()
-    
+    /*
     override func viewDidLoad() {
         super.viewDidLoad()
         colorPicker.delegate = self
@@ -57,7 +57,10 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
         searchController.searchBar.isTranslucent = false
         navigationItem.searchController = searchController
 //        searchController.searchBar.delegate = self
+        setup()
     }
+ */
+    /*
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         guard let delegate = delegate else {
@@ -66,9 +69,8 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
         }
         filtered = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
         self.tableView.reloadData()
-        setup()
     }
-
+*/
     
     //MARK: - setup layout and constrains
     func setup(){

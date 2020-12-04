@@ -11,8 +11,20 @@ class SceneListVC: ListController{
     fileprivate var filtered = [String]()
     fileprivate var sceneArray = [HueModel.Scenes]()
     fileprivate var hueResults = [HueModel]()
+    fileprivate var groupNumber: String
+    init(groupNumber: String) {
+        self.groupNumber = groupNumber
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    
     override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+        super.viewWillAppear(true)
+//        super.viewWillAppear(animated)
         guard let delegate = delegate else {
             assertionFailure("Set the delegate")
             return
@@ -25,7 +37,6 @@ class SceneListVC: ListController{
         }
         
         self.tableView.reloadData()
-        setup()
     }
     
     override func viewDidLoad() {
@@ -38,6 +49,7 @@ class SceneListVC: ListController{
         searchController.searchBar.isTranslucent = false
         navigationItem.searchController = searchController
 //        searchController.searchBar.delegate = self
+        setup()
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -78,7 +90,9 @@ class SceneListVC: ListController{
  */
         return cell
     }
-    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return filtered.count
+    }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let delegate = delegate else {
             assertionFailure("Set the delegate")
@@ -94,8 +108,23 @@ class SceneListVC: ListController{
                 }
             }
         }
-//        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/scenes/\(sceneID)/state") else {return}
-//        url will need corrected for the scene api
-//        enable the scene when user clicks the row
+        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/groups/\(groupNumber)/action") else {return}
+        print(url)
+        let httpBody = [
+            "scene": sceneID
+        ]
+        DataManager.put(url: url, httpBody: httpBody) { result in
+            DispatchQueue.main.async {
+                switch result{
+                case .success(let response):
+                    if response.contains("success"){
+                        //don't display an erlt if successful
+                    } else {
+                        Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                    }
+                case .failure(let e): print("Error occured: \(e)")
+                }
+            }
+        }
     }
 }

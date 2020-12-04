@@ -67,7 +67,7 @@ extension MainVC: GetDelegate{
                             self.sourceItems.append(light.value.name)
                         }
                         DispatchQueue.main.async {
-                            let lightlistVC = LightsListVC()
+                            let lightlistVC = LightsListVC(showingGroup: false)
                             lightlistVC.delegate = self
                             lightlistVC.title = UI.lights
                             self.navigationController?.pushViewController(lightlistVC, animated: true)

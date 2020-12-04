@@ -21,8 +21,35 @@ class LightsListVC: ListController, ListSelectionControllerDelegate{
     private var lightsArray = [String]()
     private var hueLights = [HueModel.Light]()
     internal var hueResults = [HueModel]()
-//    fileprivate var groupName : String?
-//    fileprivate var groupNumber : String?
+    private var showingGroup: Bool
+    
+    var btnScenes: UIButton = {
+       let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(UI.scenes, for: .normal)
+        button.addTarget(self, action: #selector(scenesTapped), for: .touchUpInside)
+        return button
+    }()
+    init(showingGroup: Bool) {
+        self.showingGroup = showingGroup
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    //MARK: - View Did Load
+    override func viewDidLoad() {
+        tableView.register(HueLightsCell.self, forCellReuseIdentifier: Cells.cell) // change the cell depending on which VC is using this
+        tableView.delegate = self
+        tableView.dataSource = self
+        if showingGroup == false{
+            setup()
+        } else {
+            groupsSetup()
+        }
+    }
+    //MARK: - View Will Appear
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         guard let delegate = delegate else {
@@ -42,9 +69,56 @@ class LightsListVC: ListController, ListSelectionControllerDelegate{
         }
         self.tableView.reloadData()
         searchController.searchBar.delegate = self
-        setup()
+    }
+    //MARK: - Group Setup
+    func groupsSetup(){
+        self.view.backgroundColor = UI.backgroundColor
+        view.addSubview(btnScenes)
+        view.addSubview(tableView)
+        
+        let safeArea = view.safeAreaLayoutGuide
+        //deactivate existing constraints from listController
+        NSLayoutConstraint.deactivate([
+            super.tableView.topAnchor.constraint(equalTo: safeArea.topAnchor),
+            super.tableView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor),
+            super.tableView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor),
+            super.tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
+        self.view.layoutIfNeeded()
+        NSLayoutConstraint.activate([
+            btnScenes.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: UI.verticalSpacing),
+            btnScenes.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            btnScenes.heightAnchor.constraint(equalToConstant: 40),
+//            btnScenes.bottomAnchor.constraint(equalTo: tableView.topAnchor, constant: UI.verticalSpacing),
+            
+//            tableView.topAnchor.constraint(equalTo: btnScenes.bottomAnchor, constant: UI.verticalSpacing),
+            tableView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 50),
+            tableView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
+//        self.view.layoutIfNeeded()
+
     }
     
+    @objc func scenesTapped(){
+        guard let editingGroupDelegate = editingGroupDelegate else {return}
+        print("show scene in group list")
+        self.sourceItems = []
+        for x in hueResults{
+            for scene in x.scenes{
+                if scene.value.group == editingGroupDelegate.groupNumber{
+                    self.sourceItems.append(scene.value.name)
+                }
+            }
+        }
+        DispatchQueue.main.async {
+            let sceneList = SceneListVC(groupNumber: editingGroupDelegate.groupNumber)
+            sceneList.delegate = self
+            sceneList.title = UI.scenes
+            self.navigationController?.pushViewController(sceneList, animated: true)
+        }
+    }
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return lightsArray.count
     }

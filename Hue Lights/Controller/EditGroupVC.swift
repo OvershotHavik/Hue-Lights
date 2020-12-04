@@ -49,7 +49,6 @@ class EditGroupVC: UIViewController, ListSelectionControllerDelegate{
         hueResults = delegate.hueResults
         self.view = rootView
         rootView.updateGroupDelegate = self
-        rootView.applyToGroupDelegate = self
         updateListOnView()
         lightNumbersInGroup = getNumberFromName(lightNames: lightNameInGroup)
     }
@@ -188,26 +187,4 @@ extension EditGroupVC: UpdateItem, SelectedItems{
             }
         }
     }
-}
-
-extension EditGroupVC: ApplyToGroup{
-    func showScenes() {
-        print("show scene in editgroupvc")
-        self.sourceItems = []
-        for x in hueResults{
-            for scene in x.scenes{
-                if scene.value.group == groupNumber{
-                    self.sourceItems.append(scene.value.name)
-                }
-            }
-        }
-        DispatchQueue.main.async {
-            let sceneList = SceneListVC()
-            sceneList.delegate = self
-            sceneList.title = UI.scenes
-            self.navigationController?.pushViewController(sceneList, animated: true)
-        }
-    }
-    
-    
 }

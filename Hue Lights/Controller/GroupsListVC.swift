@@ -9,20 +9,32 @@ import UIKit
 
 class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGroup{
     var groupName: String = ""
-    
     var groupNumber: String = ""
-    
     var sourceItems: [String] = []
     var bridgeIP: String = ""
     var bridgeUser: String = ""
     
 
+
     private var groupsArray = [String]()
     private var hueGroups = [HueModel.Groups]()
     internal var hueResults = [HueModel]()
     
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        colorPicker.delegate = self
+        tableView.register(HueLightsCell.self, forCellReuseIdentifier: Cells.cell) // change the cell depending on which VC is using this
+        tableView.delegate = self
+        tableView.dataSource = self
+        searchController.searchBar.isTranslucent = false
+        navigationItem.searchController = searchController
+//        searchController.searchBar.delegate = self
+        setup()
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+//        super.viewWillAppear(animated)
         guard let delegate = delegate else {
             assertionFailure("Set the delegate")
             return
@@ -36,9 +48,46 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
         }
         self.tableView.reloadData()
         searchController.searchBar.delegate = self
-        setup()
+//        groupsSetup()
     }
-    
+    /*
+    func groupsSetup(){
+        self.view.backgroundColor = UI.backgroundColor
+        view.addSubview(tableView)
+        view.addSubview(btnScenes)
+        
+        let safeArea = view.safeAreaLayoutGuide
+        NSLayoutConstraint.activate([
+            btnScenes.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: UI.verticalSpacing),
+            btnScenes.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            btnScenes.heightAnchor.constraint(equalToConstant: 40),
+            btnScenes.bottomAnchor.constraint(equalTo: tableView.topAnchor, constant: UI.verticalSpacing),
+            
+            tableView.topAnchor.constraint(equalTo: safeArea.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
+    }
+
+    @objc func scenesTapped(){
+        print("show scene in group list")
+        self.sourceItems = []
+        for x in hueResults{
+            for scene in x.scenes{
+                if scene.value.group == groupNumber{
+                    self.sourceItems.append(scene.value.name)
+                }
+            }
+        }
+        DispatchQueue.main.async {
+            let sceneList = SceneListVC(groupNumber: self.groupNumber)
+            sceneList.delegate = self
+            sceneList.title = UI.scenes
+            self.navigationController?.pushViewController(sceneList, animated: true)
+        }
+    }
+ */
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return groupsArray.count
     }
@@ -98,7 +147,7 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
             }
         }
         DispatchQueue.main.async {
-            let lightlistVC = LightsListVC()
+            let lightlistVC = LightsListVC(showingGroup: true)
             lightlistVC.delegate = self
             lightlistVC.editingGroupDelegate = self
             lightlistVC.title = self.groupsArray[indexPath.row]
@@ -143,8 +192,8 @@ extension GroupsListVC: HueCellDelegate{
     func onSwitchToggled(sender: UISwitch) {
         guard let delegate = delegate else { return}
         print("Sender's Tag: \(sender.tag)")
-        let lightNumber = sender.tag
-        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/groups/\(lightNumber)/action") else {return}
+        let groupNumber = sender.tag
+        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/groups/\(groupNumber)/action") else {return}
         print(url)
         let httpBody = [
             "on": sender.isOn,

@@ -46,13 +46,6 @@ class EditItemView: UIView{
         button.addTarget(self, action: #selector(editLightsTapped), for: .touchUpInside)
         return button
     }()
-    private var btnScene: UIButton = {
-       let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(UI.scenes, for: .normal)
-        button.addTarget(self, action: #selector(sceneTapped), for: .touchUpInside)
-        return button
-    }()
     private var btnSave : UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -77,7 +70,6 @@ class EditItemView: UIView{
         self.addSubview(tfChangeName)
         self.addSubview(label)
         self.addSubview(btnEdit)
-        self.addSubview(btnScene)
         self.addSubview(btnSave)
         setupConstraints()
     }
@@ -95,9 +87,6 @@ class EditItemView: UIView{
             
             btnEdit.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
             btnEdit.topAnchor.constraint(equalTo: label.bottomAnchor, constant: UI.verticalSpacing),
-            
-            btnScene.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
-            btnScene.topAnchor.constraint(equalTo: btnEdit.bottomAnchor, constant: UI.verticalSpacing),
             
             
             btnSave.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),

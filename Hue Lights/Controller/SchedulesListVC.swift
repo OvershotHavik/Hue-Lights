@@ -23,7 +23,6 @@ class ScheduleListVC: ListController{
             scheduleArray.append(contentsOf: schedule.schedules.values)
         }
         self.tableView.reloadData()
-        setup()
     }
     
     override func viewDidLoad() {
@@ -36,6 +35,7 @@ class ScheduleListVC: ListController{
         searchController.searchBar.isTranslucent = false
         navigationItem.searchController = searchController
 //        searchController.searchBar.delegate = self
+        setup()
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
