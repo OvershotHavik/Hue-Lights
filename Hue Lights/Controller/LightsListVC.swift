@@ -77,21 +77,11 @@ class LightsListVC: ListController, ListSelectionControllerDelegate{
         view.addSubview(tableView)
         
         let safeArea = view.safeAreaLayoutGuide
-        //deactivate existing constraints from listController
-        NSLayoutConstraint.deactivate([
-            super.tableView.topAnchor.constraint(equalTo: safeArea.topAnchor),
-            super.tableView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor),
-            super.tableView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor),
-            super.tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ])
-        self.view.layoutIfNeeded()
         NSLayoutConstraint.activate([
             btnScenes.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: UI.verticalSpacing),
             btnScenes.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
-            btnScenes.heightAnchor.constraint(equalToConstant: 40),
-//            btnScenes.bottomAnchor.constraint(equalTo: tableView.topAnchor, constant: UI.verticalSpacing),
-            
-//            tableView.topAnchor.constraint(equalTo: btnScenes.bottomAnchor, constant: UI.verticalSpacing),
+            btnScenes.heightAnchor.constraint(equalToConstant: 40),            
+
             tableView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 50),
             tableView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor),
