@@ -32,6 +32,8 @@
 		B3AF8EFF25669CFB0060C968 /* ListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AF8EFE25669CFA0060C968 /* ListController.swift */; };
 		B3AF8F0425669EFE0060C968 /* HueLightsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AF8F0325669EFE0060C968 /* HueLightsCell.swift */; };
 		B3AF8F092566A6B30060C968 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AF8F082566A6B20060C968 /* Constants.swift */; };
+		B3CC3E0B257CE93F00058933 /* EditSceneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3CC3E0A257CE93F00058933 /* EditSceneView.swift */; };
+		B3CC3E11257CEA3900058933 /* EditSceneVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3CC3E10257CEA3900058933 /* EditSceneVC.swift */; };
 		B3D2E0EB2572939100B4B46B /* ModifyGroupList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D2E0EA2572939100B4B46B /* ModifyGroupList.swift */; };
 		B3D2E0F02572949A00B4B46B /* ListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D2E0EF2572949A00B4B46B /* ListCell.swift */; };
 		B3D2E0F62573CF3F00B4B46B /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D2E0F52573CF3F00B4B46B /* Alert.swift */; };
@@ -87,6 +89,8 @@
 		B3AF8EFE25669CFA0060C968 /* ListController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListController.swift; sourceTree = "<group>"; };
 		B3AF8F0325669EFE0060C968 /* HueLightsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HueLightsCell.swift; sourceTree = "<group>"; };
 		B3AF8F082566A6B20060C968 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		B3CC3E0A257CE93F00058933 /* EditSceneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditSceneView.swift; sourceTree = "<group>"; };
+		B3CC3E10257CEA3900058933 /* EditSceneVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditSceneVC.swift; sourceTree = "<group>"; };
 		B3D2E0EA2572939100B4B46B /* ModifyGroupList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModifyGroupList.swift; sourceTree = "<group>"; };
 		B3D2E0EF2572949A00B4B46B /* ListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCell.swift; sourceTree = "<group>"; };
 		B3D2E0F52573CF3F00B4B46B /* Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
@@ -195,6 +199,7 @@
 			children = (
 				B37EEA862561A9DE003FBC42 /* MainView.swift */,
 				B30753E225718CEC00C8CA4F /* EditItemView.swift */,
+				B3CC3E0A257CE93F00058933 /* EditSceneView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -202,17 +207,26 @@
 		B37EEA8F2561AB7A003FBC42 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				B3CC3E0F257CE9FA00058933 /* List Controllers */,
 				B37EEA812561A9B4003FBC42 /* MainVC.swift */,
-				B3AF8EFE25669CFA0060C968 /* ListController.swift */,
-				B30753D2256EB6CD00C8CA4F /* GroupsListVC.swift */,
-				B30753DD256EC74B00C8CA4F /* LightsListVC.swift */,
-				B3D2E0EA2572939100B4B46B /* ModifyGroupList.swift */,
 				B30753E725718DA900C8CA4F /* EditGroupVC.swift */,
 				B3A66A752573FEF100EAAB8C /* EditLightVC.swift */,
+				B3CC3E10257CEA3900058933 /* EditSceneVC.swift */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+		B3CC3E0F257CE9FA00058933 /* List Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				B3AF8EFE25669CFA0060C968 /* ListController.swift */,
+				B30753DD256EC74B00C8CA4F /* LightsListVC.swift */,
+				B30753D2256EB6CD00C8CA4F /* GroupsListVC.swift */,
+				B3D2E0EA2572939100B4B46B /* ModifyGroupList.swift */,
 				B318246425779F6600D9D06E /* SchedulesListVC.swift */,
 				B318249B2577F24E00D9D06E /* SceneListVC.swift */,
 			);
-			path = Controller;
+			path = "List Controllers";
 			sourceTree = "<group>";
 		};
 		B3DA93CB2561B5EA004BF5E1 /* Model */ = {
@@ -406,8 +420,10 @@
 				B3AF8F0425669EFE0060C968 /* HueLightsCell.swift in Sources */,
 				B30753E325718CEC00C8CA4F /* EditItemView.swift in Sources */,
 				B318246525779F6600D9D06E /* SchedulesListVC.swift in Sources */,
+				B3CC3E0B257CE93F00058933 /* EditSceneView.swift in Sources */,
 				B37EEA822561A9B4003FBC42 /* MainVC.swift in Sources */,
 				B307539A256C199600C8CA4F /* ConvertColor.swift in Sources */,
+				B3CC3E11257CEA3900058933 /* EditSceneVC.swift in Sources */,
 				B3D2E0F62573CF3F00B4B46B /* Alert.swift in Sources */,
 				B37EEA4B2561A975003FBC42 /* SceneDelegate.swift in Sources */,
 			);

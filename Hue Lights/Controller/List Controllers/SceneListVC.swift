@@ -124,4 +124,25 @@ class SceneListVC: ListController, UISearchBarDelegate{
             }
         }
     }
+    
+
+
+     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+         let edit = self.edit(indexPath: indexPath)
+         let swipe = UISwipeActionsConfiguration(actions: [edit])
+         return swipe
+     }
+    func edit(indexPath: IndexPath) -> UIContextualAction {
+         let action = UIContextualAction(style: .normal, title: "Edit") { (_, _, _) in
+             print("Take user to edit scene")
+            DispatchQueue.main.async {
+                let editScene = EditSceneVC(sceneName: self.filtered[indexPath.row])
+                
+                self.navigationController?.pushViewController(editScene, animated: true)
+            }
+            
+            
+         }
+         return action
+     }
 }
