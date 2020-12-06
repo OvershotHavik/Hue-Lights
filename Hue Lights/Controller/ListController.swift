@@ -8,7 +8,6 @@
 import UIKit
 protocol ListSelectionControllerDelegate : class {
     var sourceItems : [String] {get}
-//    var hueLights : [HueModel.Light] {get}
     var hueResults : [HueModel] {get}
     var bridgeIP : String {get}
     var bridgeUser: String {get}
@@ -27,8 +26,6 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.rowHeight = 80
-//        tableView.allowsSelection = false
-//        tableView.register(HueLightsCell.self, forCellReuseIdentifier: Cells.cell)
         tableView.backgroundColor = .clear
         return tableView
     }()
@@ -47,36 +44,11 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
         searchController.searchBar.returnKeyType = .done
         return searchController
     }()
-    /*
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        colorPicker.delegate = self
-        tableView.register(HueLightsCell.self, forCellReuseIdentifier: Cells.cell) // change the cell depending on which VC is using this
-        tableView.delegate = self
-        tableView.dataSource = self
-        searchController.searchBar.isTranslucent = false
-        navigationItem.searchController = searchController
-//        searchController.searchBar.delegate = self
-        setup()
-    }
- */
-    /*
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        guard let delegate = delegate else {
-            assertionFailure("Set the delegate")
-            return
-        }
-        filtered = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
-        self.tableView.reloadData()
-    }
-*/
     
     //MARK: - setup layout and constrains
     func setup(){
         self.view.backgroundColor = UI.backgroundColor
         view.addSubview(tableView)
-
         setupConstraints()
     }
     //MARK: - Setup Constraints
@@ -96,7 +68,8 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return filtered.count
+        //being overridden in sub classess
+        return 0
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

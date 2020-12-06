@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SceneListVC: ListController{
+class SceneListVC: ListController, UISearchBarDelegate{
     fileprivate var filtered = [String]()
     fileprivate var sceneArray = [HueModel.Scenes]()
     fileprivate var hueResults = [HueModel]()
@@ -24,18 +24,15 @@ class SceneListVC: ListController{
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-//        super.viewWillAppear(animated)
         guard let delegate = delegate else {
             assertionFailure("Set the delegate")
             return
         }
         filtered = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
         hueResults = delegate.hueResults
-        
         for x in hueResults{
             sceneArray.append(contentsOf: x.scenes.values)
         }
-        
         self.tableView.reloadData()
     }
     
@@ -48,7 +45,7 @@ class SceneListVC: ListController{
         tableView.rowHeight = 50
         searchController.searchBar.isTranslucent = false
         navigationItem.searchController = searchController
-//        searchController.searchBar.delegate = self
+        searchController.searchBar.delegate = self
         setup()
     }
     
@@ -118,7 +115,7 @@ class SceneListVC: ListController{
                 switch result{
                 case .success(let response):
                     if response.contains("success"){
-                        //don't display an erlt if successful
+                        //don't display an alert if successful
                     } else {
                         Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
                     }

@@ -32,7 +32,6 @@ class ModifyGroupList: ListController{
         }
         filtered = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
         self.tableView.reloadData()
-        setup()
     }
     
     override func viewDidLoad() {
@@ -44,7 +43,8 @@ class ModifyGroupList: ListController{
         tableView.rowHeight = 50
         searchController.searchBar.isTranslucent = false
         navigationItem.searchController = searchController
-//        searchController.searchBar.delegate = self
+        searchController.searchBar.delegate = self
+        setup()
     }
     //MARK: - view will disappear
     override func viewWillDisappear(_ animated: Bool) {
@@ -53,6 +53,9 @@ class ModifyGroupList: ListController{
             selectedItemsDelegate?.setSelectedItems(items: selectedItems, ID: "")
 //        }
         selectedItems = []
+    }
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return filtered.count
     }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! ListCell
@@ -93,6 +96,7 @@ class ModifyGroupList: ListController{
         print("Selected items: \(selectedItems)")
         tableView.deselectRow(at: indexPath, animated: true)
     }
+    
 }
 //MARK: - UISearchbar Delegate
 extension ModifyGroupList: UISearchBarDelegate {

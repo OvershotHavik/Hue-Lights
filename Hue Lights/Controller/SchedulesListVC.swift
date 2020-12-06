@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ScheduleListVC: ListController{
+class ScheduleListVC: ListController, UISearchBarDelegate{
     fileprivate var filtered = [String]()
     fileprivate var scheduleArray = [HueModel.Schedules]()
     fileprivate var hueResults = [HueModel]()
@@ -34,8 +34,11 @@ class ScheduleListVC: ListController{
         tableView.rowHeight = 50
         searchController.searchBar.isTranslucent = false
         navigationItem.searchController = searchController
-//        searchController.searchBar.delegate = self
+        searchController.searchBar.delegate = self
         setup()
+    }
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return filtered.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -82,7 +85,7 @@ class ScheduleListVC: ListController{
                 switch result{
                 case .success(let response):
                     if response.contains("success"){
-                        //don't display an erlt if successful
+                        //don't display an alert if successful
                     } else {
                         Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
                     }

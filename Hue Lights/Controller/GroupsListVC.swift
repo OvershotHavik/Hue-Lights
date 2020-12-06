@@ -29,12 +29,12 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
         tableView.dataSource = self
         searchController.searchBar.isTranslucent = false
         navigationItem.searchController = searchController
-//        searchController.searchBar.delegate = self
+        searchController.searchBar.delegate = self
         setup()
     }
     
     override func viewWillAppear(_ animated: Bool) {
-//        super.viewWillAppear(animated)
+        super.viewWillAppear(true)
         guard let delegate = delegate else {
             assertionFailure("Set the delegate")
             return
@@ -47,47 +47,8 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
             hueGroups.append(contentsOf: x.groups.values)
         }
         self.tableView.reloadData()
-        searchController.searchBar.delegate = self
-//        groupsSetup()
-    }
-    /*
-    func groupsSetup(){
-        self.view.backgroundColor = UI.backgroundColor
-        view.addSubview(tableView)
-        view.addSubview(btnScenes)
-        
-        let safeArea = view.safeAreaLayoutGuide
-        NSLayoutConstraint.activate([
-            btnScenes.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: UI.verticalSpacing),
-            btnScenes.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
-            btnScenes.heightAnchor.constraint(equalToConstant: 40),
-            btnScenes.bottomAnchor.constraint(equalTo: tableView.topAnchor, constant: UI.verticalSpacing),
-            
-            tableView.topAnchor.constraint(equalTo: safeArea.topAnchor),
-            tableView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ])
     }
 
-    @objc func scenesTapped(){
-        print("show scene in group list")
-        self.sourceItems = []
-        for x in hueResults{
-            for scene in x.scenes{
-                if scene.value.group == groupNumber{
-                    self.sourceItems.append(scene.value.name)
-                }
-            }
-        }
-        DispatchQueue.main.async {
-            let sceneList = SceneListVC(groupNumber: self.groupNumber)
-            sceneList.delegate = self
-            sceneList.title = UI.scenes
-            self.navigationController?.pushViewController(sceneList, animated: true)
-        }
-    }
- */
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return groupsArray.count
     }
@@ -177,7 +138,7 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
                 switch result{
                 case .success(let response):
                     if response.contains("success"){
-                        //don't display an erlt if successful
+                        //don't display an alert if successful
                     } else {
                         Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
                     }
@@ -203,7 +164,7 @@ extension GroupsListVC: HueCellDelegate{
                 switch result{
                 case .success(let response):
                     if response.contains("success"){
-                        //don't display an erlt if successful
+                        //don't display an alert if successful
                     } else {
                         Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
                     }
@@ -212,8 +173,9 @@ extension GroupsListVC: HueCellDelegate{
             }
         }
     }
-    
+    //MARK: - Brightness Slider Changed
     func brightnessSliderChanged(sender: UISlider) {
+        // Will need to find a way to limit the commands to the bridge to be one command per second, otherwise an error can come up if it tries to process too many (moving the slider back and forth quickly)
         guard let delegate = delegate else { return}
         print("Brightness slider changed")
         print("Sender's Tag: \(sender.tag)")
@@ -229,7 +191,7 @@ extension GroupsListVC: HueCellDelegate{
                 switch result{
                 case .success(let response):
                     if response.contains("success"){
-                        //don't display an erlt if successful
+                        //don't display an alert if successful
                     } else {
                         Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
                     }

@@ -19,7 +19,6 @@ protocol ApplyToGroup: class{
 class EditItemView: UIView{
     weak var updateGroupDelegate: UpdateItem?
     weak var applyToGroupDelegate: ApplyToGroup?
-//    fileprivate var hueResults : [HueModel]
     fileprivate var itemName : String
     
     lazy var label : UILabel = {

@@ -17,11 +17,7 @@ class MainVC: UIViewController, ListSelectionControllerDelegate {
     internal var bridgeKey = String()
     let decoder = JSONDecoder()
     
-    
-    //Color picker setup
-    private var pickedColor = UIColor.systemBlue
-    private var colorPicker = UIColorPickerViewController()
-    
+
     override func loadView() {
         super.loadView()
         rootView = MainView()
@@ -108,9 +104,6 @@ extension MainVC: GetDelegate{
             }
         }
     }
-    
-    
-    
 }
 //MARK: - Discovery - Run once
 extension MainVC{
@@ -135,27 +128,5 @@ extension MainVC{
             case .failure(let e): print("Error: \(e)")
             }
         }
-    }
-}
-//MARK: - color picker
-extension MainVC : UIColorPickerViewControllerDelegate{
-    func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
-        pickedColor = viewController.selectedColor
-        view.backgroundColor = pickedColor
-    }
-    func colorPickerViewControllerDidFinish(_ viewController: UIColorPickerViewController) {
-        print("color picker controler did finish")
-    }
-    private func selectColor(){
-        colorPicker.supportsAlpha = true
-        colorPicker.selectedColor = pickedColor
-        self.present(colorPicker, animated: true)
-    }
-    private func setupBarButton(){
-        let pickColorAction = UIAction(title: "Pick Color") { _ in
-            self.selectColor()
-        }
-        let pickColorBarButton = UIBarButtonItem(image: UIImage(systemName: "eyedropper"), primaryAction: pickColorAction)
-        navigationItem.rightBarButtonItem = pickColorBarButton
     }
 }

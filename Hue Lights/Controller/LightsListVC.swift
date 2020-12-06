@@ -43,6 +43,7 @@ class LightsListVC: ListController, ListSelectionControllerDelegate{
         tableView.register(HueLightsCell.self, forCellReuseIdentifier: Cells.cell) // change the cell depending on which VC is using this
         tableView.delegate = self
         tableView.dataSource = self
+        colorPicker.delegate = self
         if showingGroup == false{
             setup()
         } else {
@@ -87,10 +88,8 @@ class LightsListVC: ListController, ListSelectionControllerDelegate{
             tableView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
-//        self.view.layoutIfNeeded()
-
     }
-    
+    //MARK: - Scenes Tapped
     @objc func scenesTapped(){
         guard let editingGroupDelegate = editingGroupDelegate else {return}
         print("show scene in group list")
@@ -109,10 +108,11 @@ class LightsListVC: ListController, ListSelectionControllerDelegate{
             self.navigationController?.pushViewController(sceneList, animated: true)
         }
     }
+    //MARK: - Number of Rows in section
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return lightsArray.count
     }
-    
+    //MARK: - Did Select Row
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         DispatchQueue.main.async {
@@ -122,6 +122,7 @@ class LightsListVC: ListController, ListSelectionControllerDelegate{
         }
         print("Take user to modify the individual light, change name, add to gorup, etc...")
     }
+    //MARK: - Cell for row at
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! HueLightsCell
         cell.cellDelegate = self
@@ -150,7 +151,7 @@ class LightsListVC: ListController, ListSelectionControllerDelegate{
         }
         return cell
     }
-    
+    //MARK: - Update Light Color
     override func updatLightColor(){
         guard let tempChangeColorButton = tempChangeColorButton else {return}
         guard let delegate = delegate else { return}
@@ -170,7 +171,7 @@ class LightsListVC: ListController, ListSelectionControllerDelegate{
                 switch result{
                 case .success(let response):
                     if response.contains("success"){
-                        //don't display an erlt if successful
+                        //don't display an alert if successful
                     } else {
                         Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
                     }
@@ -197,7 +198,7 @@ extension LightsListVC: HueCellDelegate{
                 switch result{
                 case .success(let response):
                     if response.contains("success"){
-                        //don't display an erlt if successful
+                        //don't display an alert if successful
                     } else {
                         Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
                     }
@@ -205,9 +206,8 @@ extension LightsListVC: HueCellDelegate{
                 }
             }
         }
-        
     }
-    
+    //MARK: - Brightness Slider Changed
     func brightnessSliderChanged(sender: UISlider) {
         guard let delegate = delegate else { return}
         print("Brightness slider changed")
@@ -224,7 +224,7 @@ extension LightsListVC: HueCellDelegate{
                 switch result{
                 case .success(let response):
                     if response.contains("success"){
-                        //don't display an erlt if successful
+                        //don't display an alert if successful
                     } else {
                         Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
                     }
@@ -233,6 +233,7 @@ extension LightsListVC: HueCellDelegate{
             }
         }
     }
+    //MARK: - Change Light Color
     func changeLightColor(sender: UIButton) {
         print("change light color tapped")
         selectColor()

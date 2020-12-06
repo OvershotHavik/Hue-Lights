@@ -130,7 +130,7 @@ extension EditLightVC: UpdateItem, SelectedItems{
                     DispatchQueue.main.async {
                         switch result{
                         case .success(let response):
-                            if response.contains("Success"){
+                            if response.contains("Success") || response.contains("success") {
                                 Alert.showBasic(title: "Saved!", message: "Successfully updated \(self.lightName)", vc: self)
                             } else {
                                 Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
@@ -183,7 +183,7 @@ extension EditLightVC: UpdateItem, SelectedItems{
                         switch result{
                         case .success(let response):
                             if response.contains("success"){
-                                //don't display an erlt if successful
+                                    Alert.showBasic(title: "Success", message: "Added to \(newGroup)", vc: self)
                             } else {
                                 Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
                             }
@@ -220,7 +220,7 @@ extension EditLightVC: UpdateItem, SelectedItems{
                     switch result{
                     case .success(let response):
                         if response.contains("success"){
-                            //don't display an erlt if successful
+                            //don't display an alert if successful
                         } else {
                             Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
                         }
