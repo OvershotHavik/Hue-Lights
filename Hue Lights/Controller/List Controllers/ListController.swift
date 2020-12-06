@@ -30,9 +30,6 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
         return tableView
     }()
     fileprivate var hueLights = [HueModel]()
-    struct Cells {
-        static let cell = "HueLightsCell"
-    }
 
     let searchController: UISearchController = {
         let searchController = UISearchController(searchResultsController: nil)

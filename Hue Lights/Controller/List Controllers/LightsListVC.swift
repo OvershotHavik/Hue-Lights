@@ -102,7 +102,7 @@ class LightsListVC: ListController, ListSelectionControllerDelegate{
             }
         }
         DispatchQueue.main.async {
-            let sceneList = SceneListVC(groupNumber: editingGroupDelegate.groupNumber)
+            let sceneList = SceneListVC(groupNumber: editingGroupDelegate.groupNumber, lightsInGroup: self.lightsArray)
             sceneList.delegate = self
             sceneList.title = UI.scenes
             self.navigationController?.pushViewController(sceneList, animated: true)

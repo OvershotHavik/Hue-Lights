@@ -12,8 +12,10 @@ class SceneListVC: ListController, UISearchBarDelegate{
     fileprivate var sceneArray = [HueModel.Scenes]()
     fileprivate var hueResults = [HueModel]()
     fileprivate var groupNumber: String
-    init(groupNumber: String) {
+    fileprivate var lightsInGroup: [String]
+    init(groupNumber: String, lightsInGroup: [String]) {
         self.groupNumber = groupNumber
+        self.lightsInGroup = lightsInGroup
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -133,15 +135,20 @@ class SceneListVC: ListController, UISearchBarDelegate{
          return swipe
      }
     func edit(indexPath: IndexPath) -> UIContextualAction {
+        
          let action = UIContextualAction(style: .normal, title: "Edit") { (_, _, _) in
              print("Take user to edit scene")
             DispatchQueue.main.async {
-                let editScene = EditSceneVC(sceneName: self.filtered[indexPath.row])
-                
-                self.navigationController?.pushViewController(editScene, animated: true)
+                if let delegate = self.delegate{
+                    let editScene = EditSceneVC(sceneName: self.filtered[indexPath.row],
+                                                sourceItems: self.lightsInGroup,
+                                                hueResults: delegate.hueResults,
+                                                bridgeIP: delegate.bridgeIP,
+                                                bridgeUser: delegate.bridgeUser)
+                    
+                    self.navigationController?.pushViewController(editScene, animated: true)
+                }
             }
-            
-            
          }
          return action
      }

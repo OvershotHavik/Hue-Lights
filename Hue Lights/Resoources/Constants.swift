@@ -17,3 +17,6 @@ class UI{
     static let scenes = "Scenes"
     static let backgroundColor = UIColor.systemBlue
 }
+struct Cells {
+    static let cell = "HueLightsCell"
+}

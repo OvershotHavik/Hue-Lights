@@ -9,19 +9,7 @@ import UIKit
 
 class EditSceneView: UIView{
     fileprivate var sceneName: String
-    private var scrollView: UIScrollView = {
-        let scroll = UIScrollView()
-        scroll.translatesAutoresizingMaskIntoConstraints = false
-        return scroll
-    }()
-    private var stackView: UIStackView = {
-        let stack  = UIStackView()
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.axis = .vertical
-        stack.spacing = UI.verticalSpacing
-        return stack
-    }()
-    
+
     lazy var tfChangeName : UITextField = {
        let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -31,8 +19,8 @@ class EditSceneView: UIView{
         textField.textColor = .black
         return textField
     }()
-    
-    private var btnSave : UIButton = {
+
+     var btnSave : UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Save", for: .normal)
@@ -53,25 +41,23 @@ class EditSceneView: UIView{
     
     func setup(){
         self.backgroundColor = UI.backgroundColor
-        addSubview(scrollView)
-        scrollView.addSubview(stackView)
-        stackView.addArrangedSubview(tfChangeName)
+        addSubview(tfChangeName)
         addSubview(btnSave)
-        
         setupConstraints()
     }
     
     func setupConstraints(){
         let safeArea = self.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: UI.verticalSpacing),
-            scrollView.widthAnchor.constraint(equalTo: safeArea.widthAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -UI.verticalSpacing),
+            tfChangeName.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: UI.verticalSpacing),
+            tfChangeName.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            tfChangeName.widthAnchor.constraint(equalToConstant: 150),
+            tfChangeName.heightAnchor.constraint(equalToConstant: 35),
+
+            //Light VC is added via the EditSceneVC where top is tf change name and bottom is btn save
             
-            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            stackView.widthAnchor.constraint(equalTo: safeArea.widthAnchor, constant: -20),
-            stackView.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            btnSave.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            btnSave.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor),
         ])
     }
     

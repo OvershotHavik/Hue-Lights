@@ -17,7 +17,6 @@ class MainVC: UIViewController, ListSelectionControllerDelegate {
     internal var bridgeKey = String()
     let decoder = JSONDecoder()
     
-
     override func loadView() {
         super.loadView()
         rootView = MainView()
