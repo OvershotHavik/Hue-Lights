@@ -217,11 +217,18 @@ struct HueModel: Codable{
         let image: String?
         let lastupdated: String
         let version: Int
+        let lightstates: [String: Lightstates]?
     }
     //MARK: - Scenese - AppData
     struct Appdata: Codable{
         let version: Int?
         let data: String?
+    }
+    //MARK: - Scenes - Lightstates
+    struct Lightstates: Codable{
+        let on: Bool
+        let bri: Int
+        let xy: [Double]
     }
     
     

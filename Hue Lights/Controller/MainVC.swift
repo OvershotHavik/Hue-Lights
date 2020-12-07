@@ -25,9 +25,38 @@ class MainVC: UIViewController, ListSelectionControllerDelegate {
         bridgeUser = "0ZaZRrSyiEoQYiw05AKrHmKsOuIcpcu1W8mb0Qox" // Steve's Bridge Username
         bridgeKey = "68D5D9EC03F6AD7A73F95D4E148102E1" // Steve's Bridge Key
         discovery()
+        testing()
     }
     override func viewDidLoad() {
         super.viewDidLoad()
+    }
+    func testing(){
+        guard let url = URL(string: "http://192.168.1.175/api/0ZaZRrSyiEoQYiw05AKrHmKsOuIcpcu1W8mb0Qox/scenes/XmmMqO88woGVYFE") else {return}
+        print(url)
+        
+        DataManager.get(url: url) { (results) in
+            switch results{
+            case.success(let data):
+                do {
+                    var sceneLights = [String : HueModel.Lightstates]()
+                    if let JSONString = String(data: data, encoding: String.Encoding.utf8){
+                        print(JSONString)
+                    }
+                    let resultsFromBridge = try JSONDecoder().decode(HueModel.Scenes.self, from: data)
+
+                    if let safeLightStates = resultsFromBridge.lightstates{
+                        sceneLights = safeLightStates
+                    }
+                    for light in sceneLights{
+                        print("light key: \(light.key), light xy: \(light.value.xy)")
+                    }
+                } catch {
+                }
+            case .failure(let e): print("error: \(e)")
+            }
+        }
+
+
     }
 }
 
