@@ -8,7 +8,7 @@
 import UIKit
 
 class ConvertColor{
-    static func getXY(red: CGFloat, green: CGFloat, blue: CGFloat) -> Array<Any>{
+    static func getXY(red: CGFloat, green: CGFloat, blue: CGFloat) -> Array<Double>{
         var red = red
         var green = green
         var blue = blue
@@ -35,7 +35,7 @@ class ConvertColor{
         let Z = red * 0.000088 + green * 0.072310 + blue * 0.986039;
         let x = X / (X + Y + Z);
         let y = Y / (X + Y + Z);
-        let array = [x, y]
+        let array = [Double(x), Double(y)]
         return array
     }
     

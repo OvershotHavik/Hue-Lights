@@ -177,7 +177,7 @@ extension EditGroupVC: UpdateItem, SelectedItems{
             DispatchQueue.main.async {
                 switch result{
                 case .success(let response):
-                    if response.contains("Success"){
+                    if response.contains("success"){
                         Alert.showBasic(title: "Saved!", message: "Successfully updated \(self.groupName)", vc: self)
                     } else {
                         Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later

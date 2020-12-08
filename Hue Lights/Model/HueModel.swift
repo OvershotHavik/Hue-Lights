@@ -226,9 +226,9 @@ struct HueModel: Codable{
     }
     //MARK: - Scenes - Lightstates
     struct Lightstates: Codable{
-        let on: Bool
-        let bri: Int
-        let xy: [Double]
+        var on: Bool
+        var bri: Int
+        var xy: [Double]
     }
     
     

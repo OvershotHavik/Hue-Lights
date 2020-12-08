@@ -8,6 +8,7 @@
 import UIKit
 
 class EditSceneView: UIView{
+    weak var updateSceneDelegate: UpdateItem?
     fileprivate var sceneName: String
 
     lazy var tfChangeName : UITextField = {
@@ -63,6 +64,7 @@ class EditSceneView: UIView{
     
     
     @objc func saveTapped(){
-        
+        print("Save tapped in view")
+        updateSceneDelegate?.saveTapped(name: tfChangeName.text!)
     }
 }
