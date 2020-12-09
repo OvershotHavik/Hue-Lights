@@ -13,11 +13,11 @@ enum NetworkError: Error{
     case failure(Error)
 }
 enum HttpMethod: String {
-    case get
-    case post
-    case put
-    case patch
-    case delete
+    case get = "GET"
+    case post = "POST"
+    case put = "PUT"
+    case patch = "PATCH"
+    case delete = "DELETE"
 }
 class DataManager{
     static func get(url: URL, completionHandler: @escaping (Result<Data, NetworkError>) throws -> Void){
@@ -40,10 +40,9 @@ class DataManager{
         }
         task.resume()
     }
-    
-    static func put(url: URL, httpBody: [String: Any], completionHandler: @escaping (Result<String, NetworkError>) throws -> Void){
+    static func sendRequest(method: HttpMethod,url: URL, httpBody: [String: Any], completionHandler: @escaping (Result<String, NetworkError>) throws -> Void){
         var request = URLRequest(url: url)
-        request.httpMethod = "PUT"
+        request.httpMethod = method.rawValue
         print(httpBody)
         if let jsonData = try? JSONSerialization.data(withJSONObject: httpBody, options: []){
             URLSession.shared.uploadTask(with: request, from: jsonData) { (data, response, error) in

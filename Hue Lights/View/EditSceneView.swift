@@ -29,6 +29,14 @@ class EditSceneView: UIView{
         button.backgroundColor = .systemGreen
         return button
     }()
+    var btnDelete : UIButton = {
+       let button = UIButton()
+       button.translatesAutoresizingMaskIntoConstraints = false
+       button.setTitle("Delete", for: .normal)
+       button.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
+       button.backgroundColor = .systemRed
+       return button
+   }()
     
     init(sceneName: String, frame: CGRect = .zero){
         self.sceneName = sceneName
@@ -44,6 +52,7 @@ class EditSceneView: UIView{
         self.backgroundColor = UI.backgroundColor
         addSubview(tfChangeName)
         addSubview(btnSave)
+        addSubview(btnDelete)
         setupConstraints()
     }
     
@@ -55,10 +64,15 @@ class EditSceneView: UIView{
             tfChangeName.widthAnchor.constraint(equalToConstant: 150),
             tfChangeName.heightAnchor.constraint(equalToConstant: 35),
 
-            //Light VC is added via the EditSceneVC where top is tf change name and bottom is btn save
+            //Light VC is added via the EditSceneVC where top is tf change name bottomCon and bottom is btn save topCon.
             
             btnSave.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
             btnSave.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor),
+            
+            
+            btnDelete.leadingAnchor.constraint(equalTo: btnSave.trailingAnchor, constant: UI.horizontalSpacing),
+            btnDelete.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor)
+            
         ])
     }
     
@@ -66,5 +80,9 @@ class EditSceneView: UIView{
     @objc func saveTapped(){
         print("Save tapped in view")
         updateSceneDelegate?.saveTapped(name: tfChangeName.text!)
+    }
+    @objc func deleteTapped(){
+        print("Delete tapped in view")
+        updateSceneDelegate?.deleteTapped(name: tfChangeName.text!)
     }
 }

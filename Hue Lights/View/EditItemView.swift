@@ -10,6 +10,7 @@ import UIKit
 protocol UpdateItem: class {
     func saveTapped(name: String)
     func editList()
+    func deleteTapped(name: String)
 }
 
 protocol ApplyToGroup: class{

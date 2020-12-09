@@ -80,7 +80,7 @@ class ScheduleListVC: ListController, UISearchBarDelegate{
         } else {
             httpBody["status"] = "disabled"
         }
-        DataManager.put(url: url, httpBody: httpBody) { result in
+        DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
             DispatchQueue.main.async {
                 switch result{
                 case .success(let response):

@@ -81,6 +81,10 @@ class EditLightVC: UIViewController, ListSelectionControllerDelegate{
 
 
 extension EditLightVC: UpdateItem, SelectedItems{
+    func deleteTapped(name: String) {
+        
+    }
+    
     func setSelectedItems(items: [String], ID: String) {
         newGroup = nil
         for item in items{
@@ -126,7 +130,7 @@ extension EditLightVC: UpdateItem, SelectedItems{
                 guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights/\(safeKey)") else {return}
                 print(url)
                 let httpBody = ["name" : name]
-                DataManager.put(url: url, httpBody: httpBody) { result in
+                DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
                     DispatchQueue.main.async {
                         switch result{
                         case .success(let response):
@@ -178,7 +182,7 @@ extension EditLightVC: UpdateItem, SelectedItems{
                 groupLights.append(safeKey)
                 groupLights = groupLights.unique()
                 let httpBody = ["lights":  groupLights]
-                DataManager.put(url: url, httpBody: httpBody) { result in
+                DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
                     DispatchQueue.main.async {
                         switch result{
                         case .success(let response):
@@ -215,7 +219,7 @@ extension EditLightVC: UpdateItem, SelectedItems{
             guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(safeGroupNumber)") else {return}
             print(url)
             let httpBody = ["lights": safeGroupLights]
-            DataManager.put(url: url, httpBody: httpBody) { result in
+            DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
                 DispatchQueue.main.async {
                     switch result{
                     case .success(let response):

@@ -233,6 +233,28 @@ extension EditSceneVC: UIColorPickerViewControllerDelegate{
 
 //MARK: - Update Item Delegate
 extension EditSceneVC: UpdateItem{
+    func deleteTapped(name: String) {
+        Alert.showConfirmDelete(title: "Delete Scene", message: "Are you sure you want to delete \(sceneName)?", vc: self) {
+            guard let sceneKey = self.sceneKey else {return}
+
+            print("delete the scene when delete is pressed")
+            guard let url = URL(string: "http://\(self.bridgeIP)/api/\(self.bridgeUser)/scenes/\(sceneKey)") else {return}
+            DataManager.sendRequest(method: .delete, url: url, httpBody: [:]) { (results) in
+                DispatchQueue.main.async {
+                    switch results{
+                    case .success(let response):
+                        if response.contains("success"){
+                            Alert.showBasic(title: "Deleted!", message: "Successfully deleted \(self.sceneName)", vc: self)
+                        } else {
+                            Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                        }
+                    case .failure(let e): print("Error occured: \(e)")
+                    }
+                }
+            }
+        }
+    }
+    
     func saveTapped(name: String) {
         guard let sceneKey = sceneKey else {return}
         //update name
@@ -242,7 +264,7 @@ extension EditSceneVC: UpdateItem{
             print(url)
             let httpBody = ["name": name]
             
-            DataManager.put(url: url, httpBody: httpBody) { (result) in
+            DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { (result) in
                 DispatchQueue.main.async {
                     switch result{
                     case .success(let response):
@@ -266,7 +288,7 @@ extension EditSceneVC: UpdateItem{
             httpBody["bri"] = light.value.bri
             httpBody["xy"] = light.value.xy
             
-            DataManager.put(url: url, httpBody: httpBody) { (result) in
+            DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { (result) in
                 DispatchQueue.main.async {
                     switch result{
                     case .success(let response):

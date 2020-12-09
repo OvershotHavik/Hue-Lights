@@ -97,6 +97,10 @@ class EditGroupVC: UIViewController, ListSelectionControllerDelegate{
 }
 //MARK: - Update Group Delegate
 extension EditGroupVC: UpdateItem, SelectedItems{
+    func deleteTapped(name: String) {
+        
+    }
+    
     func setSelectedItems(items: [String], ID: String) {
         lightNameInGroup = items.sorted { $0 < $1}
         var text = String()
@@ -173,7 +177,7 @@ extension EditGroupVC: UpdateItem, SelectedItems{
         var httpBody = [String: Any]()
         httpBody["name"] = name
         httpBody["lights"] = self.lightNumbersInGroup
-        DataManager.put(url: url, httpBody: httpBody) { result in
+        DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
             DispatchQueue.main.async {
                 switch result{
                 case .success(let response):

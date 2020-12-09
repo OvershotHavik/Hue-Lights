@@ -133,7 +133,7 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
         let httpBody = [
             "xy": colorXY,
         ]
-        DataManager.put(url: url, httpBody: httpBody) { result in
+        DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
             DispatchQueue.main.async {
                 switch result{
                 case .success(let response):
@@ -159,7 +159,7 @@ extension GroupsListVC: HueCellDelegate{
         let httpBody = [
             "on": sender.isOn,
         ]
-        DataManager.put(url: url, httpBody: httpBody) { result in
+        DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
             DispatchQueue.main.async {
                 switch result{
                 case .success(let response):
@@ -186,7 +186,7 @@ extension GroupsListVC: HueCellDelegate{
         let httpBody = [
             "bri": Int(sender.value),
         ]
-        DataManager.put(url: url, httpBody: httpBody) { result in
+        DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
             DispatchQueue.main.async {
                 switch result{
                 case .success(let response):
