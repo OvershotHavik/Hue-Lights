@@ -7,10 +7,14 @@
 
 import UIKit
 
-class SceneListVC: ListController, UISearchBarDelegate{
+class SceneListVC: ListController, UISearchBarDelegate, ListSelectionControllerDelegate{
+    var sourceItems = [String]()
+    var bridgeIP = String()
+    var bridgeUser = String()
+    
     fileprivate var filtered = [String]()
     fileprivate var sceneArray = [HueModel.Scenes]()
-    fileprivate var hueResults = [HueModel]()
+    internal var hueResults = [HueModel]()
     fileprivate var groupNumber: String
     fileprivate var lightsInGroup: [String]
     init(groupNumber: String, lightsInGroup: [String]) {
@@ -30,8 +34,11 @@ class SceneListVC: ListController, UISearchBarDelegate{
             assertionFailure("Set the delegate")
             return
         }
-        filtered = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
+        bridgeIP = delegate.bridgeIP
+        bridgeUser = delegate.bridgeUser
         hueResults = delegate.hueResults
+        filtered = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
+        
         for x in hueResults{
             sceneArray.append(contentsOf: x.scenes.values)
         }
@@ -48,9 +55,18 @@ class SceneListVC: ListController, UISearchBarDelegate{
         searchController.searchBar.isTranslucent = false
         navigationItem.searchController = searchController
         searchController.searchBar.delegate = self
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addScene))
         setup()
     }
     
+    @objc func addScene(){
+        print("Bring up edit scene")
+        let addScene = EditSceneVC(sceneName: "", groupNumber: groupNumber)
+        addScene.delegate = self
+        self.sourceItems = self.lightsInGroup
+        self.navigationController?.pushViewController(addScene, animated: true)
+        
+    }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! ListCell
@@ -58,35 +74,6 @@ class SceneListVC: ListController, UISearchBarDelegate{
         cell.backgroundColor = .systemBackground
         let itemRow = filtered[indexPath.row]
         cell.lblListItem.text = itemRow
-        /*
-        var sceneID: String?
-        for x in hueResults{
-            for scene in x.scenes{
-                if scene.value.name == itemRow{
-                    sceneID = scene.value.image
-                }
-            }
-        }
-
-
-        let onSwitch = UISwitch()
-        for x in hueResults{
-            for schedule in x.schedules{
-                if schedule.value.name == itemRow{
-                    if schedule.value.status == "disabled"{
-                        onSwitch.isOn = false
-                    } else {
-                        onSwitch.isOn = true
-                    }
-                    if let tag = Int(schedule.key){
-                        onSwitch.tag = tag
-                    }
-                }
-            }
-        }
-        onSwitch.addTarget(self, action: #selector(onToggled), for: .valueChanged)
-        cell.accessoryView = onSwitch
- */
         return cell
     }
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -139,15 +126,16 @@ class SceneListVC: ListController, UISearchBarDelegate{
          let action = UIContextualAction(style: .normal, title: "Edit") { (_, _, _) in
              print("Take user to edit scene")
             DispatchQueue.main.async {
-                if let delegate = self.delegate{
-                    let editScene = EditSceneVC(sceneName: self.filtered[indexPath.row],
-                                                sourceItems: self.lightsInGroup,
-                                                hueResults: delegate.hueResults,
-                                                bridgeIP: delegate.bridgeIP,
-                                                bridgeUser: delegate.bridgeUser)
-                    
-                    self.navigationController?.pushViewController(editScene, animated: true)
-                }
+//                    let editScene = EditSceneVC(sceneName: self.filtered[indexPath.row],
+//                                                sourceItems: self.lightsInGroup,
+//                                                hueResults: delegate.hueResults,
+//                                                bridgeIP: delegate.bridgeIP,
+//                                                bridgeUser: delegate.bridgeUser)
+                let editScene = EditSceneVC(sceneName: self.filtered[indexPath.row], groupNumber: self.groupNumber)
+                editScene.delegate = self
+                self.sourceItems = self.lightsInGroup
+                self.navigationController?.pushViewController(editScene, animated: true)
+                
             }
          }
          return action

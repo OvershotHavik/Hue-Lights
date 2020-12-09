@@ -41,6 +41,9 @@ class ConvertColor{
     
     static func getRGB(xy: [Double]?, bri: Int) -> UIColor{
         guard let xy = xy else {return .white}
+        if xy.count == 0{
+            return .white
+        }
         let x = CGFloat(xy[0])
         let y = CGFloat(xy[1])
         let z: CGFloat = CGFloat(1.0) - x - y

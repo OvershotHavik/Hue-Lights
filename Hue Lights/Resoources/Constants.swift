@@ -16,6 +16,7 @@ class UI{
     static let schedules = "Schedules"
     static let scenes = "Scenes"
     static let backgroundColor = UIColor.systemBlue
+    static let whiteXY = [0.3227,0.3290] // white per xy printout
 }
 struct Cells {
     static let cell = "HueLightsCell"

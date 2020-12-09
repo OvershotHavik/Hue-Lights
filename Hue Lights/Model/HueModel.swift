@@ -228,7 +228,7 @@ struct HueModel: Codable{
     struct Lightstates: Codable{
         var on: Bool
         var bri: Int
-        var xy: [Double]
+        var xy: [Double]?
     }
     
     

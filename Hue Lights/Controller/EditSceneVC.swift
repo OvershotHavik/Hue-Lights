@@ -8,26 +8,24 @@
 import UIKit
 
 class EditSceneVC: UIViewController, ListSelectionControllerDelegate{
-    var sourceItems: [String]
-    var hueResults : [HueModel]
-    var bridgeIP: String
-    var bridgeUser: String
+    var sourceItems = [String]()
+    var hueResults = [HueModel]()
+    var bridgeIP = String()
+    var bridgeUser = String()
     
 
-    
+    weak var delegate: ListSelectionControllerDelegate?
     fileprivate var rootView : EditSceneView!
     fileprivate var subView : LightsListVC!
     fileprivate var sceneName: String
     fileprivate var hueLights = [HueModel.Light]()
-    fileprivate var sceneKey: String?
+    fileprivate var sceneKey : String?
     fileprivate var sceneLights = [String : HueModel.Lightstates]()
     fileprivate var tempChangeColorButton : UIButton?
-    init(sceneName: String, sourceItems: [String], hueResults: [HueModel], bridgeIP: String, bridgeUser: String) {
+    fileprivate var groupNumber : String
+    init(sceneName: String, groupNumber: String) {
         self.sceneName = sceneName
-        self.sourceItems = sourceItems
-        self.hueResults = hueResults
-        self.bridgeIP = bridgeIP
-        self.bridgeUser = bridgeUser
+        self.groupNumber = groupNumber
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -46,6 +44,14 @@ class EditSceneVC: UIViewController, ListSelectionControllerDelegate{
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Edit Scene"
+        guard let delegate = delegate else {
+            assertionFailure("Set the delegate")
+            return
+        }
+        bridgeIP = delegate.bridgeIP
+        bridgeUser = delegate.bridgeUser
+        hueResults = delegate.hueResults
+        sourceItems = delegate.sourceItems.sorted()
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
@@ -88,7 +94,7 @@ extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
         let filtered = hueLights.filter({$0.name == rowName})
         for light in filtered{
             var lightXY = [Double]()
-            var lightBri = Int()
+            var lightBri = 1
             var lightOn = Bool()
             for x in hueResults{
                 for i in x.lights{
@@ -197,26 +203,41 @@ extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
         }
         
         
-        if let safeSceneKey = sceneKey{
+        if let safeSceneKey = sceneKey{ // existing scene
             guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/scenes/\(safeSceneKey)") else {return}
             print(url)
             DataManager.get(url: url) { (results) in
                 switch results{
                 case.success(let data):
                     do {
+                        print("before json string")
                         if let JSONString = String(data: data, encoding: String.Encoding.utf8){
                             print(JSONString)
                         }
+                        
                         let resultsFromBridge = try JSONDecoder().decode(HueModel.Scenes.self, from: data)
+                        
 
                         if let safeLightStates = resultsFromBridge.lightstates{
                             self.sceneLights = safeLightStates
                         }
                         for light in self.sceneLights{
-                            print("light key: \(light.key), light xy: \(light.value.xy)")
+                            print("light key: \(light.key), light xy: \(light.value.xy ?? [0,0])")
                         }
+                    } catch let e{
+                        print(e)
                     }
                 case .failure(let e): print("error: \(e)")
+                }
+            }
+        } else { // new scene
+           print("No scene key, adding lights listed into scenelights")
+            for x in hueResults{
+                for light in x.lights{
+                    if sourceItems.contains(light.value.name){
+                        let lightStateData = HueModel.Lightstates(on: true, bri: 100, xy:[])
+                        sceneLights[light.key] = lightStateData
+                    }
                 }
             }
         }
@@ -254,9 +275,12 @@ extension EditSceneVC: UpdateItem{
             }
         }
     }
-    
+    //MARK: - Save Tapped
     func saveTapped(name: String) {
-        guard let sceneKey = sceneKey else {return}
+        guard let sceneKey = sceneKey else {
+            addNewScene(name: name)
+            return
+        }
         //update name
         if name != sceneName{
             
@@ -278,8 +302,54 @@ extension EditSceneVC: UpdateItem{
                 }
             }
         }
-
-        //update color, on and bri
+        updateLightState(sceneKey: sceneKey)
+    }
+    //MARK: - Edit List
+    func editList() {
+        
+    }
+    //MARK: - Add New Scene
+    func addNewScene(name: String){
+        print("No key, adding scene to bridge")
+        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/scenes") else {return}
+        print(url)
+        var httpBody = [String: Any]()
+        httpBody["name"] = name
+        httpBody["recycle"] = false
+        httpBody["group"] = groupNumber
+        httpBody["type"] = "GroupScene"
+        print(httpBody)
+        
+        DataManager.sendRequest(method: .post, url: url, httpBody: httpBody) { (results) in
+            DispatchQueue.main.async {
+                switch results{
+                case .success(let response):
+                    //once the above info has created a scene key, it will give that to us which we can then use to update the light state for that scene's ID
+                    if response.contains("success"){
+                        do {
+                            if let jsondata = response.data(using: .utf8){
+                                let successResults = try JSONDecoder().decode([SuccessFromBridge].self, from: jsondata)
+                                for x in successResults{
+                                    self.sceneKey = x.success.id
+                                }
+                                
+                                if let safeSceneKey = self.sceneKey{
+                                    self.updateLightState(sceneKey: safeSceneKey)
+                                }
+                            }
+                        }catch let e{
+                            print(e)
+                        }
+                    } else {
+                        Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                    }
+                case .failure(let e): print("Error occured: \(e)")
+                }
+            }
+        }
+    }
+    //MARK: - Update Light State
+    func updateLightState(sceneKey: String){
         for light in sceneLights{
             guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/scenes/\(sceneKey)/lightstates/\(light.key)") else {return}
             print(url)
@@ -302,14 +372,5 @@ extension EditSceneVC: UpdateItem{
                 }
             }
         }
-        
-        
-        
     }
-    
-    func editList() {
-        
-    }
-    
-    
 }

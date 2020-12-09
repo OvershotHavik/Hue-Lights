@@ -17,6 +17,7 @@
 		B318246525779F6600D9D06E /* SchedulesListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B318246425779F6600D9D06E /* SchedulesListVC.swift */; };
 		B31824902577F13900D9D06E /* GetImageFromURLIV.swift in Sources */ = {isa = PBXBuildFile; fileRef = B318248F2577F13900D9D06E /* GetImageFromURLIV.swift */; };
 		B318249C2577F24E00D9D06E /* SceneListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B318249B2577F24E00D9D06E /* SceneListVC.swift */; };
+		B33631CA2581532100B83432 /* SuccessModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B33631C92581532100B83432 /* SuccessModel.swift */; };
 		B37EEA492561A975003FBC42 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA482561A975003FBC42 /* AppDelegate.swift */; };
 		B37EEA4B2561A975003FBC42 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA4A2561A975003FBC42 /* SceneDelegate.swift */; };
 		B37EEA522561A976003FBC42 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B37EEA512561A976003FBC42 /* Assets.xcassets */; };
@@ -68,6 +69,7 @@
 		B318246425779F6600D9D06E /* SchedulesListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulesListVC.swift; sourceTree = "<group>"; };
 		B318248F2577F13900D9D06E /* GetImageFromURLIV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetImageFromURLIV.swift; sourceTree = "<group>"; };
 		B318249B2577F24E00D9D06E /* SceneListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneListVC.swift; sourceTree = "<group>"; };
+		B33631C92581532100B83432 /* SuccessModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuccessModel.swift; sourceTree = "<group>"; };
 		B37EEA452561A975003FBC42 /* Hue Lights.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Hue Lights.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B37EEA482561A975003FBC42 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B37EEA4A2561A975003FBC42 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -239,6 +241,7 @@
 				B3075399256C199600C8CA4F /* ConvertColor.swift */,
 				B3D2E0EF2572949A00B4B46B /* ListCell.swift */,
 				B318248F2577F13900D9D06E /* GetImageFromURLIV.swift */,
+				B33631C92581532100B83432 /* SuccessModel.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -422,6 +425,7 @@
 				B318246525779F6600D9D06E /* SchedulesListVC.swift in Sources */,
 				B3CC3E0B257CE93F00058933 /* EditSceneView.swift in Sources */,
 				B37EEA822561A9B4003FBC42 /* MainVC.swift in Sources */,
+				B33631CA2581532100B83432 /* SuccessModel.swift in Sources */,
 				B307539A256C199600C8CA4F /* ConvertColor.swift in Sources */,
 				B3CC3E11257CEA3900058933 /* EditSceneVC.swift in Sources */,
 				B3D2E0F62573CF3F00B4B46B /* Alert.swift in Sources */,

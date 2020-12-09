@@ -70,8 +70,6 @@ class ModifyGroupList: ListController{
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
-        
         let selectedVal = filtered[indexPath.row]
         if selectedItems.count <= limit{
             if selectedItems.count == limit{
