@@ -78,11 +78,11 @@ extension MainVC: GetDelegate{
                     case .groups:
                         for group in resultsFromBrdige.groups{
                             print("Key: \(group.key) - Group Name: \(group.value.name)")
-                            self.sourceItems.append(group.value.name)
+//                            self.sourceItems.append(group.value.name)
                         }
-                        
+                        let groupArray = Array(resultsFromBrdige.groups.values)
                         DispatchQueue.main.async {
-                            let groupListController = GroupsListVC()
+                            let groupListController = GroupsListVC(groupsArray: groupArray)
                             groupListController.delegate = self
                             groupListController.title = HueSender.groups.rawValue
                             self.navigationController?.pushViewController(groupListController, animated: true)

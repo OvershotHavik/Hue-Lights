@@ -16,10 +16,17 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
     
 
 
-    private var groupsArray = [String]()
-    private var hueGroups = [HueModel.Groups]()
+    private var groupsArray : [HueModel.Groups]
     internal var hueResults : HueModel?
     
+    init(groupsArray: [HueModel.Groups]) {
+        self.groupsArray = groupsArray
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,11 +48,12 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
         }
         bridgeIP = delegate.bridgeIP
         bridgeUser = delegate.bridgeUser
-        groupsArray = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
+        groupsArray = groupsArray.sorted(by: {$0.name < $1.name})
+//        groupsArray = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
         hueResults = delegate.hueResults
-        if let hueResults = hueResults{
-            hueGroups.append(contentsOf: hueResults.groups.values)
-        }
+//        if let hueResults = hueResults{
+//            hueGroups.append(contentsOf: hueResults.groups.values)
+//        }
         self.tableView.reloadData()
     }
 
@@ -56,19 +64,23 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! HueLightsCell
         cell.cellDelegate = self
-        let rowName = groupsArray[indexPath.row]
-        let filtered = hueGroups.filter({$0.name == rowName})
-        
-        for group in filtered{
-            let cellData = LightData(lightName: group.name,
-                                     isOn: group.state.all_on,
-                                     brightness: Float(group.action.bri ?? 0),
-                                     isReachable: true,
-                                     lightColor: ConvertColor.getRGB(xy: group.action.xy, bri: group.action.bri ?? 0))
-            cell.configureCell(LightData: cellData)
+        let row = groupsArray[indexPath.row]
+        let name = row.name
+        let isOn = row.state.all_on
+        let bri = row.action.bri
+        let color = row.action.xy
+//        let filtered = hueGroups.filter({$0.name == rowName})
+        let cellData = LightData(lightName: name,
+                                 isOn: isOn,
+                                 brightness: Float(bri ?? 0),
+                                 isReachable: true,
+                                 lightColor: ConvertColor.getRGB(xy: color, bri: bri ?? 0))
+        cell.configureCell(LightData: cellData)
+
+
             if let hueResults = hueResults{
                 for i in hueResults.groups{
-                    if i.value.name == group.name{
+                    if i.value.name == name{
                         if let tag = Int(i.key){
                             cell.onSwitch.tag = tag
                             cell.brightnessSlider.tag = tag
@@ -78,21 +90,18 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
                     }
                 }
             }
-        }
+        
         cell.backgroundColor = .clear
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        groupName = groupsArray[indexPath.row]
-        print("group: \(String(describing: groupName)) selected")
-        var lightsInGroup = [String]()
-        for x in hueGroups{
-            if x.name == groupName{
-                lightsInGroup.append(contentsOf: x.lights)
-            }
-        }
+        let group = groupsArray[indexPath.row]
+        groupName = group.name
+        print("group: \(group.name) selected")
+        let lightsInGroup = group.lights
+        
         /*
          [Groups]
          Group
@@ -110,16 +119,16 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
         */
         
         print("Lights in group: \(lightsInGroup)")
-        self.sourceItems = []
+        var lightsArray = [HueModel.Light]()
         if let hueResults = hueResults{
             //self.sourceItems.append(lights[light])
             let lights = hueResults.lights.filter { return lightsInGroup.contains($0.key) }
-            
-            for light in hueResults.lights{
-                if lightsInGroup.contains(light.key){
-                    self.sourceItems.append(light.value.name)
-                }
-            }
+            lightsArray = Array(lights.values)
+//            for light in hueResults.lights{
+//                if lightsInGroup.contains(light.key){
+//                    self.sourceItems.append(light.value.name)
+//                }
+//            }
             for group in hueResults.groups{
                 if group.value.name == groupName{
                     self.groupNumber = group.key
@@ -127,10 +136,10 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
             }
         }
         DispatchQueue.main.async {
-            let lightlistVC = LightsListVC(lightsArray: [], showingGroup: true)
+            let lightlistVC = LightsListVC(lightsArray: lightsArray, showingGroup: true)
             lightlistVC.delegate = self
             lightlistVC.editingGroupDelegate = self
-            lightlistVC.title = self.groupsArray[indexPath.row]
+            lightlistVC.title = group.name
             self.navigationController?.pushViewController(lightlistVC, animated: true)
         }
     }
@@ -231,22 +240,15 @@ extension GroupsListVC: HueCellDelegate{
 //MARK: - UISearch Bar Delegate
 extension GroupsListVC: UISearchBarDelegate{
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        guard let delegate = delegate else {
-            assertionFailure("Set the delegate bitch")
-            return
-        }
-        groupsArray = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
+//        groupsArray = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
         tableView.reloadData()
     }
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         let searchText = searchText
         searchBar.text = searchText
-        guard let delegate = delegate else {
-            assertionFailure("Set the delegate")
-            return
-        }
         print("SearchText: \(searchText)")
-        let filtered = delegate.sourceItems.filter( {$0.contains(searchText) })
+//        let filtered = delegate.sourceItems.filter( {$0.contains(searchText) })
+        let filtered = groupsArray.filter({$0.name.contains(searchText)})
         self.groupsArray = filtered.isEmpty ? [] : filtered
         tableView.reloadData()
     }
