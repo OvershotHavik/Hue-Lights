@@ -8,7 +8,7 @@
 import UIKit
 protocol ListSelectionControllerDelegate : class {
     var sourceItems : [String] {get}
-    var hueResults : [HueModel] {get}
+    var hueResults : HueModel? {get}
     var bridgeIP : String {get}
     var bridgeUser: String {get}
 }
@@ -82,6 +82,7 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
 //MARK: - Color picker
 extension ListController : UIColorPickerViewControllerDelegate{
     func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
+//        print("test: \(viewController)")
         pickedColor = viewController.selectedColor
         updatLightColor()
     }

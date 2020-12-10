@@ -80,6 +80,7 @@ struct HueModel: Codable{
             case name, lights, sensors, type, state, recycle, action, stream, locations
             case groupClass = "class"
         }
+        //let id : String! // TODO: Consider writing a custom decoder instead of having this:
         let name: String
         let lights: [String]
         let sensors: [String] // I don't have any sensors, so it's blank in the json, not sure what it is by default

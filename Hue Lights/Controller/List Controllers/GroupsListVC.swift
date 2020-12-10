@@ -18,7 +18,7 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
 
     private var groupsArray = [String]()
     private var hueGroups = [HueModel.Groups]()
-    internal var hueResults = [HueModel]()
+    internal var hueResults : HueModel?
     
     
     override func viewDidLoad() {
@@ -43,8 +43,8 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
         bridgeUser = delegate.bridgeUser
         groupsArray = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
         hueResults = delegate.hueResults
-        for x in hueResults{
-            hueGroups.append(contentsOf: x.groups.values)
+        if let hueResults = hueResults{
+            hueGroups.append(contentsOf: hueResults.groups.values)
         }
         self.tableView.reloadData()
     }
@@ -66,8 +66,8 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
                                      isReachable: true,
                                      lightColor: ConvertColor.getRGB(xy: group.action.xy, bri: group.action.bri ?? 0))
             cell.configureCell(LightData: cellData)
-            for x in hueResults{
-                for i in x.groups{
+            if let hueResults = hueResults{
+                for i in hueResults.groups{
                     if i.value.name == group.name{
                         if let tag = Int(i.key){
                             cell.onSwitch.tag = tag
@@ -93,22 +93,41 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
                 lightsInGroup.append(contentsOf: x.lights)
             }
         }
+        /*
+         [Groups]
+         Group
+          - ID
+          - Name
+          - ...
+         
+         In our VC, we have a property that is our data model (var groups: [Group] = [])
+         This is mutable - groups can be added, renamed, removed, etc
+         If we want to sort groups in our display, groups.sorted( a.name < b.name )
+         After sorting, we reload the table so that it shows things in the correct order
+         Now that it's sorted in our model, we can directly work with the indices
+        
+        let lightIDsInGroup = groups[indexPath.row]
+        */
+        
         print("Lights in group: \(lightsInGroup)")
         self.sourceItems = []
-        for x in hueResults{
-            for light in x.lights{
+        if let hueResults = hueResults{
+            //self.sourceItems.append(lights[light])
+            let lights = hueResults.lights.filter { return lightsInGroup.contains($0.key) }
+            
+            for light in hueResults.lights{
                 if lightsInGroup.contains(light.key){
                     self.sourceItems.append(light.value.name)
                 }
             }
-            for group in x.groups{
+            for group in hueResults.groups{
                 if group.value.name == groupName{
                     self.groupNumber = group.key
                 }
             }
         }
         DispatchQueue.main.async {
-            let lightlistVC = LightsListVC(showingGroup: true)
+            let lightlistVC = LightsListVC(lightsArray: [], showingGroup: true)
             lightlistVC.delegate = self
             lightlistVC.editingGroupDelegate = self
             lightlistVC.title = self.groupsArray[indexPath.row]

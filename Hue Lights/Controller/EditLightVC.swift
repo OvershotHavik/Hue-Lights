@@ -13,7 +13,7 @@ class EditLightVC: UIViewController, ListSelectionControllerDelegate{
     weak var updateTitleDelegate : UpdateTitle?
     
     var sourceItems = [String]()
-    var hueResults = [HueModel]()
+    var hueResults : HueModel?
     var bridgeIP = String()
     var bridgeUser = String()
     
@@ -53,8 +53,8 @@ class EditLightVC: UIViewController, ListSelectionControllerDelegate{
     }
     
     func getLightKey(){
-        for x in hueResults{
-            for light in x.lights{
+        if let hueResults = hueResults{
+            for light in hueResults.lights{
                 if light.value.name == lightName{
                     lightKey = light.key
                 }
@@ -64,8 +64,8 @@ class EditLightVC: UIViewController, ListSelectionControllerDelegate{
     
     func getGroupNames(){
         groupNames = []
-        for x in hueResults{
-            for group in x.groups{
+        if let hueResults = hueResults{
+            for group in hueResults.groups{
                 groupNames.append(group.value.name)
                 if let safeKey = lightKey{
                     if group.value.lights.contains(safeKey){
@@ -168,8 +168,8 @@ extension EditLightVC: UpdateItem, SelectedItems{
                 print("Group changed")
                 var groupLights = [String]()
                 var groupNumber = String()
-                for x in hueResults{
-                    for group in x.groups{
+                if let hueResults = hueResults{
+                    for group in hueResults.groups{
                         if group.value.name == newGroup{
                             groupLights = group.value.lights
                             groupNumber = group.key
@@ -204,8 +204,8 @@ extension EditLightVC: UpdateItem, SelectedItems{
         guard let safeKey = lightKey else {return}
         var groupLights : [String]?
         var groupNumber : String?
-        for x in hueResults{
-            for group in x.groups{
+        if let hueResults = hueResults{
+            for group in hueResults.groups{
                 if group.value.name == initialGroup{
                     groupLights = group.value.lights
                     groupNumber = group.key

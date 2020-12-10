@@ -9,7 +9,7 @@ import UIKit
 
 class EditSceneVC: UIViewController, ListSelectionControllerDelegate{
     var sourceItems = [String]()
-    var hueResults = [HueModel]()
+    var hueResults : HueModel?
     var bridgeIP = String()
     var bridgeUser = String()
     
@@ -36,7 +36,7 @@ class EditSceneVC: UIViewController, ListSelectionControllerDelegate{
         super.loadView()
         rootView = EditSceneView(sceneName: sceneName)
         rootView.updateSceneDelegate = self
-        subView = LightsListVC(showingGroup: false)
+        subView = LightsListVC(lightsArray: [], showingGroup: false)
         subView.delegate = self
         addChildVC()
         self.view = rootView
@@ -88,16 +88,16 @@ extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! HueLightsCell
         cell.cellDelegate = self
         let rowName = sourceItems[indexPath.row]
-        for x in hueResults{
-            hueLights.append(contentsOf: x.lights.values)
+        if let hueResults = hueResults{
+            hueLights.append(contentsOf: hueResults.lights.values)
         }
         let filtered = hueLights.filter({$0.name == rowName})
         for light in filtered{
             var lightXY = [Double]()
             var lightBri = 1
             var lightOn = Bool()
-            for x in hueResults{
-                for i in x.lights{
+            if let hueResults = hueResults{
+                for i in hueResults.lights{
                     if i.value.name == light.name{
                         if let safeXY = sceneLights[i.key]?.xy{
                             lightXY = safeXY
@@ -194,8 +194,8 @@ extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
     }
     //MARK: - Get Scene Light State From Bridge
     func getSceneLightStates(){
-        for x in hueResults{
-            for scene in x.scenes{
+        if let hueResults = hueResults{
+            for scene in hueResults.scenes{
                 if scene.value.name == sceneName{
                     sceneKey = scene.key
                 }
@@ -232,8 +232,8 @@ extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
             }
         } else { // new scene
            print("No scene key, adding lights listed into scenelights")
-            for x in hueResults{
-                for light in x.lights{
+            if let hueResults = hueResults{
+                for light in hueResults.lights{
                     if sourceItems.contains(light.value.name){
                         let lightStateData = HueModel.Lightstates(on: true, bri: 100, xy:[])
                         sceneLights[light.key] = lightStateData

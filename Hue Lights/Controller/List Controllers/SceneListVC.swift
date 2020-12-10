@@ -14,7 +14,7 @@ class SceneListVC: ListController, UISearchBarDelegate, ListSelectionControllerD
     
     fileprivate var filtered = [String]()
     fileprivate var sceneArray = [HueModel.Scenes]()
-    internal var hueResults = [HueModel]()
+    internal var hueResults : HueModel?
     fileprivate var groupNumber: String
     fileprivate var lightsInGroup: [String]
     init(groupNumber: String, lightsInGroup: [String]) {
@@ -38,10 +38,11 @@ class SceneListVC: ListController, UISearchBarDelegate, ListSelectionControllerD
         bridgeUser = delegate.bridgeUser
         hueResults = delegate.hueResults
         filtered = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
-        
-        for x in hueResults{
-            sceneArray.append(contentsOf: x.scenes.values)
+        if let hueResults = hueResults{
+            sceneArray.append(contentsOf: hueResults.scenes.values)
+
         }
+        
         self.tableView.reloadData()
     }
     
@@ -87,8 +88,8 @@ class SceneListVC: ListController, UISearchBarDelegate, ListSelectionControllerD
         print("scene: \(filtered[indexPath.row])")
         let selectedScene = filtered[indexPath.row]
         var sceneID = String()
-        for x in hueResults{
-            for scene in x.scenes{
+        if let hueResults = hueResults{
+            for scene in hueResults.scenes{
                 if scene.value.name == selectedScene{
                     sceneID = scene.key
                 }

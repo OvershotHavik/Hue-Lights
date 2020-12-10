@@ -16,7 +16,7 @@ protocol UpdatedHueResults: class{
 }
 
 class EditGroupVC: UIViewController, ListSelectionControllerDelegate{
-    var hueResults = [HueModel]()
+    var hueResults : HueModel?
     var bridgeIP = String()
     var bridgeUser = String()
     weak var delegate : ListSelectionControllerDelegate?
@@ -114,12 +114,11 @@ extension EditGroupVC: UpdateItem, SelectedItems{
     
     //MARK: - Get Names From Numbers
     func getNamesFromNumbers() -> [String]{
-        guard let delegate = delegate else {return []}
         var lightNumbers = [String]()
         var lightNames = [String]()
         var lightsInGroupsAlready = [String]()
-        for x in delegate.hueResults{
-            for group in x.groups{
+        if let hueResults = hueResults{
+            for group in hueResults.groups{
                 if group.value.name == groupName{
                     for light in group.value.lights{
                         lightNumbers.append(light) // get number of the lights that are currently in the group
@@ -128,7 +127,7 @@ extension EditGroupVC: UpdateItem, SelectedItems{
                 lightsInGroupsAlready.append(contentsOf: group.value.lights)
             }
             print("Lights in groups already: \(lightsInGroupsAlready.sorted())")
-            for light in x.lights{
+            for light in hueResults.lights{
                 if lightsInGroupsAlready.contains(light.key){
                 } else {
                     print("\(light.value.name) added to list")
@@ -144,11 +143,10 @@ extension EditGroupVC: UpdateItem, SelectedItems{
     }
     //MARK: - Get Numbers from Names
     func getNumberFromName(lightNames: [String]) -> [String]{
-        guard let delegate = delegate else {return []}
         var lightNumbers = [String]()
-        for x in delegate.hueResults{
+        if let hueResults = hueResults{
             for name in lightNames{
-                for light in x.lights{
+                for light in hueResults.lights{
                     if light.value.name == name{
                         lightNumbers.append(light.key)
                     }

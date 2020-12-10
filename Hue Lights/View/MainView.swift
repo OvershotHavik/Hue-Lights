@@ -9,7 +9,7 @@ import UIKit
 
 
 protocol GetDelegate: class{
-    func getTapped(sender: String)
+    func getTapped(sender: HueSender)
 }
 
 
@@ -18,21 +18,28 @@ class MainView: UIView {
     fileprivate var btnGetLightInfo : UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(UI.lights, for: .normal)
+        button.setTitle(HueSender.lights.rawValue, for: .normal)
         button.addTarget(self, action: #selector(getInfo), for: .touchUpInside)
         return button
     }()
     fileprivate var btnGetGroupInfo : UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(UI.groups, for: .normal)
+        button.setTitle(HueSender.groups.rawValue, for: .normal)
         button.addTarget(self, action: #selector(getInfo), for: .touchUpInside)
         return button
     }()
     fileprivate var btnGetSchedulesInfo : UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(UI.schedules, for: .normal)
+        button.setTitle(HueSender.schedules.rawValue, for: .normal)
+        button.addTarget(self, action: #selector(getInfo), for: .touchUpInside)
+        return button
+    }()
+    fileprivate var btnLightScenes : UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(HueSender.lightScenes.rawValue, for: .normal)
         button.addTarget(self, action: #selector(getInfo), for: .touchUpInside)
         return button
     }()
@@ -57,6 +64,7 @@ class MainView: UIView {
         addSubview(btnGetLightInfo)
         addSubview(btnGetGroupInfo)
         addSubview(btnGetSchedulesInfo)
+        addSubview(btnLightScenes)
         setupConstraints()
     }
 
@@ -71,12 +79,15 @@ class MainView: UIView {
             
             btnGetSchedulesInfo.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor, constant: 100),
             btnGetSchedulesInfo.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            
+            btnLightScenes.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor, constant: 200),
+            btnLightScenes.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
         ])
     }
     
     @objc func getInfo(sender: UIButton){
         if let safeTitle = sender.titleLabel?.text{
-            getDelegate?.getTapped(sender: safeTitle)
+            getDelegate?.getTapped(sender: HueSender(rawValue: safeTitle)!)
         }
     }
 }

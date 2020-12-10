@@ -10,7 +10,7 @@ import UIKit
 class ScheduleListVC: ListController, UISearchBarDelegate{
     fileprivate var filtered = [String]()
     fileprivate var scheduleArray = [HueModel.Schedules]()
-    fileprivate var hueResults = [HueModel]()
+    fileprivate var hueResults : HueModel?
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         guard let delegate = delegate else {
@@ -19,8 +19,8 @@ class ScheduleListVC: ListController, UISearchBarDelegate{
         }
         filtered = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
         hueResults = delegate.hueResults
-        for schedule in hueResults{
-            scheduleArray.append(contentsOf: schedule.schedules.values)
+        if let hueResults = hueResults{
+            scheduleArray.append(contentsOf: hueResults.schedules.values)
         }
         self.tableView.reloadData()
     }
@@ -48,8 +48,8 @@ class ScheduleListVC: ListController, UISearchBarDelegate{
         let itemRow = filtered[indexPath.row]
         cell.lblListItem.text = itemRow
         let onSwitch = UISwitch()
-        for x in hueResults{
-            for schedule in x.schedules{
+        if let hueResults = hueResults{
+            for schedule in hueResults.schedules{
                 if schedule.value.name == itemRow{
                     if schedule.value.status == "disabled"{
                         onSwitch.isOn = false
