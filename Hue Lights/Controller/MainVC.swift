@@ -36,6 +36,7 @@ class MainVC: UIViewController, ListSelectionControllerDelegate {
 extension MainVC: GetDelegate{
     func getTapped(sender: HueSender) {
         switch sender {
+//MARK: - Lights
         case .lights:
             guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights") else {return}
             print(url)
@@ -53,7 +54,25 @@ extension MainVC: GetDelegate{
                 case .failure(let e): print(e)
                 }
             }
-        
+//MARK: - Groups
+        case .groups:
+            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups") else {return}
+            print(url)
+            DataManager.get(url: url) { results in
+                switch results{
+                case .success(let data):
+                    let groupsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Groups>.self, from: data)
+                    let groups = groupsFromBridge.compactMap{$0}
+                    DispatchQueue.main.async {
+                        let groupListController = GroupsListVC(groupsArray: groups)
+                        groupListController.delegate = self
+                        groupListController.title = HueSender.groups.rawValue
+                        self.navigationController?.pushViewController(groupListController, animated: true)
+                    }
+                case .failure(let e): print(e)
+                    
+                }
+            }
         default:
             print("not setup yet")
         }

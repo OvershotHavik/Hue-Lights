@@ -21,7 +21,7 @@ struct HueModel: Codable{
         enum CodingKeys: String, CodingKey{
             case state, type, name, modelid, manufacturername, productname, capabilities, config, uniqueid, swversion, swconfigid, productid
         }
-        let key : String
+        let id : String
         let state : State
         let type: String
         let name: String
@@ -36,49 +36,22 @@ struct HueModel: Codable{
         let productid : String
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
-            key = container.codingPath.first!.stringValue
-            state = try container.decode(State.self, forKey: CodingKeys.state)
-            type = try container.decode(String.self, forKey: CodingKeys.type)
-            name = try container.decode(String.self, forKey: CodingKeys.name)
-            modelid = try container.decode(String.self, forKey: CodingKeys.modelid)
-            manufacturername = try container.decode(String.self, forKey: CodingKeys.manufacturername)
-            productname = try container.decode(String.self, forKey: CodingKeys.productname)
-            capabilities = try container.decode(Capabilities.self, forKey: CodingKeys.capabilities)
-            config = try container.decode(LightConfig.self, forKey: CodingKeys.config)
-            uniqueid = try container.decode(String.self, forKey: CodingKeys.uniqueid)
-            swversion = try container.decode(String.self, forKey: CodingKeys.swversion)
-            swconfigid = try container.decode(String.self, forKey: CodingKeys.swconfigid)
-            productid = try container.decode(String.self, forKey: CodingKeys.productid)
+            id = container.codingPath.first!.stringValue
+            state = try container.decode(State.self, forKey: .state)
+            type = try container.decode(String.self, forKey: .type)
+            name = try container.decode(String.self, forKey: .name)
+            modelid = try container.decode(String.self, forKey: .modelid)
+            manufacturername = try container.decode(String.self, forKey: .manufacturername)
+            productname = try container.decode(String.self, forKey: .productname)
+            capabilities = try container.decode(Capabilities.self, forKey: .capabilities)
+            config = try container.decode(LightConfig.self, forKey: .config)
+            uniqueid = try container.decode(String.self, forKey: .uniqueid)
+            swversion = try container.decode(String.self, forKey: .swversion)
+            swconfigid = try container.decode(String.self, forKey: .swconfigid)
+            productid = try container.decode(String.self, forKey: .productid)
         }
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    /*
-     
-     origonal
-    //MARK: - Light
-    struct Light: Codable{
-        let state : State
-        let type: String
-        let name: String
-        let modelid : String
-        let manufacturername : String
-        let productname : String
-        let capabilities : Capabilities
-        let config : LightConfig
-        let uniqueid : String
-        let swversion : String
-        let swconfigid : String
-        let productid : String
-    }
- */
+
     //MARK: - Light - State
     struct State: Codable{
         let on : Bool
@@ -128,7 +101,8 @@ struct HueModel: Codable{
             case name, lights, sensors, type, state, recycle, action, stream, locations
             case groupClass = "class"
         }
-        //let id : String! // TODO: Consider writing a custom decoder instead of having this:
+        
+        let id : String
         let name: String
         let lights: [String]
         let sensors: [String] // I don't have any sensors, so it's blank in the json, not sure what it is by default
@@ -139,6 +113,20 @@ struct HueModel: Codable{
         let action: GroupAction
         let stream: Stream?
         let locations: [String: [Double]]?
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = container.codingPath.first!.stringValue
+            name = try container.decode(String.self, forKey: .name)
+            lights = try container.decode([String].self, forKey: .lights)
+            sensors = try container.decode([String].self, forKey: .sensors)
+            type = try container.decode(String.self, forKey: .type)
+            state = try container.decode(GroupState.self, forKey: .state)
+            recycle = try container.decode(Bool.self, forKey: .recycle)
+            groupClass = try container.decode(String.self, forKey: .groupClass)
+            action = try container.decode(GroupAction.self, forKey: .action)
+            stream = try container.decodeIfPresent(Stream.self, forKey: .stream)
+            locations = try container.decodeIfPresent([String:[Double]].self, forKey: .locations)
+        }
     }
     
     //MARK: - Group State

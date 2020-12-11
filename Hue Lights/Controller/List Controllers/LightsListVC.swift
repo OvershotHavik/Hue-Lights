@@ -104,7 +104,7 @@ class LightsListVC: ListController, ListSelectionControllerDelegate{
                                  isReachable: isReachable,
                                  lightColor: ConvertColor.getRGB(xy: lightColor, bri: bri))
         cell.configureCell(LightData: cellData)
-        if let tag = Int(row.key){
+        if let tag = Int(row.id){
             cell.onSwitch.tag = tag
             cell.brightnessSlider.tag = tag
             cell.btnChangeColor.tag = tag
