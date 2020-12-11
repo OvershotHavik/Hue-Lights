@@ -8,20 +8,30 @@
 import UIKit
 
 class ScheduleListVC: ListController, UISearchBarDelegate{
-    fileprivate var filtered = [String]()
-    fileprivate var scheduleArray = [HueModel.Schedules]()
+//    fileprivate var filtered = [String]()
+    fileprivate var scheduleArray : [HueModel.Schedules]
     fileprivate var hueResults : HueModel?
+    
+    init(scheduleArray: [HueModel.Schedules]) {
+        self.scheduleArray = scheduleArray
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         guard let delegate = delegate else {
             assertionFailure("Set the delegate")
             return
         }
-        filtered = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
+        scheduleArray = scheduleArray.sorted(by: { $0.name < $1.name})
         hueResults = delegate.hueResults
-        if let hueResults = hueResults{
-            scheduleArray.append(contentsOf: hueResults.schedules.values)
-        }
+//        if let hueResults = hueResults{
+//            scheduleArray.append(contentsOf: hueResults.schedules.values)
+//        }
         self.tableView.reloadData()
     }
     
@@ -38,19 +48,20 @@ class ScheduleListVC: ListController, UISearchBarDelegate{
         setup()
     }
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return filtered.count
+        return scheduleArray.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! ListCell
         cell.accessoryType = .none
         cell.backgroundColor = .systemBackground
-        let itemRow = filtered[indexPath.row]
-        cell.lblListItem.text = itemRow
+        let itemRow = scheduleArray[indexPath.row]
+        cell.lblListItem.text = itemRow.name
+        
         let onSwitch = UISwitch()
         if let hueResults = hueResults{
             for schedule in hueResults.schedules{
-                if schedule.value.name == itemRow{
+                if schedule.value.name == itemRow.name{
                     if schedule.value.status == "disabled"{
                         onSwitch.isOn = false
                     } else {

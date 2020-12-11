@@ -22,7 +22,7 @@ class EditLightVC: UIViewController, ListSelectionControllerDelegate{
     fileprivate var groupNames = [String]()
     fileprivate var initialGroup : String?
     fileprivate var newGroup : String?
-    fileprivate var noGroup = false
+    fileprivate var noGroup = true
     
     init(lightName: String) {
         self.lightName = lightName
@@ -93,6 +93,8 @@ extension EditLightVC: UpdateItem, SelectedItems{
         if items.count == 0{
             print("no group selected")
             noGroup = true
+        } else {
+            noGroup = false
         }
         rootView.updateLabel(text: newGroup ?? "No group selected")
     }

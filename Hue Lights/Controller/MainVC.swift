@@ -35,6 +35,32 @@ class MainVC: UIViewController, ListSelectionControllerDelegate {
 
 extension MainVC: GetDelegate{
     func getTapped(sender: HueSender) {
+        switch sender {
+        case .lights:
+            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights") else {return}
+            print(url)
+            DataManager.get(url: url) { (results) in
+                switch results{
+                case .success(let data):
+                    let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
+                    let lights = lightsFromBridge.compactMap{ $0}
+                    DispatchQueue.main.async {
+                        let lightlistVC = LightsListVC(lightsArray: lights, showingGroup: false)
+                        lightlistVC.delegate = self
+                        lightlistVC.title = HueSender.lights.rawValue
+                        self.navigationController?.pushViewController(lightlistVC, animated: true)
+                    }
+                case .failure(let e): print(e)
+                }
+            }
+        
+        default:
+            print("not setup yet")
+        }
+        
+        /*
+         
+         
         print("Get Info")
         guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)") else {return}
         print(url)
@@ -48,6 +74,9 @@ extension MainVC: GetDelegate{
                     self.hueResults = resultsFromBrdige
                     switch sender{
                     case .lights:
+//                        let lightsFromBridge = try JSONDecoder().decode(HueModel.Light.self, from: data)
+//                        print(lightsFromBridge.lightID)
+                        
                         for light in resultsFromBrdige.lights{
                             
                             print("=================================================")
@@ -61,10 +90,8 @@ extension MainVC: GetDelegate{
                             if let safeXY = light.value.state.xy{
                                 print("xy: \(safeXY)")
                             }
-                            self.sourceItems.append(light.value.name)
+//                            self.sourceItems.append(light.value.name)
                         }
-//                        let lights = try JSONDecoder().decode([String:HueModel.Light].self, from: data)
-                        
                         let lightsArray: [HueModel.Light] = Array(resultsFromBrdige.lights.values)
 //                        var array = lightsArray
                         DispatchQueue.main.async {
@@ -92,10 +119,11 @@ extension MainVC: GetDelegate{
                     case .schedules:
                         for schedule in resultsFromBrdige.schedules{
                             print("Key: \(schedule.key) - Schedule Name: \(schedule.value.name)")
-                            self.sourceItems.append(schedule.value.name)
+//                            self.sourceItems.append(schedule.value.name)
                         }
+                        let scheduleArray = Array(resultsFromBrdige.schedules.values)
                         DispatchQueue.main.async {
-                            let scheduleList = ScheduleListVC()
+                            let scheduleList = ScheduleListVC(scheduleArray: scheduleArray)
                             scheduleList.delegate = self
                             scheduleList.title = HueSender.schedules.rawValue
                             self.navigationController?.pushViewController(scheduleList, animated: true)
@@ -103,20 +131,22 @@ extension MainVC: GetDelegate{
 //MARK: - Light Scenes
                     case .lightScenes:
                         print("Light Scenes")
+                        var scenesArray = [HueModel.Scenes]()
                         for scene in resultsFromBrdige.scenes{
 //                            print("scen: \(scene.value.name) type: \(scene.value.type)")
                             if scene.value.type == "LightScene"{
                                 if scene.value.owner == self.appOwner{ // this app owner
                                     print("Light scene: \(scene.value.name)")
-                                    self.sourceItems.append(scene.value.name)
+//                                    self.sourceItems.append(scene.value.name)
+                                    scenesArray.append(scene.value)
                                 }
                             }
                         }
                         DispatchQueue.main.async {
-                            let sceneList = SceneListVC(groupNumber: "", lightsInGroup: [""])
-                            sceneList.delegate = self
-                            sceneList.title = HueSender.lightScenes.rawValue
-                            self.navigationController?.pushViewController(sceneList, animated: true)
+//                            let sceneList = SceneListVC(groupNumber: "", lightsInGroup: [""], sceneArray: scenesArray)
+//                            sceneList.delegate = self
+//                            sceneList.title = HueSender.lightScenes.rawValue
+//                            self.navigationController?.pushViewController(sceneList, animated: true)
                         }
                         
                     default: print("Not setup in get tapped on main vc")
@@ -127,6 +157,7 @@ extension MainVC: GetDelegate{
             case .failure(let e): print("Error getting info: \(e)")
             }
         }
+         */
     }
 }
 //MARK: - Discovery - Run once

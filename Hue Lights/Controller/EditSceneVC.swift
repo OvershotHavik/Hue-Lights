@@ -18,14 +18,16 @@ class EditSceneVC: UIViewController, ListSelectionControllerDelegate{
     fileprivate var rootView : EditSceneView!
     fileprivate var subView : LightsListVC!
     fileprivate var sceneName: String
-    fileprivate var hueLights = [HueModel.Light]()
+    fileprivate var groupLights = [HueModel.Light]()
     fileprivate var sceneKey : String?
     fileprivate var sceneLights = [String : HueModel.Lightstates]()
     fileprivate var tempChangeColorButton : UIButton?
     fileprivate var groupNumber : String
-    init(sceneName: String, groupNumber: String) {
+    fileprivate var lightsInGroup : [HueModel.Light]
+    init(sceneName: String, groupNumber: String, lightsInGroup: [HueModel.Light]) {
         self.sceneName = sceneName
         self.groupNumber = groupNumber
+        self.lightsInGroup = lightsInGroup
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -51,7 +53,9 @@ class EditSceneVC: UIViewController, ListSelectionControllerDelegate{
         bridgeIP = delegate.bridgeIP
         bridgeUser = delegate.bridgeUser
         hueResults = delegate.hueResults
-        sourceItems = delegate.sourceItems.sorted()
+        lightsInGroup = lightsInGroup.sorted(by: {$0.name < $1.name})
+        subView.tableView.reloadData()
+//        sourceItems = delegate.sourceItems.sorted()
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
@@ -76,8 +80,6 @@ class EditSceneVC: UIViewController, ListSelectionControllerDelegate{
             subView.view.bottomAnchor.constraint(equalTo: rootView.btnSave.topAnchor, constant: -UI.verticalSpacing)
         ])
     }
-    
-
 }
 
 
@@ -87,52 +89,49 @@ extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! HueLightsCell
         cell.cellDelegate = self
-        let rowName = sourceItems[indexPath.row]
-        if let hueResults = hueResults{
-            hueLights.append(contentsOf: hueResults.lights.values)
-        }
-        let filtered = hueLights.filter({$0.name == rowName})
-        for light in filtered{
-            var lightXY = [Double]()
-            var lightBri = 1
-            var lightOn = Bool()
-            if let hueResults = hueResults{
-                for i in hueResults.lights{
-                    if i.value.name == light.name{
-                        if let safeXY = sceneLights[i.key]?.xy{
-                            lightXY = safeXY
-                        }
-                        if let safeBri = sceneLights[i.key]?.bri{
-                            lightBri = safeBri
-                        }
-                        if let safeOn = sceneLights[i.key]?.on{
-                            lightOn = safeOn
-                        }
-                       
-                        if let tag = Int(i.key){
-                            cell.onSwitch.tag = tag
-                            cell.brightnessSlider.tag = tag
-                            cell.btnChangeColor.tag = tag
-                        }
-                    }
-                }
-            }
-            
-            let reachable = light.state.reachable
-            let cellData = LightData(lightName: light.name,
-                                     isOn: lightOn,
-                                     brightness: Float(lightBri),
-                                     isReachable: reachable,
-                                     lightColor: ConvertColor.getRGB(xy: lightXY, bri: lightBri))
+        
+        
+        /*
+         // broken untill we get ht ekey inside the model
 
-            cell.configureCell(LightData: cellData)
-            cell.backgroundColor = .clear
+        
+        let lightID = lightsInGroup[indexPath.row] // key for the light
+        if let safeLights = hueResults?.lights.filter({$0.key == lightID}){
+            if let light = safeLights.first?.value{
+                var lightBri = 1
+                var lightXY = [Double]()
+                var lightOn = Bool()
+                if let safeXY = sceneLights[lightID]?.xy{
+                    lightXY = safeXY
+                }
+                if let safeBri = sceneLights[lightID]?.bri{
+                    lightBri = safeBri
+                }
+                if let safeOn = sceneLights[lightID]?.on{
+                    lightOn = safeOn
+                }
+                if let tag = Int(lightID){
+                    cell.onSwitch.tag = tag
+                    cell.brightnessSlider.tag = tag
+                    cell.btnChangeColor.tag = tag
+                }
+                let reachable = light.state.reachable
+                let cellData = LightData(lightName: light.name,
+                                         isOn: lightOn,
+                                         brightness: Float(lightBri),
+                                         isReachable: reachable,
+                                         lightColor: ConvertColor.getRGB(xy: lightXY, bri: lightBri))
+
+                cell.configureCell(LightData: cellData)
+                cell.backgroundColor = .clear
+            }
         }
+ */
         return cell
     }
     //MARK: - Number of rows
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return sourceItems.count
+        return lightsInGroup.count
     }
     
     //MARK: - On Switch Toggled
@@ -234,10 +233,19 @@ extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
            print("No scene key, adding lights listed into scenelights")
             if let hueResults = hueResults{
                 for light in hueResults.lights{
-                    if sourceItems.contains(light.value.name){
-                        let lightStateData = HueModel.Lightstates(on: true, bri: 100, xy:[])
-                        sceneLights[light.key] = lightStateData
-                    }
+                    
+                    
+                    //broken untill we get the key inside the model
+                    
+                    
+                    
+//                    if let filtered = lightsInGroup.filter({$0 == light}){
+//                    if lightsInGroup.contains(light.value.name){
+//                    if lightsInGroup.contains(light.value.name){
+//                    if sourceItems.contains(light.value.name){
+//                        let lightStateData = HueModel.Lightstates(on: true, bri: 100, xy:[])
+//                        sceneLights[light.key] = lightStateData
+//                    }
                 }
             }
         }

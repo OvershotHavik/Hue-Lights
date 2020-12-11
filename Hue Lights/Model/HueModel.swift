@@ -18,6 +18,53 @@ struct HueModel: Codable{
     let sensors: [String: Sensor]
     //MARK: - Light
     struct Light: Codable{
+        enum CodingKeys: String, CodingKey{
+            case state, type, name, modelid, manufacturername, productname, capabilities, config, uniqueid, swversion, swconfigid, productid
+        }
+        let key : String
+        let state : State
+        let type: String
+        let name: String
+        let modelid : String
+        let manufacturername : String
+        let productname : String
+        let capabilities : Capabilities
+        let config : LightConfig
+        let uniqueid : String
+        let swversion : String
+        let swconfigid : String
+        let productid : String
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            key = container.codingPath.first!.stringValue
+            state = try container.decode(State.self, forKey: CodingKeys.state)
+            type = try container.decode(String.self, forKey: CodingKeys.type)
+            name = try container.decode(String.self, forKey: CodingKeys.name)
+            modelid = try container.decode(String.self, forKey: CodingKeys.modelid)
+            manufacturername = try container.decode(String.self, forKey: CodingKeys.manufacturername)
+            productname = try container.decode(String.self, forKey: CodingKeys.productname)
+            capabilities = try container.decode(Capabilities.self, forKey: CodingKeys.capabilities)
+            config = try container.decode(LightConfig.self, forKey: CodingKeys.config)
+            uniqueid = try container.decode(String.self, forKey: CodingKeys.uniqueid)
+            swversion = try container.decode(String.self, forKey: CodingKeys.swversion)
+            swconfigid = try container.decode(String.self, forKey: CodingKeys.swconfigid)
+            productid = try container.decode(String.self, forKey: CodingKeys.productid)
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    /*
+     
+     origonal
+    //MARK: - Light
+    struct Light: Codable{
         let state : State
         let type: String
         let name: String
@@ -31,6 +78,7 @@ struct HueModel: Codable{
         let swconfigid : String
         let productid : String
     }
+ */
     //MARK: - Light - State
     struct State: Codable{
         let on : Bool

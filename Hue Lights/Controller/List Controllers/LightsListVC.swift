@@ -104,16 +104,10 @@ class LightsListVC: ListController, ListSelectionControllerDelegate{
                                  isReachable: isReachable,
                                  lightColor: ConvertColor.getRGB(xy: lightColor, bri: bri))
         cell.configureCell(LightData: cellData)
-        if let hueResults = hueResults{
-            for i in hueResults.lights{
-                if i.value.name == rowName{
-                    if let tag = Int(i.key){
-                        cell.onSwitch.tag = tag
-                        cell.brightnessSlider.tag = tag
-                        cell.btnChangeColor.tag = tag
-                    }
-                }
-            }
+        if let tag = Int(row.key){
+            cell.onSwitch.tag = tag
+            cell.brightnessSlider.tag = tag
+            cell.btnChangeColor.tag = tag
         }
         cell.backgroundColor = .clear
         return cell
@@ -329,25 +323,44 @@ extension LightsListVC{
     }
     //MARK: - Scenes Tapped
     @objc func scenesTapped(){
-        guard let editingGroupDelegate = editingGroupDelegate else {return}
+        guard let groupNumber = editingGroupDelegate?.groupNumber else {return}
         print("show scene in group list")
-        self.sourceItems = []
+//        self.sourceItems = []
+        var scenesArray = [HueModel.Scenes]()
+        var lightsInGroup = [HueModel.Light]()
         if let hueResults = hueResults{
-            for scene in hueResults.scenes{
-                if scene.value.group == editingGroupDelegate.groupNumber{
-                    self.sourceItems.append(scene.value.name)
+            scenesArray = Array(hueResults.scenes.filter( {$0.value.group == groupNumber}).values)
+//            for group in hueResults.groups{
+//                if group.key == groupNumber{
+//                    lightsInGroup = group.value.lights
+//                }
+//            }
+            if let safeLights = hueResults.groups[groupNumber]?.lights{
+                for light in safeLights{
+                    lightsInGroup.append(contentsOf: hueResults.lights.filter({$0.key == light}).values)
                 }
             }
+            
+//            lightsInGroup = Array(hueResults.groups.filter({$0.key == groupNumber}).values)
+            /*
+            for scene in hueResults.scenes{
+                if scene.value.group == groupNumber{
+//                    self.sourceItems.append(scene.value.name)
+                    
+                }
+            }
+ */
         }
         DispatchQueue.main.async {
-            /*
-            let sceneList = SceneListVC(groupNumber: editingGroupDelegate.groupNumber, lightsInGroup: self.lightsArray)
+            
+//            let sceneList = SceneListVC(groupNumber: editingGroupDelegate.groupNumber, lightsInGroup: self.lightsArray, sceneArray: scenesArray)
+            let sceneList = SceneListVC(groupNumber: groupNumber, lightsInGroup: lightsInGroup, sceneArray: scenesArray)
             sceneList.delegate = self
                 
             sceneList.title = HueSender.scenes.rawValue
             self.navigationController?.pushViewController(sceneList, animated: true)
  
-*/
+
         }
     }
 }

@@ -12,14 +12,16 @@ class SceneListVC: ListController, UISearchBarDelegate, ListSelectionControllerD
     var bridgeIP = String()
     var bridgeUser = String()
     
-    fileprivate var filtered = [String]()
-    fileprivate var sceneArray = [HueModel.Scenes]()
+//    fileprivate var filtered = [String]()
+    fileprivate var sceneArray : [HueModel.Scenes]
     internal var hueResults : HueModel?
     fileprivate var groupNumber: String
-    fileprivate var lightsInGroup: [String]
-    init(groupNumber: String, lightsInGroup: [String]) {
+    fileprivate var lightsInGroup: [HueModel.Light]
+    
+    init(groupNumber: String, lightsInGroup: [HueModel.Light], sceneArray: [HueModel.Scenes]) {
         self.groupNumber = groupNumber
         self.lightsInGroup = lightsInGroup
+        self.sceneArray = sceneArray
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -37,11 +39,11 @@ class SceneListVC: ListController, UISearchBarDelegate, ListSelectionControllerD
         bridgeIP = delegate.bridgeIP
         bridgeUser = delegate.bridgeUser
         hueResults = delegate.hueResults
-        filtered = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
-        if let hueResults = hueResults{
-            sceneArray.append(contentsOf: hueResults.scenes.values)
-
-        }
+        sceneArray = sceneArray.sorted(by: { $0.name < $1.name})
+//        if let hueResults = hueResults{
+//            sceneArray.append(contentsOf: hueResults.scenes.values)
+//
+//        }
         
         self.tableView.reloadData()
     }
@@ -62,10 +64,13 @@ class SceneListVC: ListController, UISearchBarDelegate, ListSelectionControllerD
     
     @objc func addScene(){
         print("Bring up edit scene")
-        let addScene = EditSceneVC(sceneName: "", groupNumber: groupNumber)
+        let addScene = EditSceneVC(sceneName: "", groupNumber: groupNumber, lightsInGroup: lightsInGroup)
         addScene.delegate = self
-        self.sourceItems = self.lightsInGroup
+//        self.sourceItems = self.lightsInGroup
         self.navigationController?.pushViewController(addScene, animated: true)
+        
+    }
+    func getLightDataFromKey(){
         
     }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -73,20 +78,20 @@ class SceneListVC: ListController, UISearchBarDelegate, ListSelectionControllerD
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! ListCell
         cell.accessoryType = .none
         cell.backgroundColor = .systemBackground
-        let itemRow = filtered[indexPath.row]
-        cell.lblListItem.text = itemRow
+        let itemRow = sceneArray[indexPath.row]
+        cell.lblListItem.text = itemRow.name
         return cell
     }
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return filtered.count
+        return sceneArray.count
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let delegate = delegate else {
             assertionFailure("Set the delegate")
             return
         }
-        print("scene: \(filtered[indexPath.row])")
-        let selectedScene = filtered[indexPath.row]
+        let selectedScene = sceneArray[indexPath.row].name
+        print("Selected Scene: \(selectedScene)")
         var sceneID = String()
         if let hueResults = hueResults{
             for scene in hueResults.scenes{
@@ -132,9 +137,9 @@ class SceneListVC: ListController, UISearchBarDelegate, ListSelectionControllerD
 //                                                hueResults: delegate.hueResults,
 //                                                bridgeIP: delegate.bridgeIP,
 //                                                bridgeUser: delegate.bridgeUser)
-                let editScene = EditSceneVC(sceneName: self.filtered[indexPath.row], groupNumber: self.groupNumber)
+                let editScene = EditSceneVC(sceneName: self.sceneArray[indexPath.row].name, groupNumber: self.groupNumber, lightsInGroup: self.lightsInGroup)
                 editScene.delegate = self
-                self.sourceItems = self.lightsInGroup
+//                self.sourceItems = self.lightsInGroup
                 self.navigationController?.pushViewController(editScene, animated: true)
                 
             }
