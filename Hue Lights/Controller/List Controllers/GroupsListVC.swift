@@ -69,7 +69,6 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
         let isOn = row.state.all_on
         let bri = row.action.bri
         let color = row.action.xy
-//        let filtered = hueGroups.filter({$0.name == rowName})
         let cellData = LightData(lightName: name,
                                  isOn: isOn,
                                  brightness: Float(bri ?? 0),
@@ -77,20 +76,11 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
                                  lightColor: ConvertColor.getRGB(xy: color, bri: bri ?? 0))
         cell.configureCell(LightData: cellData)
 
-
-            if let hueResults = hueResults{
-                for i in hueResults.groups{
-                    if i.value.name == name{
-                        if let tag = Int(i.key){
-                            cell.onSwitch.tag = tag
-                            cell.brightnessSlider.tag = tag
-                            cell.btnChangeColor.tag = tag
-    //                        print("tag: \(onSwitch.tag)")
-                        }
-                    }
-                }
-            }
-        
+        if let tag = Int(row.id){
+            cell.onSwitch.tag = tag
+            cell.brightnessSlider.tag = tag
+            cell.btnChangeColor.tag = tag
+        }
         cell.backgroundColor = .clear
         return cell
     }

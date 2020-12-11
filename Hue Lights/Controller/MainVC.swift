@@ -45,6 +45,9 @@ extension MainVC: GetDelegate{
                 case .success(let data):
                     let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
                     let lights = lightsFromBridge.compactMap{ $0}
+                    for light in lights{
+                        print("Light id: \(light.id) - \(light.name)")
+                    }
                     DispatchQueue.main.async {
                         let lightlistVC = LightsListVC(lightsArray: lights, showingGroup: false)
                         lightlistVC.delegate = self
@@ -63,6 +66,9 @@ extension MainVC: GetDelegate{
                 case .success(let data):
                     let groupsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Groups>.self, from: data)
                     let groups = groupsFromBridge.compactMap{$0}
+                    for group in groups{
+                        print("Group name: \(group.name), Group id: \(group.id)")
+                    }
                     DispatchQueue.main.async {
                         let groupListController = GroupsListVC(groupsArray: groups)
                         groupListController.delegate = self
@@ -71,6 +77,27 @@ extension MainVC: GetDelegate{
                     }
                 case .failure(let e): print(e)
                     
+                }
+            }
+//MARK: - Schedules
+        case .schedules:
+            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/schedules") else {return}
+            print(url)
+            DataManager.get(url: url){results in
+                switch results{
+                case .success(let data):
+                    let schedulesFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Schedules>.self, from: data)
+                    let schedules = schedulesFromBridge.compactMap {$0}
+                    for schedule in schedules{
+                        print("Schedule id: \(schedule.id) - \(schedule.name)")
+                    }
+                    DispatchQueue.main.async {
+                        let scheduleList = ScheduleListVC(scheduleArray: schedules)
+                        scheduleList.delegate = self
+                        scheduleList.title = HueSender.schedules.rawValue
+                        self.navigationController?.pushViewController(scheduleList, animated: true)
+                    }
+                case .failure(let e): print(e)
                 }
             }
         default:

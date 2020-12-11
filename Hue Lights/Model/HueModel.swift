@@ -96,12 +96,10 @@ struct HueModel: Codable{
     
     //MARK: - Groups
     struct Groups: Codable{
-        
         enum CodingKeys: String, CodingKey{
             case name, lights, sensors, type, state, recycle, action, stream, locations
             case groupClass = "class"
         }
-        
         let id : String
         let name: String
         let lights: [String]
@@ -217,6 +215,10 @@ struct HueModel: Codable{
     
     //MARK: - Schedules
     struct Schedules: Codable{
+        enum CodingKeys: String, CodingKey{
+            case name, description, command, localtime, time, created, status, starttime, recycle
+        }
+        let id : String
         let name: String
         let description: String
         let command: Command
@@ -226,6 +228,19 @@ struct HueModel: Codable{
         let status: String
         let starttime: String
         let recycle: Bool
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = container.codingPath.first!.stringValue
+            name = try container.decode(String.self, forKey: .name)
+            description = try container.decode(String.self, forKey: .description)
+            command = try container.decode(Command.self, forKey: .command)
+            localtime = try container.decode(String.self, forKey: .localtime)
+            time = try container.decode(String.self, forKey: .time)
+            created = try container.decode(String.self, forKey: .created)
+            status = try container.decode(String.self, forKey: .status)
+            starttime = try container.decode(String.self, forKey: .starttime)
+            recycle = try container.decode(Bool.self, forKey: .recycle)
+        }
     }
     //MARK: - Schedule - Command
     struct Command: Codable{
@@ -242,6 +257,7 @@ struct HueModel: Codable{
     
     //MARK: - Scenes
     struct Scenes: Codable{
+        
         let name: String
         let type: String
         let group: String?
