@@ -7,14 +7,12 @@
 
 import UIKit
 
-class SceneListVC: ListController, UISearchBarDelegate, ListSelectionControllerDelegate{
-    var sourceItems = [String]()
+class SceneListVC: ListController, UISearchBarDelegate, BridgeInfoDelegate{
     var bridgeIP = String()
     var bridgeUser = String()
     
 //    fileprivate var filtered = [String]()
     fileprivate var sceneArray : [HueModel.Scenes]
-    internal var hueResults : HueModel?
     fileprivate var groupNumber: String
     fileprivate var lightsInGroup: [HueModel.Light]
     
@@ -38,13 +36,7 @@ class SceneListVC: ListController, UISearchBarDelegate, ListSelectionControllerD
         }
         bridgeIP = delegate.bridgeIP
         bridgeUser = delegate.bridgeUser
-        hueResults = delegate.hueResults
         sceneArray = sceneArray.sorted(by: { $0.name < $1.name})
-//        if let hueResults = hueResults{
-//            sceneArray.append(contentsOf: hueResults.scenes.values)
-//
-//        }
-        
         self.tableView.reloadData()
     }
     

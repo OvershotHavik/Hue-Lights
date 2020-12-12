@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MainVC: UIViewController, ListSelectionControllerDelegate {
+class MainVC: UIViewController, BridgeInfoDelegate {
     var hueResults : HueModel?
     var sourceItems = [String]()
     

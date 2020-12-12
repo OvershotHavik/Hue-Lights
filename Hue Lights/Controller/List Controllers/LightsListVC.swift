@@ -8,11 +8,10 @@
 import UIKit
 
 protocol editingGroup: class{
-    var groupName : String {get}
-    var groupID: String {get}
+    var group: HueModel.Groups? {get}
 }
 
-class LightsListVC: ListController, ListSelectionControllerDelegate{
+class LightsListVC: ListController, BridgeInfoDelegate{
     weak var editingGroupDelegate: editingGroup?
     var sourceItems = [String]()
     var bridgeIP = String()
@@ -20,7 +19,7 @@ class LightsListVC: ListController, ListSelectionControllerDelegate{
     
 //    private var lightsArray = [String]()
     private var lightsArray : [HueModel.Light]
-    internal var hueResults : HueModel?
+//    internal var hueResults : HueModel?
     private var showingGroup: Bool
     
     var btnScenes: UIButton = {
@@ -60,7 +59,7 @@ class LightsListVC: ListController, ListSelectionControllerDelegate{
         }
         bridgeIP = delegate.bridgeIP
         bridgeUser = delegate.bridgeUser
-        hueResults = delegate.hueResults
+//        hueResults = delegate.hueResults
         if showingGroup == true{
             navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(self.editGroup))
         }
@@ -81,8 +80,11 @@ class LightsListVC: ListController, ListSelectionControllerDelegate{
     //MARK: - Did Select Row
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        let light = lightsArray[indexPath.row]
+        let name = light.name
+        let id = light.id
         DispatchQueue.main.async {
-            let editLight = EditLightVC(lightName: self.lightsArray[indexPath.row].name)
+            let editLight = EditLightVC(lightName: name, lightID: id)
             editLight.delegate = self
             self.navigationController?.pushViewController(editLight, animated: true)
         }
@@ -235,15 +237,14 @@ extension LightsListVC{
         print("edit tapped - in light list vc")
         DispatchQueue.main.async {
             guard let groupDelegate = self.editingGroupDelegate else {return}
-             let safeGroupName = groupDelegate.groupName
-               let safeGroupNumber = groupDelegate.groupID
-                let editGroupVC = EditGroupVC(groupName: safeGroupName, groupNumber: safeGroupNumber)
+            if let group = groupDelegate.group{
+                let editGroupVC = EditGroupVC(group: group)
                 editGroupVC.delegate = self
-//                editGroupVC.updateTitleDelegate = self
+                //                editGroupVC.updateTitleDelegate = self
                 editGroupVC.updateDelegate = self
-                editGroupVC.title = "Editing \(safeGroupName)"
+                editGroupVC.title = "Editing \(group.name)"
                 self.navigationController?.pushViewController(editGroupVC, animated: true)
-            
+            }
         }
     }
 }
@@ -323,7 +324,7 @@ extension LightsListVC{
     }
     //MARK: - Scenes Tapped
     @objc func scenesTapped(){
-        guard let groupID = editingGroupDelegate?.groupID else {return}
+        guard let group = editingGroupDelegate?.group else {return}
         guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/scenes") else {return}
         print(url)
         DataManager.get(url: url) {results in
@@ -332,10 +333,10 @@ extension LightsListVC{
                 do {
                     let scenesFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Scenes>.self, from: data)
                     let scenes = scenesFromBridge.compactMap {$0}
-                    let sceneArray = scenes.filter{$0.group == groupID}
+                    let sceneArray = scenes.filter{$0.group == group.id}
                     
                     DispatchQueue.main.async {
-                        let sceneList = SceneListVC(groupNumber: groupID, lightsInGroup: self.lightsArray, sceneArray: sceneArray)
+                        let sceneList = SceneListVC(groupNumber: group.id, lightsInGroup: self.lightsArray, sceneArray: sceneArray)
                         sceneList.delegate = self
                         sceneList.title = HueSender.scenes.rawValue
                         self.navigationController?.pushViewController(sceneList, animated: true)

@@ -7,25 +7,25 @@
 
 import UIKit
 
-class EditLightVC: UIViewController, ListSelectionControllerDelegate{
+class EditLightVC: UIViewController, BridgeInfoDelegate{
     fileprivate var rootView : EditItemView!
-    weak var delegate : ListSelectionControllerDelegate?
+    weak var delegate : BridgeInfoDelegate?
     weak var updateTitleDelegate : UpdateTitle?
     
-    var sourceItems = [String]()
-    var hueResults : HueModel?
+
     var bridgeIP = String()
     var bridgeUser = String()
     
     fileprivate var lightName : String
-    fileprivate var lightKey : String?
-    fileprivate var groupNames = [String]()
+    fileprivate var lightID : String
+    fileprivate var groupsArray : [HueModel.Groups]?
     fileprivate var initialGroup : String?
     fileprivate var newGroup : String?
     fileprivate var noGroup = true
     
-    init(lightName: String) {
+    init(lightName: String, lightID: String) {
         self.lightName = lightName
+        self.lightID = lightID
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -36,14 +36,13 @@ class EditLightVC: UIViewController, ListSelectionControllerDelegate{
     
     override func loadView() {
         guard let delegate = delegate else {return}
-        hueResults = delegate.hueResults
         bridgeIP = delegate.bridgeIP
         bridgeUser = delegate.bridgeUser
         rootView = EditItemView(itemName: lightName)
         self.view = rootView
         rootView.updateGroupDelegate = self
-        getLightKey()
-        getGroupNames()
+//        getLightKey()
+        getGroups()
         if let safeGroup = initialGroup{
             rootView.updateLabel(text: safeGroup)
         }
@@ -51,7 +50,7 @@ class EditLightVC: UIViewController, ListSelectionControllerDelegate{
     override func viewDidLoad() {
         super.viewDidLoad()
     }
-    
+    /*
     func getLightKey(){
         if let hueResults = hueResults{
             for light in hueResults.lights{
@@ -61,26 +60,30 @@ class EditLightVC: UIViewController, ListSelectionControllerDelegate{
             }
         }
     }
-    
-    func getGroupNames(){
-        groupNames = []
-        if let hueResults = hueResults{
-            for group in hueResults.groups{
-                groupNames.append(group.value.name)
-                if let safeKey = lightKey{
-                    if group.value.lights.contains(safeKey){
-                        initialGroup = group.value.name
-                    }
+    */
+    func getGroups(){
+        groupsArray = []
+        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups") else {return}
+        print(url)
+        DataManager.get(url: url) { results in
+            switch results{
+            case .success(let data):
+                do {
+                    let groupsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Groups>.self, from: data)
+                    self.groupsArray = groupsFromBridge.compactMap{$0}
+                    
+                } catch let e {
+                    print("Error getting Groups: \(e)")
                 }
+            case .failure(let e): print(e)
             }
         }
-        sourceItems = groupNames.sorted()
     }
-    
 }
 
 
 extension EditLightVC: UpdateItem, SelectedItems{
+
     func deleteTapped(name: String) {
         
     }
@@ -101,23 +104,25 @@ extension EditLightVC: UpdateItem, SelectedItems{
     
     func editList() {
         DispatchQueue.main.async {
-            if  let safeNewGroup = self.newGroup{ // if a new group has been picked already, use that
-                let selectGroup = ModifyGroupList(limit: 1, selectedItems: [safeNewGroup])
-                selectGroup.delegate = self
-                selectGroup.selectedItemsDelegate = self
-                self.navigationController?.pushViewController(selectGroup, animated: true)
-            } else {
-                if self.noGroup == true { // initial was changed to no group, so blank selection
-                    let selectGroup = ModifyGroupList(limit: 1, selectedItems: [])
+            if let safeGroupsArray = self.groupsArray{
+                if  let safeNewGroup = self.newGroup{ // if a new group has been picked already, use that
+                    let selectGroup = ModifyGroupList(limit: 1, selectedItems: [safeNewGroup], groupsArray: safeGroupsArray)
                     selectGroup.delegate = self
                     selectGroup.selectedItemsDelegate = self
                     self.navigationController?.pushViewController(selectGroup, animated: true)
                 } else {
-                    if let safeInitialGroup = self.initialGroup{ // else use the initial group name
-                        let selectGroup = ModifyGroupList(limit: 1, selectedItems: [safeInitialGroup])
+                    if self.noGroup == true { // initial was changed to no group, so blank selection
+                        let selectGroup = ModifyGroupList(limit: 1, selectedItems: [], groupsArray: safeGroupsArray)
                         selectGroup.delegate = self
                         selectGroup.selectedItemsDelegate = self
                         self.navigationController?.pushViewController(selectGroup, animated: true)
+                    } else {
+                        if let safeInitialGroup = self.initialGroup{ // else use the initial group name
+                            let selectGroup = ModifyGroupList(limit: 1, selectedItems: [safeInitialGroup], groupsArray: safeGroupsArray)
+                            selectGroup.delegate = self
+                            selectGroup.selectedItemsDelegate = self
+                            self.navigationController?.pushViewController(selectGroup, animated: true)
+                        }
                     }
                 }
             }
@@ -128,8 +133,8 @@ extension EditLightVC: UpdateItem, SelectedItems{
     func saveTapped(name: String) {
         print("save tapped")
         if lightName != name{ // name changed, update the bridge
-            if let safeKey = lightKey{
-                guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights/\(safeKey)") else {return}
+
+                guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights/\(lightID)") else {return}
                 print(url)
                 let httpBody = ["name" : name]
                 DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
@@ -145,7 +150,7 @@ extension EditLightVC: UpdateItem, SelectedItems{
                         }
                     }
                 }
-            }
+            
         }
         
         
@@ -161,64 +166,74 @@ extension EditLightVC: UpdateItem, SelectedItems{
         }
     }
     func addToGroup(newGroup: String){
-        if let safeKey = lightKey{
+
             if let safeInitialGroup = initialGroup{
                 if newGroup != safeInitialGroup{
                     print("new group name is different than initial")
                     removeFromInitialGroup() // group changed, so remove from previous group first
                 }
                 print("Group changed")
+                
                 var groupLights = [String]()
-                var groupNumber = String()
-                if let hueResults = hueResults{
-                    for group in hueResults.groups{
-                        if group.value.name == newGroup{
-                            groupLights = group.value.lights
-                            groupNumber = group.key
-                        }
+                var groupID : String?
+                if groupsArray != nil{
+                    let filteredGroups = groupsArray?.filter({$0.name == newGroup})
+                    if let safeLights = filteredGroups?[0].lights{
+                        groupLights = safeLights
+                    }
+                    if let safeID = filteredGroups?[0].id{
+                        groupID = safeID
                     }
                 }
-                
-                guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(groupNumber)") else {return}
-                print(url)
-                groupLights.append(safeKey)
-                groupLights = groupLights.unique()
-                let httpBody = ["lights":  groupLights]
-                DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
-                    DispatchQueue.main.async {
-                        switch result{
-                        case .success(let response):
-                            if response.contains("success"){
-                                    Alert.showBasic(title: "Success", message: "Added to \(newGroup)", vc: self)
-                            } else {
-                                Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                if let safeGroupID = groupID{
+                    guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(safeGroupID)") else {return}
+                    print(url)
+                    groupLights.append(lightID)
+                    groupLights = groupLights.unique()
+                    let httpBody = ["lights":  groupLights]
+                    DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
+                        DispatchQueue.main.async {
+                            switch result{
+                            case .success(let response):
+                                if response.contains("success"){
+                                        Alert.showBasic(title: "Success", message: "Added to \(newGroup)", vc: self)
+                                } else {
+                                    Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                                }
+                            case .failure(let e): print("Error occured: \(e)")
                             }
-                        case .failure(let e): print("Error occured: \(e)")
                         }
                     }
                 }
             }
-        }
     }
     
     func removeFromInitialGroup(){
         print("remove from initial group")
-        guard let safeKey = lightKey else {return}
         var groupLights : [String]?
-        var groupNumber : String?
-        if let hueResults = hueResults{
-            for group in hueResults.groups{
-                if group.value.name == initialGroup{
-                    groupLights = group.value.lights
-                    groupNumber = group.key
-                }
+        var groupID : String?
+        if groupsArray != nil{
+            let filteredGroups = groupsArray?.filter({$0.name == initialGroup})
+            if let safeLights = filteredGroups?[0].lights{
+                groupLights = safeLights
+            }
+            if let safeID = filteredGroups?[0].id{
+                groupID = safeID
             }
         }
+//        if let hueResults = hueResults{
+//            for group in hueResults.groups{
+//                if group.value.name == initialGroup{
+//                    groupLights = group.value.lights
+//                    groupNumber = group.key
+//                }
+//            }
+//        }
         if var safeGroupLights = groupLights,
-           let safeGroupNumber = groupNumber{ // if no initial group, skip the removal
-            safeGroupLights = safeGroupLights.filter {$0 != safeKey}.unique()
+           let safeID = groupID{ // if no initial group, skip the removal
+            safeGroupLights = safeGroupLights.filter {$0 != lightID}.unique()
             
-            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(safeGroupNumber)") else {return}
+            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(safeID)") else {return}
             print(url)
             let httpBody = ["lights": safeGroupLights]
             DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in

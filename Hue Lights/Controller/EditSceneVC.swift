@@ -7,14 +7,14 @@
 
 import UIKit
 
-class EditSceneVC: UIViewController, ListSelectionControllerDelegate{
-    var sourceItems = [String]()
-    var hueResults : HueModel?
+class EditSceneVC: UIViewController, BridgeInfoDelegate{
+//    var sourceItems = [String]()
+//    var hueResults : HueModel?
     var bridgeIP = String()
     var bridgeUser = String()
     
 
-    weak var delegate: ListSelectionControllerDelegate?
+    weak var delegate: BridgeInfoDelegate?
     fileprivate var rootView : EditSceneView!
     fileprivate var subView : LightsListVC!
     fileprivate var sceneName: String
@@ -53,7 +53,7 @@ class EditSceneVC: UIViewController, ListSelectionControllerDelegate{
         }
         bridgeIP = delegate.bridgeIP
         bridgeUser = delegate.bridgeUser
-        hueResults = delegate.hueResults
+//        hueResults = delegate.hueResults
         lightsInGroup = lightsInGroup.sorted(by: {$0.name < $1.name})
         subView.tableView.reloadData()
     }

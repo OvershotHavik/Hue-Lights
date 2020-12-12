@@ -7,17 +7,15 @@
 
 import UIKit
 
-class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGroup{
-    var groupName: String = ""
-    var groupID: String = ""
-    var sourceItems: [String] = []
+class GroupsListVC: ListController, BridgeInfoDelegate, editingGroup{
+    var group: HueModel.Groups?
     var bridgeIP: String = ""
     var bridgeUser: String = ""
     
 
 
     private var groupsArray : [HueModel.Groups]
-    internal var hueResults : HueModel?
+//    internal var hueResults : HueModel?
     
     init(groupsArray: [HueModel.Groups]) {
         self.groupsArray = groupsArray
@@ -50,7 +48,7 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
         bridgeUser = delegate.bridgeUser
         groupsArray = groupsArray.sorted(by: {$0.name < $1.name})
 //        groupsArray = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
-        hueResults = delegate.hueResults
+//        hueResults = delegate.hueResults
 //        if let hueResults = hueResults{
 //            hueGroups.append(contentsOf: hueResults.groups.values)
 //        }
@@ -87,11 +85,38 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let group = groupsArray[indexPath.row]
-        groupName = group.name
-        groupID = group.id
-        print("group: \(group.name) selected")
-        let lightsInGroup = group.lights
+        
+        group = groupsArray[indexPath.row]
+        if let safeGroup = group{
+            print("group: \(safeGroup.name) selected")
+            let lightsInGroup = safeGroup.lights
+            print("Lights in group: \(lightsInGroup)")
+            // Get the light model for each light in lightsInGroup
+            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights") else {return}
+            print(url)
+            DataManager.get(url: url) { results in
+                switch results{
+                case .success(let data):
+                    do {
+                        let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
+                        let lights = lightsFromBridge.compactMap{ $0}
+                        let lightsArray = lights.filter{ return lightsInGroup.contains($0.id)}
+                        DispatchQueue.main.async {
+                            let lightlistVC = LightsListVC(lightsArray: lightsArray, showingGroup: true)
+                            lightlistVC.delegate = self
+                            lightlistVC.editingGroupDelegate = self
+                            lightlistVC.title = HueSender.lights.rawValue
+                            self.navigationController?.pushViewController(lightlistVC, animated: true)
+                        }
+                    } catch let e {
+                        print("Error getting lights: \(e)")
+                    }
+
+                case .failure(let e): print(e)
+                }
+            }
+        }
+        
         
         /*
          [Groups]
@@ -109,33 +134,7 @@ class GroupsListVC: ListController, ListSelectionControllerDelegate, editingGrou
         let lightIDsInGroup = groups[indexPath.row]
         */
         
-        print("Lights in group: \(lightsInGroup)")
-        // Get the light model for each light in lightsInGroup
-        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights") else {return}
-        print(url)
-        DataManager.get(url: url) { results in
-            switch results{
-            case .success(let data):
-                do {
-                    let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
-                    let lights = lightsFromBridge.compactMap{ $0}
-                    let lightsArray = lights.filter{ return lightsInGroup.contains($0.id)}
-                    DispatchQueue.main.async {
-                        let lightlistVC = LightsListVC(lightsArray: lightsArray, showingGroup: true)
-                        lightlistVC.delegate = self
-                        lightlistVC.editingGroupDelegate = self
-                        lightlistVC.title = HueSender.lights.rawValue
-                        self.navigationController?.pushViewController(lightlistVC, animated: true)
-                    }
-                } catch let e {
-                    print("Error getting lights: \(e)")
-                }
 
-            case .failure(let e): print(e)
-            }
-        
-            
-        }
     }
 
     

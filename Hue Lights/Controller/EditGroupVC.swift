@@ -15,22 +15,21 @@ protocol UpdatedHueResults: class{
     func getUpdatedHueResults(hueResults: [HueModel])
 }
 
-class EditGroupVC: UIViewController, ListSelectionControllerDelegate{
-    var hueResults : HueModel?
+class EditGroupVC: UIViewController, BridgeInfoDelegate{
     var bridgeIP = String()
     var bridgeUser = String()
-    weak var delegate : ListSelectionControllerDelegate?
+    weak var delegate : BridgeInfoDelegate?
     weak var updateTitleDelegate : UpdateTitle?
     weak var updateDelegate : UpdatedHueResults?
     fileprivate var rootView : EditItemView!
     fileprivate var lightNameInGroup = [String]()
     fileprivate var lightNumbersInGroup = [String()]
+    fileprivate var allLightsOnBridge: [HueModel.Light]?
+    fileprivate var newGroupName : String?
     internal var sourceItems = [String]()
-    fileprivate var groupName : String
-    fileprivate var groupNumber : String
-    init(groupName: String, groupNumber: String) {
-        self.groupName = groupName
-        self.groupNumber = groupNumber
+    fileprivate var group: HueModel.Groups
+    init(group: HueModel.Groups) {
+        self.group = group
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -39,31 +38,35 @@ class EditGroupVC: UIViewController, ListSelectionControllerDelegate{
     }
     
     override func loadView() {
+        self.view = rootView
+        rootView.updateGroupDelegate = self
+        lightNameInGroup = getLightNamesFromIDs(lightIDs: group.lights)
+        updateListOnView(list: lightNameInGroup)
+//        lightNumbersInGroup = getNumberFromName(lightNames: lightNameInGroup)
+    }
+    override func viewDidLoad() {
+        super.viewDidLoad()
         guard let delegate = delegate  else {
             print("setup delegate for EditGroupVC")
             return
         }
-        rootView = EditItemView(itemName: groupName)
+        rootView = EditItemView(itemName: group.name)
         bridgeIP = delegate.bridgeIP
         bridgeUser = delegate.bridgeUser
-        hueResults = delegate.hueResults
-        self.view = rootView
-        rootView.updateGroupDelegate = self
-        updateListOnView()
-        lightNumbersInGroup = getNumberFromName(lightNames: lightNameInGroup)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
-        updateTitleDelegate?.updateTitle(newTitle: groupName)
+        if let safeNewGroupName = newGroupName{
+            updateTitleDelegate?.updateTitle(newTitle: safeNewGroupName)
+        }
         updateLightListInGroup()
     }
     
     //MARK: - Update Light List on rootView
-    func updateListOnView(){
-        lightNameInGroup = getNamesFromNumbers()
+    func updateListOnView(list: [String]){
         var text = String()
-        for light in lightNameInGroup{
+        for light in list{
             text += "\(light)\n"
         }
         rootView.updateLabel(text: text)
@@ -104,31 +107,73 @@ extension EditGroupVC: UpdateItem, SelectedItems{
     }
     
     func setSelectedItems(items: [String], ID: String) {
-        lightNameInGroup = items.sorted { $0 < $1}
+        let names = items.sorted { $0 < $1}
         var text = String()
-        for light in lightNameInGroup{
+        for light in names{
             text += "\(light)\n"
         }
         rootView.updateLabel(text: text)
     }
     
     
-    
-    //MARK: - Get Names From Numbers
-    func getNamesFromNumbers() -> [String]{
-        var lightNumbers = [String]()
-        var lightNames = [String]()
-        var lightsInGroupsAlready = [String]()
-        if let hueResults = hueResults{
-            for group in hueResults.groups{
-                if group.value.name == groupName{
-                    for light in group.value.lights{
-                        lightNumbers.append(light) // get number of the lights that are currently in the group
-                    }
+    func getAllLightsOnBridge(){
+        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights") else {return}
+        print(url)
+        DataManager.get(url: url) { (results) in
+            switch results{
+            case .success(let data):
+                do {
+                    let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
+                    self.allLightsOnBridge = lightsFromBridge.compactMap{ $0}
+                } catch let e {
+                    print("Error getting lights: \(e)")
                 }
-                lightsInGroupsAlready.append(contentsOf: group.value.lights)
+
+            case .failure(let e): print(e)
             }
-            print("Lights in groups already: \(lightsInGroupsAlready.sorted())")
+        }
+    }
+    //MARK: - Get Light Names From Numbers
+    func getLightNamesFromIDs(lightIDs: [String]) -> [String]{
+        if let allLights = allLightsOnBridge{
+            let filteredLights = allLights.filter{ return lightIDs.contains($0.id)}.map({$0.name})
+            return filteredLights
+        } else {
+            return []
+        }
+        /*
+        var lightNames = [String]()
+//        var lightsInGroupsAlready = lightIDs
+        
+        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights") else {return []}
+        print(url)
+        DataManager.get(url: url) { (results) in
+            switch results{
+            case .success(let data):
+                do {
+                    let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
+                    let lights = lightsFromBridge.compactMap{ $0}
+                    let filteredLights = lights.filter{ return lightIDs.contains($0.id)}
+                    lightNames = filteredLights.map({$0.name})
+                } catch let e {
+                    print("Error getting lights: \(e)")
+                }
+
+            case .failure(let e): print(e)
+            }
+        }
+ */
+        /*
+        if let hueResults = hueResults{
+//            for group in hueResults.groups{
+//                if group.value.name == groupName{
+//                    for light in group.value.lights{
+//                        lightNumbers.append(light) // get number of the lights that are currently in the group
+//                    }
+//                }
+//                lightsInGroupsAlready.append(contentsOf: group.value.lights)
+//            }
+            print("Lights in groups already: \(lightsInGroupsAlready)")
             for light in hueResults.lights{
                 if lightsInGroupsAlready.contains(light.key){
                 } else {
@@ -141,38 +186,56 @@ extension EditGroupVC: UpdateItem, SelectedItems{
                 }
             }
         }
-        return lightNames
+ */
     }
-    //MARK: - Get Numbers from Names
-    func getNumberFromName(lightNames: [String]) -> [String]{
-        var lightNumbers = [String]()
-        if let hueResults = hueResults{
-            for name in lightNames{
-                for light in hueResults.lights{
-                    if light.value.name == name{
-                        lightNumbers.append(light.key)
-                    }
-                }
-            }
+    
+    //MARK: - Get Light ID's from Names
+    func getLightIDFromNames(lightNames: [String]) -> [String]{
+        if let allLights = allLightsOnBridge{
+            let filteredLights = allLights.filter{ return lightNames.contains($0.name)}.map({$0.id})
+            return filteredLights
+        } else {
+            return []
         }
-        return lightNumbers
     }
     
     
     //MARK: - Take user to edit lights in the group
     func editList() {
-        DispatchQueue.main.async {
-            let lightList = ModifyGroupList(limit: 9999, selectedItems: self.lightNameInGroup)
-            lightList.delegate = self
-            lightList.selectedItemsDelegate = self
-            self.navigationController?.pushViewController(lightList, animated: true)
+        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups") else {return}
+        print(url)
+        DataManager.get(url: url) { results in
+            
+            switch results{
+            case .success(let data):
+                do {
+                    let groupsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Groups>.self, from: data)
+                    let groups = groupsFromBridge.compactMap{$0}
+                    for group in groups{
+                        print("Group name: \(group.name), Group id: \(group.id)")
+                    }
+                    DispatchQueue.main.async {
+                        let lightList = ModifyGroupList(limit: 9999, selectedItems: self.lightNameInGroup, groupsArray: groups)
+                        lightList.delegate = self
+                        lightList.selectedItemsDelegate = self
+                        self.navigationController?.pushViewController(lightList, animated: true)
+                    }
+                } catch let e {
+                    print("Error getting Groups: \(e)")
+                }
+
+            case .failure(let e): print(e)
+                
+            }
         }
+        
+
     }
     //MARK: - Save Tapped
     func saveTapped(name: String) {
-        groupName = name
-        self.lightNumbersInGroup = getNumberFromName(lightNames: self.lightNameInGroup)
-        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(groupNumber)") else {return}
+        
+        self.lightNumbersInGroup = getLightIDFromNames(lightNames: self.lightNameInGroup)
+        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(group.id)") else {return}
         print(url)
         var httpBody = [String: Any]()
         httpBody["name"] = name
@@ -182,7 +245,7 @@ extension EditGroupVC: UpdateItem, SelectedItems{
                 switch result{
                 case .success(let response):
                     if response.contains("success"){
-                        Alert.showBasic(title: "Saved!", message: "Successfully updated \(self.groupName)", vc: self)
+                        Alert.showBasic(title: "Saved!", message: "Successfully updated \(name)", vc: self)
                     } else {
                         Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
                     }

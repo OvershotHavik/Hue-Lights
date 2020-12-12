@@ -10,7 +10,7 @@ import UIKit
 class ScheduleListVC: ListController, UISearchBarDelegate{
 //    fileprivate var filtered = [String]()
     fileprivate var scheduleArray : [HueModel.Schedules]
-    fileprivate var hueResults : HueModel?
+//    fileprivate var hueResults : HueModel?
     
     init(scheduleArray: [HueModel.Schedules]) {
         self.scheduleArray = scheduleArray
@@ -23,15 +23,7 @@ class ScheduleListVC: ListController, UISearchBarDelegate{
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        guard let delegate = delegate else {
-            assertionFailure("Set the delegate")
-            return
-        }
         scheduleArray = scheduleArray.sorted(by: { $0.name < $1.name})
-        hueResults = delegate.hueResults
-//        if let hueResults = hueResults{
-//            scheduleArray.append(contentsOf: hueResults.schedules.values)
-//        }
         self.tableView.reloadData()
     }
     
