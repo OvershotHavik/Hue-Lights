@@ -59,19 +59,14 @@ class ScheduleListVC: ListController, UISearchBarDelegate{
         cell.lblListItem.text = itemRow.name
         
         let onSwitch = UISwitch()
-        if let hueResults = hueResults{
-            for schedule in hueResults.schedules{
-                if schedule.value.name == itemRow.name{
-                    if schedule.value.status == "disabled"{
-                        onSwitch.isOn = false
-                    } else {
-                        onSwitch.isOn = true
-                    }
-                    if let tag = Int(schedule.key){
-                        onSwitch.tag = tag
-                    }
-                }
-            }
+        if itemRow.status == "disabled"{
+            onSwitch.isOn = false
+        } else {
+            onSwitch.isOn = true
+        }
+        
+        if let tag = Int(itemRow.id){
+            onSwitch.tag = tag
         }
         onSwitch.addTarget(self, action: #selector(onToggled), for: .valueChanged)
         cell.accessoryView = onSwitch

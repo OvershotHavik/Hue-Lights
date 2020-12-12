@@ -257,7 +257,42 @@ struct HueModel: Codable{
     
     //MARK: - Scenes
     struct Scenes: Codable{
-        
+        enum CodingKeys: String, CodingKey{
+            case name, type, group, lights, owner, recycle, locked, appdata, picture, image, lastupdated, version, lightstates
+        }
+        let id : String
+        let name: String
+        let type: String
+        let group: String?
+        let lights: [String]
+        let owner: String
+        let recycle: Bool
+        let locked: Bool
+        let appdata: Appdata?
+        let picture: String?
+        let image: String?
+        let lastupdated: String
+        let version: Int
+        let lightstates: [String: Lightstates]?
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = container.codingPath.first!.stringValue
+            name = try container.decode(String.self, forKey: .name)
+            type = try container.decode(String.self, forKey: .type)
+            group = try container.decodeIfPresent(String.self, forKey: .group)
+            lights = try container.decode([String].self, forKey: .lights)
+            owner = try container.decode(String.self, forKey: .owner)
+            recycle = try container.decode(Bool.self, forKey: .recycle)
+            locked = try container.decode(Bool.self, forKey: .locked)
+            appdata = try container.decodeIfPresent(Appdata.self, forKey: .appdata)
+            picture = try container.decodeIfPresent(String.self, forKey: .picture)
+            image = try container.decodeIfPresent(String.self, forKey: .image)
+            lastupdated = try container.decode(String.self, forKey: .lastupdated)
+            version = try container.decode(Int.self, forKey: .version)
+            lightstates = try container.decodeIfPresent([String:Lightstates].self, forKey: .lightstates)
+        }
+    }
+    struct IndividualScene: Codable{ // When getting the lightStates, you have to pull the scene individually, and it does not have an ID at that level
         let name: String
         let type: String
         let group: String?

@@ -64,7 +64,7 @@ class SceneListVC: ListController, UISearchBarDelegate, ListSelectionControllerD
     
     @objc func addScene(){
         print("Bring up edit scene")
-        let addScene = EditSceneVC(sceneName: "", groupNumber: groupNumber, lightsInGroup: lightsInGroup)
+        let addScene = EditSceneVC(sceneName: "", sceneID: Constants.newScene.rawValue, groupNumber: groupNumber, lightsInGroup: lightsInGroup)
         addScene.delegate = self
 //        self.sourceItems = self.lightsInGroup
         self.navigationController?.pushViewController(addScene, animated: true)
@@ -90,20 +90,13 @@ class SceneListVC: ListController, UISearchBarDelegate, ListSelectionControllerD
             assertionFailure("Set the delegate")
             return
         }
-        let selectedScene = sceneArray[indexPath.row].name
-        print("Selected Scene: \(selectedScene)")
-        var sceneID = String()
-        if let hueResults = hueResults{
-            for scene in hueResults.scenes{
-                if scene.value.name == selectedScene{
-                    sceneID = scene.key
-                }
-            }
-        }
+        let scene = sceneArray[indexPath.row]
+        print("Selected Scene: \(scene.name)")
+
         guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/groups/\(groupNumber)/action") else {return}
         print(url)
         let httpBody = [
-            "scene": sceneID
+            "scene": scene.id
         ]
         DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
             DispatchQueue.main.async {
@@ -128,20 +121,18 @@ class SceneListVC: ListController, UISearchBarDelegate, ListSelectionControllerD
          return swipe
      }
     func edit(indexPath: IndexPath) -> UIContextualAction {
-        
          let action = UIContextualAction(style: .normal, title: "Edit") { (_, _, _) in
              print("Take user to edit scene")
             DispatchQueue.main.async {
-//                    let editScene = EditSceneVC(sceneName: self.filtered[indexPath.row],
-//                                                sourceItems: self.lightsInGroup,
-//                                                hueResults: delegate.hueResults,
-//                                                bridgeIP: delegate.bridgeIP,
-//                                                bridgeUser: delegate.bridgeUser)
-                let editScene = EditSceneVC(sceneName: self.sceneArray[indexPath.row].name, groupNumber: self.groupNumber, lightsInGroup: self.lightsInGroup)
+                let selected = self.sceneArray[indexPath.row]
+                let name = selected.name
+                let id = selected.id
+                let editScene = EditSceneVC(sceneName: name,
+                                            sceneID: id,
+                                            groupNumber: self.groupNumber,
+                                            lightsInGroup: self.lightsInGroup)
                 editScene.delegate = self
-//                self.sourceItems = self.lightsInGroup
                 self.navigationController?.pushViewController(editScene, animated: true)
-                
             }
          }
          return action

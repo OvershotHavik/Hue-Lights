@@ -71,6 +71,7 @@ class EditGroupVC: UIViewController, ListSelectionControllerDelegate{
 
     //MARK: - Update Light List In Group
     func updateLightListInGroup(){
+        /*
         //for sending back to the previous VC to update the list when lights are changed
         guard let delegate = delegate  else {return}
         print("Get Info")
@@ -81,10 +82,10 @@ class EditGroupVC: UIViewController, ListSelectionControllerDelegate{
             switch results{
             case .success(let data):
                 do {
-                    var tempHueResults = [HueModel]()
-                    let resultsFromBrdige = try JSONDecoder().decode(HueModel.self, from: data)
-                    tempHueResults.append(resultsFromBrdige)
-                    self.updateDelegate?.getUpdatedHueResults(hueResults: tempHueResults)
+//                    var tempHueResults = [HueModel]()
+//                    let resultsFromBrdige = try JSONDecoder().decode(DecodedArray<HueModel>.self, from: data)
+//                    tempHueResults.append(resultsFromBrdige)
+//                    self.updateDelegate?.getUpdatedHueResults(hueResults: tempHueResults)
                 } catch let e{
                     print("Error getting info in edit group vc \(e)")
                 }
@@ -92,6 +93,7 @@ class EditGroupVC: UIViewController, ListSelectionControllerDelegate{
                 print("Error getting info in edit group vc \(e)")
             }
         }
+ */
     }
  
 }

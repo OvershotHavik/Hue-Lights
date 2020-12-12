@@ -25,3 +25,9 @@ enum HueSender : String {
     case scenes = "Scenes"
     case lightScenes = "Light Scenes"
 }
+
+enum Constants: String{
+    case enabled = "enabled"
+    case disabled = "disabled"
+    case newScene = "New Scene"
+}

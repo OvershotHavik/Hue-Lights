@@ -9,7 +9,7 @@ import UIKit
 
 protocol editingGroup: class{
     var groupName : String {get}
-    var groupNumber: String {get}
+    var groupID: String {get}
 }
 
 class LightsListVC: ListController, ListSelectionControllerDelegate{
@@ -236,7 +236,7 @@ extension LightsListVC{
         DispatchQueue.main.async {
             guard let groupDelegate = self.editingGroupDelegate else {return}
              let safeGroupName = groupDelegate.groupName
-               let safeGroupNumber = groupDelegate.groupNumber
+               let safeGroupNumber = groupDelegate.groupID
                 let editGroupVC = EditGroupVC(groupName: safeGroupName, groupNumber: safeGroupNumber)
                 editGroupVC.delegate = self
 //                editGroupVC.updateTitleDelegate = self
@@ -323,44 +323,30 @@ extension LightsListVC{
     }
     //MARK: - Scenes Tapped
     @objc func scenesTapped(){
-        guard let groupNumber = editingGroupDelegate?.groupNumber else {return}
-        print("show scene in group list")
-//        self.sourceItems = []
-        var scenesArray = [HueModel.Scenes]()
-        var lightsInGroup = [HueModel.Light]()
-        if let hueResults = hueResults{
-            scenesArray = Array(hueResults.scenes.filter( {$0.value.group == groupNumber}).values)
-//            for group in hueResults.groups{
-//                if group.key == groupNumber{
-//                    lightsInGroup = group.value.lights
-//                }
-//            }
-            if let safeLights = hueResults.groups[groupNumber]?.lights{
-                for light in safeLights{
-                    lightsInGroup.append(contentsOf: hueResults.lights.filter({$0.key == light}).values)
-                }
-            }
-            
-//            lightsInGroup = Array(hueResults.groups.filter({$0.key == groupNumber}).values)
-            /*
-            for scene in hueResults.scenes{
-                if scene.value.group == groupNumber{
-//                    self.sourceItems.append(scene.value.name)
+        guard let groupID = editingGroupDelegate?.groupID else {return}
+        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/scenes") else {return}
+        print(url)
+        DataManager.get(url: url) {results in
+            switch results{
+            case .success(let data):
+                do {
+                    let scenesFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Scenes>.self, from: data)
+                    let scenes = scenesFromBridge.compactMap {$0}
+                    let sceneArray = scenes.filter{$0.group == groupID}
                     
-                }
-            }
- */
-        }
-        DispatchQueue.main.async {
-            
-//            let sceneList = SceneListVC(groupNumber: editingGroupDelegate.groupNumber, lightsInGroup: self.lightsArray, sceneArray: scenesArray)
-            let sceneList = SceneListVC(groupNumber: groupNumber, lightsInGroup: lightsInGroup, sceneArray: scenesArray)
-            sceneList.delegate = self
-                
-            sceneList.title = HueSender.scenes.rawValue
-            self.navigationController?.pushViewController(sceneList, animated: true)
- 
+                    DispatchQueue.main.async {
+                        let sceneList = SceneListVC(groupNumber: groupID, lightsInGroup: self.lightsArray, sceneArray: sceneArray)
+                        sceneList.delegate = self
+                        sceneList.title = HueSender.scenes.rawValue
+                        self.navigationController?.pushViewController(sceneList, animated: true)
+                    }
 
+                } catch let e {
+                    print("Error getting scenes: \(e)")
+                }
+
+            case .failure(let e): print(e)
+            }
         }
     }
 }

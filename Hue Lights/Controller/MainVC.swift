@@ -43,17 +43,22 @@ extension MainVC: GetDelegate{
             DataManager.get(url: url) { (results) in
                 switch results{
                 case .success(let data):
-                    let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
-                    let lights = lightsFromBridge.compactMap{ $0}
-                    for light in lights{
-                        print("Light id: \(light.id) - \(light.name)")
+                    do {
+                        let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
+                        let lights = lightsFromBridge.compactMap{ $0}
+                        for light in lights{
+                            print("Light id: \(light.id) - \(light.name)")
+                        }
+                        DispatchQueue.main.async {
+                            let lightlistVC = LightsListVC(lightsArray: lights, showingGroup: false)
+                            lightlistVC.delegate = self
+                            lightlistVC.title = HueSender.lights.rawValue
+                            self.navigationController?.pushViewController(lightlistVC, animated: true)
+                        }
+                    } catch let e {
+                        print("Error getting lights: \(e)")
                     }
-                    DispatchQueue.main.async {
-                        let lightlistVC = LightsListVC(lightsArray: lights, showingGroup: false)
-                        lightlistVC.delegate = self
-                        lightlistVC.title = HueSender.lights.rawValue
-                        self.navigationController?.pushViewController(lightlistVC, animated: true)
-                    }
+
                 case .failure(let e): print(e)
                 }
             }
@@ -62,19 +67,25 @@ extension MainVC: GetDelegate{
             guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups") else {return}
             print(url)
             DataManager.get(url: url) { results in
+                
                 switch results{
                 case .success(let data):
-                    let groupsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Groups>.self, from: data)
-                    let groups = groupsFromBridge.compactMap{$0}
-                    for group in groups{
-                        print("Group name: \(group.name), Group id: \(group.id)")
+                    do {
+                        let groupsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Groups>.self, from: data)
+                        let groups = groupsFromBridge.compactMap{$0}
+                        for group in groups{
+                            print("Group name: \(group.name), Group id: \(group.id)")
+                        }
+                        DispatchQueue.main.async {
+                            let groupListController = GroupsListVC(groupsArray: groups)
+                            groupListController.delegate = self
+                            groupListController.title = HueSender.groups.rawValue
+                            self.navigationController?.pushViewController(groupListController, animated: true)
+                        }
+                    } catch let e {
+                        print("Error getting Groups: \(e)")
                     }
-                    DispatchQueue.main.async {
-                        let groupListController = GroupsListVC(groupsArray: groups)
-                        groupListController.delegate = self
-                        groupListController.title = HueSender.groups.rawValue
-                        self.navigationController?.pushViewController(groupListController, animated: true)
-                    }
+
                 case .failure(let e): print(e)
                     
                 }
@@ -86,17 +97,51 @@ extension MainVC: GetDelegate{
             DataManager.get(url: url){results in
                 switch results{
                 case .success(let data):
-                    let schedulesFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Schedules>.self, from: data)
-                    let schedules = schedulesFromBridge.compactMap {$0}
-                    for schedule in schedules{
-                        print("Schedule id: \(schedule.id) - \(schedule.name)")
+                    do {
+                        let schedulesFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Schedules>.self, from: data)
+                        let schedules = schedulesFromBridge.compactMap {$0}
+                        for schedule in schedules{
+                            print("Schedule id: \(schedule.id) - \(schedule.name)")
+                        }
+                        DispatchQueue.main.async {
+                            let scheduleList = ScheduleListVC(scheduleArray: schedules)
+                            scheduleList.delegate = self
+                            scheduleList.title = HueSender.schedules.rawValue
+                            self.navigationController?.pushViewController(scheduleList, animated: true)
+                        }
+                    } catch let e {
+                        print("Error getting schedules: \(e)")
                     }
-                    DispatchQueue.main.async {
-                        let scheduleList = ScheduleListVC(scheduleArray: schedules)
-                        scheduleList.delegate = self
-                        scheduleList.title = HueSender.schedules.rawValue
-                        self.navigationController?.pushViewController(scheduleList, animated: true)
+
+                case .failure(let e): print(e)
+                }
+            }
+//MARK: - Light Scenes
+        case .lightScenes:
+            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/scenes") else {return}
+            print(url)
+            DataManager.get(url: url) { results in
+                switch results{
+                case .success(let data):
+                    do {
+                        let scenesFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Scenes>.self, from: data)
+                        let scenes = scenesFromBridge.compactMap {$0}
+                        let lightScenes = scenes.filter({$0.type == "LightScene"})
+                        let ownedScenes = lightScenes.filter({$0.owner == self.appOwner}) // to display only scenes created by this app
+                        for scene in ownedScenes{
+                            print("Light Sceen Name: \(scene.name)")
+                        }
+                        DispatchQueue.main.async {
+                            let sceneList = SceneListVC(groupNumber: "", lightsInGroup: [], sceneArray: ownedScenes)
+                            sceneList.delegate = self
+                            sceneList.title = HueSender.lightScenes.rawValue
+                            self.navigationController?.pushViewController(sceneList, animated: true)
+                        }
+
+                    } catch let e {
+                        print("Error getting scenes: \(e)")
                     }
+
                 case .failure(let e): print(e)
                 }
             }
