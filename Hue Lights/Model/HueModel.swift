@@ -7,6 +7,8 @@
 
 import Foundation
 
+
+
 struct HueModel: Codable{
     let lights :  [String:Light]
     let groups: [String: Groups]
@@ -18,6 +20,7 @@ struct HueModel: Codable{
     let sensors: [String: Sensor]
     //MARK: - Light
     struct Light: Codable{
+        
         enum CodingKeys: String, CodingKey{
             case state, type, name, modelid, manufacturername, productname, capabilities, config, uniqueid, swversion, swconfigid, productid
         }

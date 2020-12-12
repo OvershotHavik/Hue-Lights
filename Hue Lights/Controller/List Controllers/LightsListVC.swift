@@ -40,6 +40,7 @@ class LightsListVC: ListController, BridgeInfoDelegate{
     }
     //MARK: - View Did Load
     override func viewDidLoad() {
+        
         tableView.register(HueLightsCell.self, forCellReuseIdentifier: Cells.cell) // change the cell depending on which VC is using this
         tableView.delegate = self
         tableView.dataSource = self
@@ -81,10 +82,8 @@ class LightsListVC: ListController, BridgeInfoDelegate{
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let light = lightsArray[indexPath.row]
-        let name = light.name
-        let id = light.id
         DispatchQueue.main.async {
-            let editLight = EditLightVC(lightName: name, lightID: id)
+            let editLight = EditLightVC(light: light)
             editLight.delegate = self
             self.navigationController?.pushViewController(editLight, animated: true)
         }
@@ -235,17 +234,32 @@ extension LightsListVC{
     //MARK: -  Edit Group
     @objc func editGroup(){
         print("edit tapped - in light list vc")
-        DispatchQueue.main.async {
-            guard let groupDelegate = self.editingGroupDelegate else {return}
-            if let group = groupDelegate.group{
-                let editGroupVC = EditGroupVC(group: group)
-                editGroupVC.delegate = self
-                //                editGroupVC.updateTitleDelegate = self
-                editGroupVC.updateDelegate = self
-                editGroupVC.title = "Editing \(group.name)"
-                self.navigationController?.pushViewController(editGroupVC, animated: true)
+        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights") else {return}
+        print(url)
+        DataManager.get(url: url) { (results) in
+            switch results{
+            case .success(let data):
+                do {
+                    let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
+                    let allLightsOnBridge = lightsFromBridge.compactMap{ $0}
+                    DispatchQueue.main.async {
+                        guard let groupDelegate = self.editingGroupDelegate else {return}
+                        if let group = groupDelegate.group{
+                            let editGroupVC = EditGroupVC(group: group, allLightsOnBridge: allLightsOnBridge)
+                            editGroupVC.delegate = self
+                            //                editGroupVC.updateTitleDelegate = self
+                            editGroupVC.updateDelegate = self
+                            editGroupVC.title = "Editing \(group.name)"
+                            self.navigationController?.pushViewController(editGroupVC, animated: true)
+                        }
+                    }
+                } catch let e {
+                    print("Error getting lights: \(e)")
+                }
+            case .failure(let e): print(e)
             }
         }
+
     }
 }
 //MARK: - Update Hue Results to update the list

@@ -10,15 +10,15 @@ import UIKit
 protocol SelectedItems: class{
     func setSelectedItems(items: [String], ID: String)
 }
-class ModifyGroupList: ListController{
+class ModifyList: ListController{
     weak var selectedItemsDelegate : SelectedItems?
-    fileprivate var groupsArray: [HueModel.Groups]
+    fileprivate var listItems: [String]
     fileprivate var selectedItems : [String]
     fileprivate var limit: Int
-    init(limit: Int, selectedItems: [String], groupsArray: [HueModel.Groups]){
+    init(limit: Int, selectedItems: [String], listItems: [String]){
         self.limit = limit
         self.selectedItems = selectedItems
-        self.groupsArray = groupsArray
+        self.listItems = listItems
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -27,7 +27,7 @@ class ModifyGroupList: ListController{
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        groupsArray = groupsArray.sorted(by: { $0.name < $1.name})
+        listItems = listItems.sorted(by: { $0 < $1})
         self.tableView.reloadData()
     }
     
@@ -52,25 +52,25 @@ class ModifyGroupList: ListController{
         selectedItems = []
     }
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return groupsArray.count
+        return listItems.count
     }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! ListCell
         cell.accessoryType = .none
         cell.backgroundColor = .systemBackground
-        let itemRow = groupsArray[indexPath.row]
-        if selectedItems.contains(itemRow.name){
+        let itemRow = listItems[indexPath.row]
+        if selectedItems.contains(itemRow){
             cell.accessoryType = .checkmark
         }
-        cell.lblListItem.text = itemRow.name
+        cell.lblListItem.text = itemRow
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedVal = groupsArray[indexPath.row]
+        let selectedVal = listItems[indexPath.row]
         if selectedItems.count <= limit{
             if selectedItems.count == limit{
-                if let item = selectedItems.firstIndex(of: selectedVal.name){
+                if let item = selectedItems.firstIndex(of: selectedVal){
                     selectedItems.remove(at: item)
                     tableView.cellForRow(at: indexPath)?.accessoryType = .none
                     print("Removed \(selectedVal) in limit reached ")
@@ -78,12 +78,12 @@ class ModifyGroupList: ListController{
                     Alert.showBasic(title: "There can only be One.", message: "Hue lights can only be in one group. ", vc: self)
                 }
             } else {
-                if let item = selectedItems.firstIndex(of: selectedVal.name){
+                if let item = selectedItems.firstIndex(of: selectedVal){
                     selectedItems.remove(at: item)
                     tableView.cellForRow(at: indexPath)?.accessoryType = .none
                     print("Removed \(selectedVal)")
                 } else {
-                    selectedItems.append(selectedVal.name)
+                    selectedItems.append(selectedVal)
                     tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
                 }
             }
@@ -94,7 +94,7 @@ class ModifyGroupList: ListController{
     
 }
 //MARK: - UISearchbar Delegate
-extension ModifyGroupList: UISearchBarDelegate {
+extension ModifyList: UISearchBarDelegate {
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
 //        guard let delegate = delegate else {
 //            assertionFailure("Set the delegate bitch")
