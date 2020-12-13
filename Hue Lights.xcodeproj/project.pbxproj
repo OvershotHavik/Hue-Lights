@@ -41,6 +41,7 @@
 		B3D2E0F02572949A00B4B46B /* ListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D2E0EF2572949A00B4B46B /* ListCell.swift */; };
 		B3D2E0F62573CF3F00B4B46B /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D2E0F52573CF3F00B4B46B /* Alert.swift */; };
 		B3DA93CD2561B60E004BF5E1 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DA93CC2561B60E004BF5E1 /* DataManager.swift */; };
+		B3E95391258630EA00567B61 /* ModifyGroupVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E95390258630EA00567B61 /* ModifyGroupVC.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -109,6 +110,7 @@
 		B3DA93F62562AEC3004BF5E1 /* HueSDK_iOS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HueSDK_iOS.framework; path = "../../../Downloads/PhilipsHueSDK-iOS-OSX-master/QuickStartApp_iOS/HueSDK_iOS.framework"; sourceTree = "<group>"; };
 		B3DA93FF2562B16A004BF5E1 /* HueSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HueSDK.framework; path = "../../../Downloads/HueSDK-master-2/HueSDK/Apple/iOS/simulator/HueSDK.framework"; sourceTree = "<group>"; };
 		B3DA941A2562BEF1004BF5E1 /* HueSDK_iOS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HueSDK_iOS.framework; path = "../../../Downloads/PhilipsHueSDK-iOS-OSX-master-2/HueSDK_iOS.framework"; sourceTree = "<group>"; };
+		B3E95390258630EA00567B61 /* ModifyGroupVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModifyGroupVC.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -231,6 +233,7 @@
 				B3D2E0EA2572939100B4B46B /* ModifyLightsInGroupVC.swift */,
 				B318246425779F6600D9D06E /* SchedulesListVC.swift */,
 				B318249B2577F24E00D9D06E /* SceneListVC.swift */,
+				B3E95390258630EA00567B61 /* ModifyGroupVC.swift */,
 			);
 			path = "List Controllers";
 			sourceTree = "<group>";
@@ -427,6 +430,7 @@
 				B37EEA872561A9DE003FBC42 /* MainView.swift in Sources */,
 				B3AF8EF12565AC490060C968 /* HueModel.swift in Sources */,
 				B30753E825718DA900C8CA4F /* EditGroupVC.swift in Sources */,
+				B3E95391258630EA00567B61 /* ModifyGroupVC.swift in Sources */,
 				B3AF8F0425669EFE0060C968 /* HueLightsCell.swift in Sources */,
 				B30753E325718CEC00C8CA4F /* EditItemView.swift in Sources */,
 				B318246525779F6600D9D06E /* SchedulesListVC.swift in Sources */,

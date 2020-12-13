@@ -27,7 +27,6 @@ class EditGroupVC: UIViewController, BridgeInfoDelegate{
     fileprivate var lightsInGroup : [HueModel.Light]?
     fileprivate var allLightsOnBridge: [HueModel.Light]
     fileprivate var newGroupName : String?
-    internal var sourceItems = [String]()
     fileprivate var group: HueModel.Groups
     init(group: HueModel.Groups, allLightsOnBridge: [HueModel.Light]) {
         self.group = group
@@ -158,7 +157,7 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
 //                        let availableLightNames = self.getLightNamesFromIDs(lightIDs: availableLightIDs)
                         DispatchQueue.main.async {
     //                        let lightList = ModifyList(limit: 9999, selectedItems: self.lightNameInGroup, listItems: availableLightNames)
-                            let lightList = ModifyLightsInGroupVC(limit: 999, selectedItems: safeLightsInGroup, lightsArray: availableLights)
+                            let lightList = ModifyLightsInGroupVC(limit: 999, selectedItems: safeLightsInGroup, listItems: availableLights)
                             lightList.delegate = self
                             lightList.selectedItemsDelegate = self
                             self.navigationController?.pushViewController(lightList, animated: true)

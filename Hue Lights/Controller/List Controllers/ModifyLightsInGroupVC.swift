@@ -14,13 +14,14 @@ protocol SelectedLightsDelegate: class{
 class ModifyLightsInGroupVC: ListController{
     weak var selectedItemsDelegate : SelectedLightsDelegate?
     fileprivate var initialLights: [HueModel.Light]? // used to restore initial list when cancel is tapped for searches
-    fileprivate var lightsArray: [HueModel.Light]
+    fileprivate var listItems: [HueModel.Light]
     fileprivate var selectedItems : [HueModel.Light]
     fileprivate var limit: Int
-    init(limit: Int, selectedItems: [HueModel.Light], lightsArray: [HueModel.Light]){
+    init(limit: Int, selectedItems: [HueModel.Light], listItems: [HueModel.Light]){
         self.limit = limit
         self.selectedItems = selectedItems
-        self.lightsArray = lightsArray
+        self.listItems = listItems
+        self.initialLights = listItems
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -29,13 +30,13 @@ class ModifyLightsInGroupVC: ListController{
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        lightsArray = lightsArray.sorted(by: { $0.name < $1.name})
+        listItems = listItems.sorted(by: { $0.name < $1.name})
         self.tableView.reloadData()
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        initialLights = lightsArray
+//        initialLights = listItems
         colorPicker.delegate = self
         tableView.register(ListCell.self, forCellReuseIdentifier: Cells.cell) // change the cell depending on which VC is using this
         tableView.delegate = self
@@ -52,13 +53,13 @@ class ModifyLightsInGroupVC: ListController{
         selectedItemsDelegate?.selectedLights(lights: selectedItems)
     }
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return lightsArray.count
+        return listItems.count
     }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! ListCell
         cell.accessoryType = .none
         cell.backgroundColor = .systemBackground
-        let itemRow = lightsArray[indexPath.row]
+        let itemRow = listItems[indexPath.row]
         if selectedItems.contains(itemRow){
             cell.accessoryType = .checkmark
         }
@@ -67,7 +68,7 @@ class ModifyLightsInGroupVC: ListController{
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedVal = lightsArray[indexPath.row]
+        let selectedVal = listItems[indexPath.row]
         if selectedItems.count <= limit{
             if selectedItems.count == limit{
                 if let item = selectedItems.firstIndex(of: selectedVal){
@@ -97,7 +98,7 @@ class ModifyLightsInGroupVC: ListController{
 extension ModifyLightsInGroupVC: UISearchBarDelegate {
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         if let safeInitialLights = initialLights{
-            lightsArray = safeInitialLights
+            listItems = safeInitialLights.sorted(by: {$0.name < $1.name})
             tableView.reloadData()
         }
 
@@ -105,8 +106,13 @@ extension ModifyLightsInGroupVC: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         let searchText = searchText.lowercased()
         searchBar.text = searchText
-        let filtered = lightsArray.filter( {$0.name.contains(searchText) })
-        self.lightsArray = lightsArray.isEmpty ? [] : filtered
+        let filtered = listItems.filter( {$0.name.contains(searchText) })
+        self.listItems = filtered.isEmpty ? [] : filtered
+        if searchText == ""{
+            if let safeInitialLights = initialLights{
+                self.listItems = safeInitialLights
+            }
+        }
         tableView.reloadData()
     }
 }

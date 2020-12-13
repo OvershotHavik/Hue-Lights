@@ -8,6 +8,7 @@
 import UIKit
 
 class EditLightVC: UIViewController, BridgeInfoDelegate{
+    
     fileprivate var rootView : EditItemView!
     weak var delegate : BridgeInfoDelegate?
     weak var updateTitleDelegate : UpdateTitle?
@@ -18,8 +19,8 @@ class EditLightVC: UIViewController, BridgeInfoDelegate{
     
     fileprivate var light : HueModel.Light
     fileprivate var groupsArray : [HueModel.Groups]?
-    fileprivate var initialGroup : String?
-    fileprivate var newGroup : String?
+    fileprivate var initialGroup : HueModel.Groups?
+    fileprivate var newGroup : HueModel.Groups?
     fileprivate var noGroup = true
     
     init(light: HueModel.Light) {
@@ -55,10 +56,10 @@ class EditLightVC: UIViewController, BridgeInfoDelegate{
                     let groupsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Groups>.self, from: data)
                     self.groupsArray = groupsFromBridge.compactMap{$0}
                     if let safeGroupsArray = self.groupsArray{
-                        let filtered = safeGroupsArray.filter{$0.lights.contains(self.light.id)}.map({$0.name})
+                        let filtered = safeGroupsArray.filter{$0.lights.contains(self.light.id)}
                         self.initialGroup = filtered.first
                         if let safeGroup = self.initialGroup{
-                            self.rootView.updateLabel(text: safeGroup)
+                            self.rootView.updateLabel(text: safeGroup.name)
                             self.noGroup = false
                         } else {
                             self.rootView.updateLabel(text: "No group selected")
@@ -75,47 +76,48 @@ class EditLightVC: UIViewController, BridgeInfoDelegate{
 }
 
 
-extension EditLightVC: UpdateItem{
+extension EditLightVC: UpdateItem, SelectedGroupDelegate{
+    func selectedGroup(group: HueModel.Groups?) {
+        if let safeGroup = group{
+            newGroup = safeGroup
+        } else {
+            newGroup = nil
+            noGroup = true
+        }
+        if let safeNewGroup = newGroup{
+            rootView.updateLabel(text: safeNewGroup.name)
+            noGroup = false
+        } else {
+            rootView.updateLabel(text: "No group selected")
+        }
+    }
+    
     
     func deleteTapped(name: String) {
         
     }
     
-    func setSelectedItems(items: [String], ID: String) {
-        for item in items{
-            newGroup = item
-        }
-        if items.count == 0{
-            print("no group selected")
-            noGroup = true
-        } else {
-            noGroup = false
-        }
-        rootView.updateLabel(text: newGroup ?? "No group selected")
-    }
-    
     func editList() {
-        /*
+        
+        
         DispatchQueue.main.async {
             if let safeGroupsArray = self.groupsArray{
-                
-                let groupNames = safeGroupsArray.map({$0.name})
-                if  let safeNewGroup = self.newGroup{ // if a new group has been picked already, use that
-                    let selectGroup = ModifyList(limit: 1, selectedItems: [safeNewGroup], listItems: groupNames)
+                if  self.newGroup != nil{ // if a new group has been picked already, use that
+                    let selectGroup = ModifyGroupVC(allGroups: safeGroupsArray, selectedGroup: self.newGroup)
                     selectGroup.delegate = self
-                    selectGroup.selectedItemsDelegate = self
+                    selectGroup.selectedGroupDelegate = self
                     self.navigationController?.pushViewController(selectGroup, animated: true)
                 } else {
                     if self.noGroup == true { // initial was changed to no group, so blank selection
-                        let selectGroup = ModifyList(limit: 1, selectedItems: [], listItems: groupNames)
+                        let selectGroup = ModifyGroupVC(allGroups: safeGroupsArray, selectedGroup: nil)
                         selectGroup.delegate = self
-                        selectGroup.selectedItemsDelegate = self
+                        selectGroup.selectedGroupDelegate = self
                         self.navigationController?.pushViewController(selectGroup, animated: true)
                     } else {
-                        if let safeInitialGroup = self.initialGroup{ // else use the initial group name
-                            let selectGroup = ModifyList(limit: 1, selectedItems: [safeInitialGroup], listItems: groupNames)
+                        if self.initialGroup != nil{ // else use the initial group name
+                            let selectGroup = ModifyGroupVC(allGroups: safeGroupsArray, selectedGroup: self.initialGroup)
                             selectGroup.delegate = self
-                            selectGroup.selectedItemsDelegate = self
+                            selectGroup.selectedGroupDelegate = self
                             self.navigationController?.pushViewController(selectGroup, animated: true)
                         }
                     }
@@ -123,7 +125,7 @@ extension EditLightVC: UpdateItem{
             }
         }
         print("edit tapped")
- */
+ 
     }
     
     func saveTapped(name: String) {
@@ -154,12 +156,12 @@ extension EditLightVC: UpdateItem{
             if initialGroup == nil{
                 print("Nothing happens since no initial group and no new selected")
             } else {
-                print("new group wasn't selected, removing from \(initialGroup ?? "")")
+                print("new group wasn't selected, removing from \(initialGroup?.name ?? "")")
                 removeFromInitialGroup()
             }
         }
     }
-    func addToGroup(newGroup: String){
+    func addToGroup(newGroup: HueModel.Groups){
         
         
         if let safeInitialGroup = initialGroup{
@@ -174,7 +176,7 @@ extension EditLightVC: UpdateItem{
         var groupLights = [String]()
         var groupID : String?
         if groupsArray != nil{
-            let filteredGroups = groupsArray?.filter({$0.name == newGroup})
+            let filteredGroups = groupsArray?.filter({$0 == newGroup})
             if let safeLights = filteredGroups?[0].lights{
                 groupLights = safeLights
             }
@@ -193,7 +195,7 @@ extension EditLightVC: UpdateItem{
                     switch result{
                     case .success(let response):
                         if response.contains("success"){
-                            Alert.showBasic(title: "Success", message: "Added to \(newGroup)", vc: self)
+                            Alert.showBasic(title: "Success", message: "Added to \(newGroup.name)", vc: self)
                         } else {
                             Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
                         }
@@ -209,7 +211,7 @@ extension EditLightVC: UpdateItem{
         var groupLights : [String]?
         var groupID : String?
         if groupsArray != nil{
-            let filteredGroups = groupsArray?.filter({$0.name == initialGroup})
+            let filteredGroups = groupsArray?.filter({$0 == initialGroup})
             if let safeLights = filteredGroups?[0].lights{
                 groupLights = safeLights
             }
@@ -229,6 +231,9 @@ extension EditLightVC: UpdateItem{
                     switch result{
                     case .success(let response):
                         if response.contains("success"){
+                            if self.newGroup == nil{
+                                Alert.showBasic(title: "Success", message: "Successfully removed from group", vc: self)
+                            }
                             //don't display an alert if successful
                         } else {
                             Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
