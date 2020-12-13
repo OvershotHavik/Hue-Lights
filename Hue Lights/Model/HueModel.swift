@@ -19,7 +19,11 @@ struct HueModel: Codable{
     let rules: [String: Rules]
     let sensors: [String: Sensor]
     //MARK: - Light
-    struct Light: Codable{
+    struct Light: Codable, Equatable{
+        static func == (lhs: HueModel.Light, rhs: HueModel.Light) -> Bool {
+            return lhs.name == rhs.name && lhs.id == rhs.id
+        }
+        
         
         enum CodingKeys: String, CodingKey{
             case state, type, name, modelid, manufacturername, productname, capabilities, config, uniqueid, swversion, swconfigid, productid
@@ -98,7 +102,11 @@ struct HueModel: Codable{
     }
     
     //MARK: - Groups
-    struct Groups: Codable{
+    struct Groups: Codable, Equatable{
+        static func == (lhs: HueModel.Groups, rhs: HueModel.Groups) -> Bool {
+            return lhs.name == rhs.name && lhs.id == rhs.id
+        }
+        
         enum CodingKeys: String, CodingKey{
             case name, lights, sensors, type, state, recycle, action, stream, locations
             case groupClass = "class"

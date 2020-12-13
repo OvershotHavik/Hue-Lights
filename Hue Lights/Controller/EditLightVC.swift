@@ -75,7 +75,7 @@ class EditLightVC: UIViewController, BridgeInfoDelegate{
 }
 
 
-extension EditLightVC: UpdateItem, SelectedItems{
+extension EditLightVC: UpdateItem{
     
     func deleteTapped(name: String) {
         
@@ -95,8 +95,10 @@ extension EditLightVC: UpdateItem, SelectedItems{
     }
     
     func editList() {
+        /*
         DispatchQueue.main.async {
             if let safeGroupsArray = self.groupsArray{
+                
                 let groupNames = safeGroupsArray.map({$0.name})
                 if  let safeNewGroup = self.newGroup{ // if a new group has been picked already, use that
                     let selectGroup = ModifyList(limit: 1, selectedItems: [safeNewGroup], listItems: groupNames)
@@ -121,6 +123,7 @@ extension EditLightVC: UpdateItem, SelectedItems{
             }
         }
         print("edit tapped")
+ */
     }
     
     func saveTapped(name: String) {

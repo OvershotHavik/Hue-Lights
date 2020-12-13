@@ -22,8 +22,9 @@ class EditGroupVC: UIViewController, BridgeInfoDelegate{
     weak var updateTitleDelegate : UpdateTitle?
     weak var updateDelegate : UpdatedHueResults?
     fileprivate var rootView : EditItemView!
-    fileprivate var lightNameInGroup = [String]()
-    fileprivate var lightIDsInGroup = [String()]
+//    fileprivate var lightNameInGroup = [String]()
+//    fileprivate var lightIDsInGroup = [String()]
+    fileprivate var lightsInGroup : [HueModel.Light]?
     fileprivate var allLightsOnBridge: [HueModel.Light]
     fileprivate var newGroupName : String?
     internal var sourceItems = [String]()
@@ -53,9 +54,11 @@ class EditGroupVC: UIViewController, BridgeInfoDelegate{
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        lightIDsInGroup = group.lights
-        lightNameInGroup = getLightNamesFromIDs(lightIDs: group.lights)
-        updateListOnView(list: lightNameInGroup)
+        lightsInGroup = allLightsOnBridge.filter({return group.lights.contains($0.id)})
+        if let safeLightsInGroup = lightsInGroup{
+            let lightNames = safeLightsInGroup.map({$0.name})
+            updateListOnView(list: lightNames)
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -104,15 +107,16 @@ class EditGroupVC: UIViewController, BridgeInfoDelegate{
     
 }
 //MARK: - Update Group Delegate
-extension EditGroupVC: UpdateItem, SelectedItems{
+extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
+    func selectedLights(lights: [HueModel.Light]) {
+        lightsInGroup = lights
+        updateListOnView(list: lights.map{$0.name})
+    }
+    
     func deleteTapped(name: String) {
         
     }
     
-    func setSelectedItems(items: [String], ID: String) {
-        lightNameInGroup = items.sorted(by: {$0 < $1})
-        updateListOnView(list: lightNameInGroup)
-    }
     //MARK: - Get Light Names From Numbers
     func getLightNamesFromIDs(lightIDs: [String]) -> [String]{
         let filteredLights = allLightsOnBridge.filter{ return lightIDs.contains($0.id)}.map({$0.name})
@@ -143,20 +147,24 @@ extension EditGroupVC: UpdateItem, SelectedItems{
                     //Filter through groups to get all the lights currently assigned
                     let lightsInGroupsAlready = groups.flatMap{$0.lights}
                     //Filter through all lights on bridge to get the ones NOT in lights in groups already
-                    let availableLights = self.allLightsOnBridge.filter {return !lightsInGroupsAlready.contains($0.id)}
-                    //Get the ID's of the available lights
-                    var availableLightIDs = availableLights.map({$0.id})
-                    print("Available light ID: \(availableLightIDs)")
+                    var availableLights = self.allLightsOnBridge.filter {return !lightsInGroupsAlready.contains($0.id)}
+//                    //Get the ID's of the available lights
+//                    var availableLightIDs = availableLights.map({$0.id})
+                    print("Available light count: \(availableLights.count)")
                     //Add the current groups' light ID's
-                    availableLightIDs.append(contentsOf: self.lightIDsInGroup)
-                    //get the names of the ID's
-                    let availableLightNames = self.getLightNamesFromIDs(lightIDs: availableLightIDs)
-                    DispatchQueue.main.async {
-                        let lightList = ModifyList(limit: 9999, selectedItems: self.lightNameInGroup, listItems: availableLightNames)
-                        lightList.delegate = self
-                        lightList.selectedItemsDelegate = self
-                        self.navigationController?.pushViewController(lightList, animated: true)
+                    if let safeLightsInGroup = self.lightsInGroup{
+                        availableLights.append(contentsOf: safeLightsInGroup)
+                        //get the names of the ID's
+//                        let availableLightNames = self.getLightNamesFromIDs(lightIDs: availableLightIDs)
+                        DispatchQueue.main.async {
+    //                        let lightList = ModifyList(limit: 9999, selectedItems: self.lightNameInGroup, listItems: availableLightNames)
+                            let lightList = ModifyLightsInGroupVC(limit: 999, selectedItems: safeLightsInGroup, lightsArray: availableLights)
+                            lightList.delegate = self
+                            lightList.selectedItemsDelegate = self
+                            self.navigationController?.pushViewController(lightList, animated: true)
+                        }
                     }
+  
                 } catch let e {
                     print("Error getting Groups: \(e)")
                 }
@@ -166,25 +174,27 @@ extension EditGroupVC: UpdateItem, SelectedItems{
     }
     //MARK: - Save Tapped
     func saveTapped(name: String) {
-        
-        self.lightIDsInGroup = getLightIDFromNames(lightNames: self.lightNameInGroup)
-        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(group.id)") else {return}
-        print(url)
-        var httpBody = [String: Any]()
-        httpBody["name"] = name
-        httpBody["lights"] = self.lightIDsInGroup
-        DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
-            DispatchQueue.main.async {
-                switch result{
-                case .success(let response):
-                    if response.contains("success"){
-                        Alert.showBasic(title: "Saved!", message: "Successfully updated \(name)", vc: self)
-                    } else {
-                        Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+        if let safeLightsInGroup = lightsInGroup{
+            let lightIDsInGroup = safeLightsInGroup.map({$0.id})
+            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(group.id)") else {return}
+            print(url)
+            var httpBody = [String: Any]()
+            httpBody["name"] = name
+            httpBody["lights"] = lightIDsInGroup
+            DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
+                DispatchQueue.main.async {
+                    switch result{
+                    case .success(let response):
+                        if response.contains("success"){
+                            Alert.showBasic(title: "Saved!", message: "Successfully updated \(name)", vc: self)
+                        } else {
+                            Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                        }
+                    case .failure(let e): print("Error occured: \(e)")
                     }
-                case .failure(let e): print("Error occured: \(e)")
                 }
             }
         }
+
     }
 }
