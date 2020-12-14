@@ -155,7 +155,6 @@ class LightsListVC: ListController, BridgeInfoDelegate{
                 }
             }
         }
-        
     }
 }
 //MARK: - Hue Cell Delegate
@@ -212,6 +211,9 @@ extension LightsListVC: HueCellDelegate{
     //MARK: - Change Light Color
     func changeLightColor(sender: UIButton) {
         print("change light color tapped")
+        if let safeColor = sender.backgroundColor{
+            pickedColor = safeColor
+        }
         selectColor()
         tempChangeColorButton = sender
     }
@@ -239,8 +241,10 @@ extension LightsListVC: UISearchBarDelegate{
 //MARK: -  Edit Group
 extension LightsListVC : UpdateLights{
     func updateLightsDS(items: [HueModel.Light]) {
-        lightsArray = items.sorted(by: {$0.name < $1.name})
-        self.tableView.reloadData()
+        DispatchQueue.main.async {
+            self.lightsArray = items.sorted(by: {$0.name < $1.name})
+            self.tableView.reloadData()
+        }
     }
     
     @objc func editGroup(){
@@ -319,11 +323,9 @@ extension LightsListVC{
                         sceneList.title = HueSender.scenes.rawValue
                         self.navigationController?.pushViewController(sceneList, animated: true)
                     }
-
                 } catch let e {
                     print("Error getting scenes: \(e)")
                 }
-
             case .failure(let e): print(e)
             }
         }

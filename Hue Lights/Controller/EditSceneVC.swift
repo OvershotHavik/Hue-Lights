@@ -8,8 +8,6 @@
 import UIKit
 
 class EditSceneVC: UIViewController, BridgeInfoDelegate{
-//    var sourceItems = [String]()
-//    var hueResults : HueModel?
     var bridgeIP = String()
     var bridgeUser = String()
     
@@ -40,7 +38,7 @@ class EditSceneVC: UIViewController, BridgeInfoDelegate{
         super.loadView()
         rootView = EditSceneView(sceneName: sceneName)
         rootView.updateSceneDelegate = self
-        subView = LightsListVC(lightsArray: [], showingGroup: false)
+        subView = LightsListVC(lightsArray: lightsInGroup, showingGroup: false)
         subView.delegate = self
         addChildVC()
         self.view = rootView
@@ -80,7 +78,6 @@ class EditSceneVC: UIViewController, BridgeInfoDelegate{
                 } catch let e {
                     print("Error getting scenes: \(e)")
                 }
-
             case .failure(let e): print(e)
             }
         }
@@ -136,12 +133,12 @@ extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
                                  brightness: Float(lightBri),
                                  isReachable: true,
                                  lightColor: ConvertColor.getRGB(xy: lightXY, bri: lightBri))
-
         cell.configureCell(LightData: cellData)
         cell.backgroundColor = .clear
         return cell
     }
     //MARK: - Number of rows
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return lightsInGroup.count
     }
@@ -149,28 +146,64 @@ extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
     //MARK: - On Switch Toggled
     func onSwitchToggled(sender: UISwitch) {
         print("sender tag: \(sender.tag)")
-        for light in sceneLights{
-            if sender.tag == Int(light.key){
-                let isOn = sender.isOn
-                if let currentBri = sceneLights[light.key]?.bri,
-                   let currentXY = sceneLights[light.key]?.xy{
-                    let lightStateData = HueModel.Lightstates(on: isOn, bri: currentBri, xy: currentXY)
-                    
-                    sceneLights[light.key] = lightStateData
-                    print("New isOn for \(sender.tag): \(isOn)")
+        let lightID = String(sender.tag)
+        let light = sceneLights[lightID]
+        if let currentBRI = light?.bri,
+           let currentXY = light?.xy{
+            let lightStateData = HueModel.Lightstates(on: sender.isOn,
+                                                      bri: currentBRI,
+                                                      xy: currentXY)
+            sceneLights[lightID] = lightStateData
+            
+            //Apply to light
+            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights/\(lightID)/state") else {return}
+            print(url)
+            let httpBody = [
+                "on": sender.isOn,
+            ]
+            DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
+                DispatchQueue.main.async {
+                    switch result{
+                    case .success(let response):
+                        if response.contains("success"){
+                            //don't display an alert if successful
+                        } else {
+                            Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                        }
+                    case .failure(let e): print("Error occured: \(e)")
+                    }
                 }
             }
         }
     }
     //MARK: - Brightness Slider Changed
     func brightnessSliderChanged(sender: UISlider) {
-        for light in sceneLights{
-            if sender.tag == Int(light.key){
-                let newBri = sender.value
-                if let currentIsOn = sceneLights[light.key]?.on,
-                   let currentXY = sceneLights[light.key]?.xy{
-                    let lightStateData = HueModel.Lightstates(on: currentIsOn, bri: Int(newBri), xy: currentXY)
-                    sceneLights[light.key] = lightStateData
+        let lightID = String(sender.tag)
+        let light = sceneLights[lightID] // used to verify values below
+        if let currentIsOn = light?.on,
+           let currentXY = light?.xy{
+            let lightStateData = HueModel.Lightstates(on: currentIsOn,
+                                                      bri: Int(sender.value),
+                                                      xy: currentXY)
+            sceneLights[lightID] = lightStateData
+            
+            //Apply to light
+            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights/\(lightID)/state") else {return}
+            print(url)
+            let httpBody = [
+                "bri": Int(sender.value),
+            ]
+            DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
+                DispatchQueue.main.async {
+                    switch result{
+                    case .success(let response):
+                        if response.contains("success"){
+                            //don't display an alert if successful
+                        } else {
+                            Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                        }
+                    case .failure(let e): print("Error occured: \(e)")
+                    }
                 }
             }
         }
@@ -179,26 +212,47 @@ extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
     func changeLightColor(sender: UIButton) {
         print("sender tag: \(sender.tag)")
         print("change light color tapped")
+        if let safeColor = sender.backgroundColor{
+            subView.pickedColor = safeColor
+        }
         subView.selectColor()
         tempChangeColorButton = sender
     }
     //MARK: - Update Light Color once picked from color picker
     func updatLightColor(){
         guard let tempChangeColorButton = tempChangeColorButton else {return}
-//        guard let delegate = delegate else { return}
         tempChangeColorButton.backgroundColor = subView.pickedColor
-        
+        let lightID = String(tempChangeColorButton.tag)
+//        print("temp chagne button tag: \(tempChangeColorButton.tag)")
         let red = subView.pickedColor.components.red
         let green = subView.pickedColor.components.green
         let blue = subView.pickedColor.components.blue
         let colorXY = ConvertColor.getXY(red: red, green: green, blue: blue)
-        for light in sceneLights{
-            if tempChangeColorButton.tag == Int(light.key){
-                if let currentBri = sceneLights[light.key]?.bri,
-                   let currentOn = sceneLights[light.key]?.on{
-                    let lightStateData = HueModel.Lightstates(on: currentOn, bri: currentBri, xy: colorXY)
-                    sceneLights[light.key] = lightStateData
-                    print("New color for \(tempChangeColorButton.tag): \(colorXY)")
+        let light = sceneLights[lightID] // used to verify values exist below
+        if let currentBri = light?.bri,
+           let currentOn = light?.on{
+            let lightStateData = HueModel.Lightstates(on: currentOn,
+                                                      bri: currentBri,
+                                                      xy: colorXY)
+            sceneLights[lightID] = lightStateData
+            
+            //Apply to light
+            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights/\(lightID)/state") else {return}
+            print(url)
+            let httpBody = [
+                "xy": colorXY,
+            ]
+            DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
+                DispatchQueue.main.async {
+                    switch result{
+                    case .success(let response):
+                        if response.contains("success"){
+                            //don't display an alert if successful
+                        } else {
+                            Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                        }
+                    case .failure(let e): print("Error occured: \(e)")
+                    }
                 }
             }
         }
@@ -226,6 +280,7 @@ extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
                         let resultsFromBridge = try JSONDecoder().decode(HueModel.IndividualScene.self, from: data)
                         if let safeLightStates = resultsFromBridge.lightstates{
                             self.sceneLights = safeLightStates
+                            self.applyLightStatesToLights()
                         }
                         for light in self.sceneLights{
                             print("light key: \(light.key), light xy: \(light.value.xy ?? [0,0])")
@@ -238,9 +293,32 @@ extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
             }
         }
     }
-    
+    //MARK: - Apply Light States To Lights
     func applyLightStatesToLights(){
-        
+        guard let delegate = delegate else {return}
+        for light in sceneLights{
+            guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/lights/\(light.key)/state") else {return}
+            print(url)
+            var httpBody = [String: Any]()
+            httpBody["on"] = light.value.on
+            httpBody["bri"] = Int(light.value.bri)
+            if let safeXY = light.value.xy{
+                httpBody["xy"] = safeXY
+            }
+            DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
+                DispatchQueue.main.async {
+                    switch result{
+                    case .success(let response):
+                        if response.contains("success"){
+                            //don't display an alert if successful
+                        } else {
+                            Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                        }
+                    case .failure(let e): print("Error occured: \(e)")
+                    }
+                }
+            }
+        }
     }
 }
 //MARK: - Color Picker Delegate

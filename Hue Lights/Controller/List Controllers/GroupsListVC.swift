@@ -113,8 +113,10 @@ class GroupsListVC: ListController, BridgeInfoDelegate, editingGroup, UpdateGrou
         }
     }
     func updateGroupsDS(items: [HueModel.Groups]) {
-        groupsArray = items.sorted(by: {$0.name < $1.name})
-        self.tableView.reloadData()
+        DispatchQueue.main.async {
+            self.groupsArray = items.sorted(by: {$0.name < $1.name})
+            self.tableView.reloadData()
+        }
     }
     
     
@@ -210,19 +212,24 @@ extension GroupsListVC: HueCellDelegate{
 //MARK: - UISearch Bar Delegate
 extension GroupsListVC: UISearchBarDelegate{
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        groupsArray = originalGroupsArray.sorted(by: {$0.name < $1.name})
-        tableView.reloadData()
+        DispatchQueue.main.async {
+            self.groupsArray = self.originalGroupsArray.sorted(by: {$0.name < $1.name})
+            self.tableView.reloadData()
+        }
+
     }
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         let searchText = searchText
         searchBar.text = searchText
         print("SearchText: \(searchText)")
-        let filtered = groupsArray.filter({$0.name.contains(searchText)})
-        self.groupsArray = filtered.isEmpty ? [] : filtered
-        if searchText == ""{
-            self.groupsArray = originalGroupsArray.sorted(by: {$0.name < $1.name})
+        DispatchQueue.main.async {
+            let filtered = self.groupsArray.filter({$0.name.contains(searchText)})
+            self.groupsArray = filtered.isEmpty ? [] : filtered
+            if searchText == ""{
+                self.groupsArray = self.originalGroupsArray.sorted(by: {$0.name < $1.name})
+            }
+            self.tableView.reloadData()
         }
-        tableView.reloadData()
     }
 }
 
