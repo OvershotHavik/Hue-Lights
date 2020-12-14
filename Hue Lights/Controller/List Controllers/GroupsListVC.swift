@@ -97,7 +97,8 @@ class GroupsListVC: ListController, BridgeInfoDelegate, editingGroup, UpdateGrou
                         let lights = lightsFromBridge.compactMap{ $0}
                         let lightsArray = lights.filter{ return lightsInGroup.contains($0.id)}
                         DispatchQueue.main.async {
-                            let lightlistVC = LightsListVC(lightsArray: lightsArray, showingGroup: true)
+                            let lightlistVC = LightsListVC(lightsArray: lightsArray,
+                                                           showingGroup: true)
                             lightlistVC.delegate = self
                             lightlistVC.editingGroupDelegate = self
                             lightlistVC.updateGroupDelegate = self
@@ -128,7 +129,9 @@ class GroupsListVC: ListController, BridgeInfoDelegate, editingGroup, UpdateGrou
         let red = pickedColor.components.red
         let green = pickedColor.components.green
         let blue = pickedColor.components.blue
-        let colorXY = ConvertColor.getXY(red: red, green: green, blue: blue)
+        let colorXY = ConvertColor.getXY(red: red,
+                                         green: green,
+                                         blue: blue)
         let lightNumber = tempChangeColorButton.tag
         guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/groups/\(lightNumber)/action") else {return}
         print(url)

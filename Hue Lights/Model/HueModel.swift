@@ -271,20 +271,20 @@ struct HueModel: Codable{
         enum CodingKeys: String, CodingKey{
             case name, type, group, lights, owner, recycle, locked, appdata, picture, image, lastupdated, version, lightstates
         }
-        let id : String
-        let name: String
-        let type: String
-        let group: String?
-        let lights: [String]
-        let owner: String
-        let recycle: Bool
-        let locked: Bool
-        let appdata: Appdata?
-        let picture: String?
-        let image: String?
-        let lastupdated: String
-        let version: Int
-        let lightstates: [String: Lightstates]?
+        var id : String
+        var name: String
+        var type: String
+        var group: String?
+        var lights: [String]
+        var owner: String
+        var recycle: Bool
+        var locked: Bool
+        var appdata: Appdata?
+        var picture: String?
+        var image: String?
+        var lastupdated: String
+        var version: Int
+        var lightstates: [String: Lightstates]?
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             id = container.codingPath.first!.stringValue

@@ -7,7 +7,7 @@
 
 import UIKit
 
-class EditSceneVC: UIViewController, BridgeInfoDelegate{
+class EditGroupSceneVC: UIViewController, BridgeInfoDelegate{
     var bridgeIP = String()
     var bridgeUser = String()
     
@@ -104,7 +104,7 @@ class EditSceneVC: UIViewController, BridgeInfoDelegate{
 
 
 //MARK: - SubVIew Tableview dataSource
-extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
+extension EditGroupSceneVC: HueCellDelegate, UITableViewDataSource{
     //change the light list VC's cell's to match what the scene shows, not what is currently on the light
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! HueLightsCell
@@ -322,7 +322,7 @@ extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
     }
 }
 //MARK: - Color Picker Delegate
-extension EditSceneVC: UIColorPickerViewControllerDelegate{
+extension EditGroupSceneVC: UIColorPickerViewControllerDelegate{
     func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
         subView.pickedColor = viewController.selectedColor
         updatLightColor()
@@ -330,7 +330,7 @@ extension EditSceneVC: UIColorPickerViewControllerDelegate{
 }
 
 //MARK: - Update Item Delegate
-extension EditSceneVC: UpdateItem{
+extension EditGroupSceneVC: UpdateItem{
     func deleteTapped(name: String) {
         Alert.showConfirmDelete(title: "Delete Scene", message: "Are you sure you want to delete \(sceneName)?", vc: self) {
 

@@ -16,7 +16,6 @@ class SceneListVC: ListController, BridgeInfoDelegate{
     fileprivate var group: HueModel.Groups?
     fileprivate var lightsInGroup: [HueModel.Light]
     
-    
     init(group: HueModel.Groups?, lightsInGroup: [HueModel.Light], sceneArray: [HueModel.Scenes]) {
         self.group = group
         self.lightsInGroup = lightsInGroup
@@ -57,16 +56,17 @@ class SceneListVC: ListController, BridgeInfoDelegate{
     }
     
     @objc func addScene(){
-        print("Bring up edit scene")
+        print("Bring up Add scene")
         if let safeGroup = group{
-            let addScene = EditSceneVC(sceneName: "", sceneID: Constants.newScene.rawValue, group: safeGroup, lightsInGroup: lightsInGroup)
+            let addScene = EditGroupSceneVC(sceneName: "", sceneID: Constants.newScene.rawValue, group: safeGroup, lightsInGroup: lightsInGroup)
+            addScene.updateDelegate = self
             addScene.delegate = self
             self.navigationController?.pushViewController(addScene, animated: true)
+        } else { // light scenes
+            
         }
     }
-    func getLightDataFromKey(){
-        
-    }
+
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! ListCell
@@ -80,8 +80,6 @@ class SceneListVC: ListController, BridgeInfoDelegate{
         return sceneArray.count
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
-        
         guard let delegate = delegate else {
             assertionFailure("Set the delegate")
             return
@@ -113,32 +111,72 @@ class SceneListVC: ListController, BridgeInfoDelegate{
     }
     
 
-
+//MARK: - Leading Swipe Action
      func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
          let edit = self.edit(indexPath: indexPath)
          let swipe = UISwipeActionsConfiguration(actions: [edit])
          return swipe
      }
+//MARK: - Leading Swipe Action - Edit
     func edit(indexPath: IndexPath) -> UIContextualAction {
          let action = UIContextualAction(style: .normal, title: "Edit") { (_, _, _) in
              print("Take user to edit scene")
             DispatchQueue.main.async {
                 let selected = self.sceneArray[indexPath.row]
-                let name = selected.name
-                let id = selected.id
                 if let safeGroup = self.group{
-                    let editScene = EditSceneVC(sceneName: name,
-                                                sceneID: id,
-                                                group: safeGroup,
-                                                lightsInGroup: self.lightsInGroup)
+                    let editScene = EditGroupSceneVC(sceneName: selected.name,
+                                                     sceneID: selected.id,
+                                                     group: safeGroup,
+                                                     lightsInGroup: self.lightsInGroup)
                     editScene.delegate = self
+                    editScene.updateDelegate = self
                     self.navigationController?.pushViewController(editScene, animated: true)
                 }
             }
          }
          return action
      }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        let scene = sceneArray[indexPath.row]
+        if editingStyle == .delete{
+            Alert.showConfirmDelete(title: "Delete Scene?", message: "Are you sure you want to delete \(scene.name)?", vc: self) {
+                
+                print("Delete pressed")
+                guard let url = URL(string: "http://\(self.bridgeIP)/api/\(self.bridgeUser)/scenes/\(scene.id)") else {return}
+                DataManager.sendRequest(method: .delete, url: url, httpBody: [:]) { (results) in
+                    DispatchQueue.main.async {
+                        switch results{
+                        case .success(let response):
+                            if response.contains("success"){
+                                Alert.showBasic(title: "Deleted!", message: "Successfully deleted \(scene.name).", vc: self)
+                            } else {
+                                Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                            }
+                        case .failure(let e): print("Error occured: \(e)")
+                        }
+                    }
+                }
+                self.sceneArray.remove(at: indexPath.row)
+                self.tableView.reloadData()
+            }
+        }
+    }
 }
+
+
+//MARK: - Update Scenes
+extension SceneListVC: UpdateScenes{
+    func updateScenesDS(items: [HueModel.Scenes]) {
+        DispatchQueue.main.async {
+            self.sceneArray = items.sorted(by: {$0.name < $1.name})
+            self.tableView.reloadData()
+        }
+    }
+    
+    
+}
+
 //MARK: - UI Search Bar Delegate
 extension SceneListVC: UISearchBarDelegate{
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
