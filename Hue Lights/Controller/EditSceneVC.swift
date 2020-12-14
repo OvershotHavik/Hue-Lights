@@ -15,6 +15,7 @@ class EditSceneVC: UIViewController, BridgeInfoDelegate{
     
 
     weak var delegate: BridgeInfoDelegate?
+    weak var updateDelegate : UpdateScenes?
     fileprivate var rootView : EditSceneView!
     fileprivate var subView : LightsListVC!
     fileprivate var sceneName: String
@@ -22,12 +23,12 @@ class EditSceneVC: UIViewController, BridgeInfoDelegate{
     fileprivate var sceneID : String
     fileprivate var sceneLights = [String : HueModel.Lightstates]()
     fileprivate var tempChangeColorButton : UIButton?
-    fileprivate var groupNumber : String
+    fileprivate var group : HueModel.Groups
     fileprivate var lightsInGroup : [HueModel.Light]
-    init(sceneName: String, sceneID: String, groupNumber: String, lightsInGroup: [HueModel.Light]) {
+    init(sceneName: String, sceneID: String, group: HueModel.Groups, lightsInGroup: [HueModel.Light]) {
         self.sceneName = sceneName
         self.sceneID = sceneID
-        self.groupNumber = groupNumber
+        self.group = group
         self.lightsInGroup = lightsInGroup
         super.init(nibName: nil, bundle: nil)
     }
@@ -53,13 +54,36 @@ class EditSceneVC: UIViewController, BridgeInfoDelegate{
         }
         bridgeIP = delegate.bridgeIP
         bridgeUser = delegate.bridgeUser
-//        hueResults = delegate.hueResults
         lightsInGroup = lightsInGroup.sorted(by: {$0.name < $1.name})
         subView.tableView.reloadData()
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         getSceneLightStates()
+        
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        updateSceneListVC()
+    }
+    
+    func updateSceneListVC(){
+        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/scenes") else {return}
+        print(url)
+        DataManager.get(url: url) { results in
+            switch results{
+            case .success(let data):
+                do {
+                    let scenesFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Scenes>.self, from: data)
+                    let scenes = scenesFromBridge.compactMap {$0}
+                    let sceneArray = scenes.filter{$0.group == self.group.id}
+                    self.updateDelegate?.updateScenesDS(items: sceneArray)
+                } catch let e {
+                    print("Error getting scenes: \(e)")
+                }
+
+            case .failure(let e): print(e)
+            }
+        }
     }
     //MARK: - Add Child VC - subView - Light List
     func addChildVC(){
@@ -131,6 +155,7 @@ extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
                 if let currentBri = sceneLights[light.key]?.bri,
                    let currentXY = sceneLights[light.key]?.xy{
                     let lightStateData = HueModel.Lightstates(on: isOn, bri: currentBri, xy: currentXY)
+                    
                     sceneLights[light.key] = lightStateData
                     print("New isOn for \(sender.tag): \(isOn)")
                 }
@@ -180,15 +205,6 @@ extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
     }
     //MARK: - Get Scene Light State From Bridge
     func getSceneLightStates(){
-        
-        
-//        if let hueResults = hueResults{
-//            for scene in hueResults.scenes{
-//                if scene.value.name == sceneName{
-//                    sceneID = scene.key
-//                }
-//            }
-//        }
         if sceneID == Constants.newScene.rawValue{
             print("New scene, adding lights listed into scenelights")
              for light in lightsInGroup{
@@ -223,6 +239,9 @@ extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
         }
     }
     
+    func applyLightStatesToLights(){
+        
+    }
 }
 //MARK: - Color Picker Delegate
 extension EditSceneVC: UIColorPickerViewControllerDelegate{
@@ -293,7 +312,7 @@ extension EditSceneVC: UpdateItem{
         var httpBody = [String: Any]()
         httpBody["name"] = name
         httpBody["recycle"] = false
-        httpBody["group"] = groupNumber
+        httpBody["group"] = group.id
         httpBody["type"] = "GroupScene"
         print(httpBody)
         

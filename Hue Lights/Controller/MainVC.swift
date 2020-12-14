@@ -132,7 +132,7 @@ extension MainVC: GetDelegate{
                             print("Light Sceen Name: \(scene.name)")
                         }
                         DispatchQueue.main.async {
-                            let sceneList = SceneListVC(groupNumber: "", lightsInGroup: [], sceneArray: ownedScenes)
+                            let sceneList = SceneListVC(group: nil, lightsInGroup: [], sceneArray: ownedScenes)
                             sceneList.delegate = self
                             sceneList.title = HueSender.lightScenes.rawValue
                             self.navigationController?.pushViewController(sceneList, animated: true)

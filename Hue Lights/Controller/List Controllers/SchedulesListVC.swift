@@ -7,13 +7,15 @@
 
 import UIKit
 
-class ScheduleListVC: ListController, UISearchBarDelegate{
+class ScheduleListVC: ListController{
 //    fileprivate var filtered = [String]()
     fileprivate var scheduleArray : [HueModel.Schedules]
+    fileprivate var originalScheduleArray : [HueModel.Schedules] // used for search
 //    fileprivate var hueResults : HueModel?
     
     init(scheduleArray: [HueModel.Schedules]) {
         self.scheduleArray = scheduleArray
+        self.originalScheduleArray = scheduleArray
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -91,5 +93,22 @@ class ScheduleListVC: ListController, UISearchBarDelegate{
                 }
             }
         }
+    }
+}
+extension ScheduleListVC: UISearchBarDelegate{
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        scheduleArray = originalScheduleArray.sorted(by: {$0.name < $1.name})
+        tableView.reloadData()
+    }
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        let searchText = searchText
+        searchBar.text = searchText
+        print("SearchText: \(searchText)")
+        let filtered = scheduleArray.filter {$0.name.contains(searchText)}
+        self.scheduleArray = filtered.isEmpty ? [] : filtered
+        if searchText == ""{
+            self.scheduleArray = originalScheduleArray.sorted(by: {$0.name < $1.name})
+        }
+        tableView.reloadData()
     }
 }

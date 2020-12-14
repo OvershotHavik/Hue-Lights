@@ -230,9 +230,9 @@
 				B3AF8EFE25669CFA0060C968 /* ListController.swift */,
 				B30753DD256EC74B00C8CA4F /* LightsListVC.swift */,
 				B30753D2256EB6CD00C8CA4F /* GroupsListVC.swift */,
-				B3D2E0EA2572939100B4B46B /* ModifyLightsInGroupVC.swift */,
 				B318246425779F6600D9D06E /* SchedulesListVC.swift */,
 				B318249B2577F24E00D9D06E /* SceneListVC.swift */,
+				B3D2E0EA2572939100B4B46B /* ModifyLightsInGroupVC.swift */,
 				B3E95390258630EA00567B61 /* ModifyGroupVC.swift */,
 			);
 			path = "List Controllers";

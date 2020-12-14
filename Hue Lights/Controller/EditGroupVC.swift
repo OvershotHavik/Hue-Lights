@@ -11,16 +11,12 @@ protocol UpdateTitle: class {
     func updateTitle(newTitle: String)
 }
 
-protocol UpdatedHueResults: class{
-    func getUpdatedHueResults(hueResults: [HueModel])
-}
-
 class EditGroupVC: UIViewController, BridgeInfoDelegate{
     var bridgeIP = String()
     var bridgeUser = String()
     weak var delegate : BridgeInfoDelegate?
     weak var updateTitleDelegate : UpdateTitle?
-    weak var updateDelegate : UpdatedHueResults?
+    weak var updateLightsDelegate : UpdateLights?
     fileprivate var rootView : EditItemView!
 //    fileprivate var lightNameInGroup = [String]()
 //    fileprivate var lightIDsInGroup = [String()]
@@ -65,7 +61,9 @@ class EditGroupVC: UIViewController, BridgeInfoDelegate{
         if let safeNewGroupName = newGroupName{
             updateTitleDelegate?.updateTitle(newTitle: safeNewGroupName)
         }
-        updateLightListInGroup()
+        if let safeLightsInGroup = lightsInGroup{
+            updateLightsDelegate?.updateLightsDS(items: safeLightsInGroup)
+        }
     }
     
     //MARK: - Update Light List on rootView
@@ -75,33 +73,6 @@ class EditGroupVC: UIViewController, BridgeInfoDelegate{
             text += "\(light)\n"
         }
         rootView.updateLabel(text: text)
-    }
-    
-    //MARK: - Update Light List In Group
-    func updateLightListInGroup(){
-        /*
-         //for sending back to the previous VC to update the list when lights are changed
-         guard let delegate = delegate  else {return}
-         print("Get Info")
-         guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)") else {return}
-         print(url)
-         
-         DataManager.get(url: url) { (results) in
-         switch results{
-         case .success(let data):
-         do {
-         //                    var tempHueResults = [HueModel]()
-         //                    let resultsFromBrdige = try JSONDecoder().decode(DecodedArray<HueModel>.self, from: data)
-         //                    tempHueResults.append(resultsFromBrdige)
-         //                    self.updateDelegate?.getUpdatedHueResults(hueResults: tempHueResults)
-         } catch let e{
-         print("Error getting info in edit group vc \(e)")
-         }
-         case .failure(let e):
-         print("Error getting info in edit group vc \(e)")
-         }
-         }
-         */
     }
     
 }
@@ -147,17 +118,11 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
                     let lightsInGroupsAlready = groups.flatMap{$0.lights}
                     //Filter through all lights on bridge to get the ones NOT in lights in groups already
                     var availableLights = self.allLightsOnBridge.filter {return !lightsInGroupsAlready.contains($0.id)}
-//                    //Get the ID's of the available lights
-//                    var availableLightIDs = availableLights.map({$0.id})
-                    print("Available light count: \(availableLights.count)")
-                    //Add the current groups' light ID's
                     if let safeLightsInGroup = self.lightsInGroup{
+                        //add lights that are already in this group
                         availableLights.append(contentsOf: safeLightsInGroup)
-                        //get the names of the ID's
-//                        let availableLightNames = self.getLightNamesFromIDs(lightIDs: availableLightIDs)
                         DispatchQueue.main.async {
-    //                        let lightList = ModifyList(limit: 9999, selectedItems: self.lightNameInGroup, listItems: availableLightNames)
-                            let lightList = ModifyLightsInGroupVC(limit: 999, selectedItems: safeLightsInGroup, listItems: availableLights)
+                            let lightList = ModifyLightsInGroupVC(limit: 999, selectedItems: safeLightsInGroup, lightsArray: availableLights)
                             lightList.delegate = self
                             lightList.selectedItemsDelegate = self
                             self.navigationController?.pushViewController(lightList, animated: true)
@@ -173,6 +138,7 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
     }
     //MARK: - Save Tapped
     func saveTapped(name: String) {
+        
         if let safeLightsInGroup = lightsInGroup{
             let lightIDsInGroup = safeLightsInGroup.map({$0.id})
             guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(group.id)") else {return}

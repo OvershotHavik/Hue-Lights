@@ -13,15 +13,14 @@ protocol editingGroup: class{
 
 class LightsListVC: ListController, BridgeInfoDelegate{
     weak var editingGroupDelegate: editingGroup?
+    weak var updateGroupDelegate : UpdateGroups?
     var sourceItems = [String]()
     var bridgeIP = String()
     var bridgeUser = String()
     
-//    private var lightsArray = [String]()
-    private var lightsArray : [HueModel.Light]
-//    internal var hueResults : HueModel?
-    private var showingGroup: Bool
-    
+    fileprivate var lightsArray : [HueModel.Light]
+    fileprivate var originalLightsArray : [HueModel.Light] // used for search
+    fileprivate var showingGroup: Bool
     var btnScenes: UIButton = {
        let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -32,6 +31,7 @@ class LightsListVC: ListController, BridgeInfoDelegate{
     init(lightsArray: [HueModel.Light], showingGroup: Bool) {
         self.lightsArray = lightsArray
         self.showingGroup = showingGroup
+        self.originalLightsArray = lightsArray
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -60,20 +60,34 @@ class LightsListVC: ListController, BridgeInfoDelegate{
         }
         bridgeIP = delegate.bridgeIP
         bridgeUser = delegate.bridgeUser
-//        hueResults = delegate.hueResults
         if showingGroup == true{
             navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(self.editGroup))
         }
         lightsArray = lightsArray.sorted(by: {$0.name < $1.name })
-//        lightsArray = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
-//        hueResults = delegate.hueResults
-//        for x in hueResults{
-//            hueLights.append(contentsOf: x.lights.values)
-//        }
         self.tableView.reloadData()
-        searchController.searchBar.delegate = self
-    }
+        searchController.searchBar.isTranslucent = false
+        navigationItem.searchController = searchController
+        searchController.searchBar.delegate = self    }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        if showingGroup == true{
+            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups") else {return}
+            print(url)
+            DataManager.get(url: url) { results in
+                switch results{
+                case .success(let data):
+                    do {
+                        let groupsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Groups>.self, from: data)
+                        let groups = groupsFromBridge.compactMap{$0}
+                        self.updateGroupDelegate?.updateGroupsDS(items: groups)
+                    } catch let e {
+                        print("Error getting Groups: \(e)")
+                    }
+                case .failure(let e): print(e)
+                }
+            }
+        }
+    }
     //MARK: - Number of Rows in section
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return lightsArray.count
@@ -85,9 +99,9 @@ class LightsListVC: ListController, BridgeInfoDelegate{
         DispatchQueue.main.async {
             let editLight = EditLightVC(light: light)
             editLight.delegate = self
+            editLight.updateDelegate = self
             self.navigationController?.pushViewController(editLight, animated: true)
         }
-        print("Take user to modify the individual light, change name, add to gorup, etc...")
     }
     //MARK: - Cell for row at
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -206,32 +220,29 @@ extension LightsListVC: HueCellDelegate{
 //MARK: - UI Search Bar Delegate
 extension LightsListVC: UISearchBarDelegate{
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-//        guard let delegate = delegate else {
-//            assertionFailure("Set the delegate bitch")
-//            return
-//        }
-//        lightsArray = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
-        
+        lightsArray = originalLightsArray.sorted(by: {$0.name < $1.name})
         tableView.reloadData()
     }
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         let searchText = searchText
         searchBar.text = searchText
-//        guard let delegate = delegate else {
-//            assertionFailure("Set the delegate")
-//            return
-//        }
         print("SearchText: \(searchText)")
-//        let filtered = delegate.sourceItems.filter( {$0.contains(searchText) })
         let filtered = lightsArray.filter {$0.name.contains(searchText)}
         self.lightsArray = filtered.isEmpty ? [] : filtered
+        if searchText == ""{
+            self.lightsArray = originalLightsArray.sorted(by: {$0.name < $1.name})
+        }
         tableView.reloadData()
     }
 }
 
-
-extension LightsListVC{
-    //MARK: -  Edit Group
+//MARK: -  Edit Group
+extension LightsListVC : UpdateLights{
+    func updateLightsDS(items: [HueModel.Light]) {
+        lightsArray = items.sorted(by: {$0.name < $1.name})
+        self.tableView.reloadData()
+    }
+    
     @objc func editGroup(){
         print("edit tapped - in light list vc")
         guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights") else {return}
@@ -247,8 +258,8 @@ extension LightsListVC{
                         if let group = groupDelegate.group{
                             let editGroupVC = EditGroupVC(group: group, allLightsOnBridge: allLightsOnBridge)
                             editGroupVC.delegate = self
-                            //                editGroupVC.updateTitleDelegate = self
-                            editGroupVC.updateDelegate = self
+                            editGroupVC.updateTitleDelegate = self
+                            editGroupVC.updateLightsDelegate = self
                             editGroupVC.title = "Editing \(group.name)"
                             self.navigationController?.pushViewController(editGroupVC, animated: true)
                         }
@@ -259,56 +270,9 @@ extension LightsListVC{
             case .failure(let e): print(e)
             }
         }
-
     }
 }
-//MARK: - Update Hue Results to update the list
-extension LightsListVC: UpdatedHueResults{
-    func getUpdatedHueResults(hueResults: [HueModel]) {
-        print("update the list...")
-        /*
-        self.hueResults = hueResults
-//        self.sourceItems = []
-        var lightsInGroup = [String]()
-//        for x in hueGroups{
-//            if x.name == groupName{
-//                lightsInGroup.append(contentsOf: x.lights)
-//            }
-//        }
-        print("Lights in group: \(lightsInGroup)")
-        self.sourceItems = []
-        for x in hueResults{
-            for light in x.lights{
-                if lightsInGroup.contains(light.key){
-                    self.sourceItems.append(light.value.name)
-                }
-            }
-        }
-        
-        
-        
-        var lightsInGroup = [String]()
-        for x in self.hueResults{
-            for group in x.groups{
-                if group.value.name == self.groupName{
-                    var lightsInGroup = group.value.lights
-                    
-//                    sourceItems = group.value.lights
-//                    lightsArray = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
-                    lightsArray =
-//                    hueResults = delegate.hueResults
-//                    hueLights.append(contentsOf: group.value.lights)
-                    self.tableView.reloadData()
-                }
-            }
-        }
-         */
-    }
-    
-    
-    
 
-}
 
 //MARK: - Update Title
 extension LightsListVC: UpdateTitle{
@@ -350,7 +314,7 @@ extension LightsListVC{
                     let sceneArray = scenes.filter{$0.group == group.id}
                     
                     DispatchQueue.main.async {
-                        let sceneList = SceneListVC(groupNumber: group.id, lightsInGroup: self.lightsArray, sceneArray: sceneArray)
+                        let sceneList = SceneListVC(group: group, lightsInGroup: self.lightsArray, sceneArray: sceneArray)
                         sceneList.delegate = self
                         sceneList.title = HueSender.scenes.rawValue
                         self.navigationController?.pushViewController(sceneList, animated: true)

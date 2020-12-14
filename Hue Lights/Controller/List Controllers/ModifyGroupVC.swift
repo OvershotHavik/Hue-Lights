@@ -12,8 +12,7 @@ protocol SelectedGroupDelegate: class {
 
 class ModifyGroupVC: ListController{
     weak var selectedGroupDelegate : SelectedGroupDelegate?
-//    fileprivate let limit = 1 // a light can only be in one group
-    fileprivate var originalAllGroups : [HueModel.Groups]? // used for search
+    fileprivate var originalAllGroups : [HueModel.Groups] // used for search
     fileprivate var allGroups: [HueModel.Groups]
     fileprivate var selectedGroup: HueModel.Groups?
     fileprivate var initialGroup : HueModel.Groups?
@@ -36,7 +35,6 @@ class ModifyGroupVC: ListController{
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-//        initialLights = listItems
         colorPicker.delegate = self
         tableView.register(ListCell.self, forCellReuseIdentifier: Cells.cell) // change the cell depending on which VC is using this
         tableView.delegate = self
@@ -91,10 +89,8 @@ class ModifyGroupVC: ListController{
 }
 extension ModifyGroupVC: UISearchBarDelegate {
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        if let safeOriginalAllGroups = originalAllGroups{
-            allGroups = safeOriginalAllGroups
-            tableView.reloadData()
-        }
+        allGroups = originalAllGroups.sorted(by: {$0.name < $1.name})
+        tableView.reloadData()
     }
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         let searchText = searchText.lowercased()
@@ -102,9 +98,7 @@ extension ModifyGroupVC: UISearchBarDelegate {
         let filtered = allGroups.filter( {$0.name.contains(searchText) })
         self.allGroups = filtered.isEmpty ? [] : filtered
         if searchText == ""{
-            if let safeOriginalAllGroups = originalAllGroups{
-                self.allGroups = safeOriginalAllGroups
-            }
+            self.allGroups = originalAllGroups.sorted(by: {$0.name < $1.name})
         }
         tableView.reloadData()
     }

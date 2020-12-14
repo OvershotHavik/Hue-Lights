@@ -12,9 +12,20 @@ protocol BridgeInfoDelegate : class {
     var bridgeIP : String {get}
     var bridgeUser: String {get}
 }
-protocol UpdateList : class{
-    func updateList(items: [String])
+
+protocol UpdateLights: class {
+    func updateLightsDS(items: [HueModel.Light])
 }
+protocol UpdateGroups : class{
+    func updateGroupsDS(items: [HueModel.Groups])
+}
+protocol UpdateScenes: class {
+    func updateScenesDS(items: [HueModel.Scenes])
+}
+protocol UpdateSchedules: class {
+    func updateScheduleDS(items: [HueModel.Schedules])
+}
+
 class ListController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     weak var delegate: BridgeInfoDelegate?
     private var filtered = [String]()

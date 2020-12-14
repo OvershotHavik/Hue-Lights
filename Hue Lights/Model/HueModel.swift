@@ -112,8 +112,8 @@ struct HueModel: Codable{
             case groupClass = "class"
         }
         let id : String
-        let name: String
-        let lights: [String]
+        var name: String
+        var lights: [String]
         let sensors: [String] // I don't have any sensors, so it's blank in the json, not sure what it is by default
         let type: String
         let state: GroupState

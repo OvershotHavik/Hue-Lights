@@ -11,8 +11,8 @@ class EditLightVC: UIViewController, BridgeInfoDelegate{
     
     fileprivate var rootView : EditItemView!
     weak var delegate : BridgeInfoDelegate?
-    weak var updateTitleDelegate : UpdateTitle?
-    
+    weak var updateDelegate : UpdateLights?
+//    weak var updateTitleDelegate : UpdateTitle?
     
     var bridgeIP = String()
     var bridgeUser = String()
@@ -46,6 +46,30 @@ class EditLightVC: UIViewController, BridgeInfoDelegate{
     override func viewDidLoad() {
         super.viewDidLoad()
     }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        updateLightListVC()
+    }
+    
+    func updateLightListVC(){
+        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights") else {return}
+        print(url)
+        DataManager.get(url: url) { (results) in
+            switch results{
+            case .success(let data):
+                do {
+                    let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
+                    let lights = lightsFromBridge.compactMap{ $0}
+                    self.updateDelegate?.updateLightsDS(items: lights)
+                } catch let e {
+                    print("Error getting lights: \(e)")
+                }
+
+            case .failure(let e): print(e)
+            }
+        }
+    }
+    
     func getGroups(){
         guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups") else {return}
         print(url)

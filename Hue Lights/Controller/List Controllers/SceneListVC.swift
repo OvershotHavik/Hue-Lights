@@ -7,19 +7,21 @@
 
 import UIKit
 
-class SceneListVC: ListController, UISearchBarDelegate, BridgeInfoDelegate{
+class SceneListVC: ListController, BridgeInfoDelegate{
     var bridgeIP = String()
     var bridgeUser = String()
     
-//    fileprivate var filtered = [String]()
     fileprivate var sceneArray : [HueModel.Scenes]
-    fileprivate var groupNumber: String
+    fileprivate var originalSceneArray : [HueModel.Scenes] // used for search
+    fileprivate var group: HueModel.Groups?
     fileprivate var lightsInGroup: [HueModel.Light]
     
-    init(groupNumber: String, lightsInGroup: [HueModel.Light], sceneArray: [HueModel.Scenes]) {
-        self.groupNumber = groupNumber
+    
+    init(group: HueModel.Groups?, lightsInGroup: [HueModel.Light], sceneArray: [HueModel.Scenes]) {
+        self.group = group
         self.lightsInGroup = lightsInGroup
         self.sceneArray = sceneArray
+        self.originalSceneArray = sceneArray
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -56,11 +58,11 @@ class SceneListVC: ListController, UISearchBarDelegate, BridgeInfoDelegate{
     
     @objc func addScene(){
         print("Bring up edit scene")
-        let addScene = EditSceneVC(sceneName: "", sceneID: Constants.newScene.rawValue, groupNumber: groupNumber, lightsInGroup: lightsInGroup)
-        addScene.delegate = self
-//        self.sourceItems = self.lightsInGroup
-        self.navigationController?.pushViewController(addScene, animated: true)
-        
+        if let safeGroup = group{
+            let addScene = EditSceneVC(sceneName: "", sceneID: Constants.newScene.rawValue, group: safeGroup, lightsInGroup: lightsInGroup)
+            addScene.delegate = self
+            self.navigationController?.pushViewController(addScene, animated: true)
+        }
     }
     func getLightDataFromKey(){
         
@@ -78,31 +80,36 @@ class SceneListVC: ListController, UISearchBarDelegate, BridgeInfoDelegate{
         return sceneArray.count
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        
         guard let delegate = delegate else {
             assertionFailure("Set the delegate")
             return
         }
-        let scene = sceneArray[indexPath.row]
-        print("Selected Scene: \(scene.name)")
-
-        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/groups/\(groupNumber)/action") else {return}
-        print(url)
-        let httpBody = [
-            "scene": scene.id
-        ]
-        DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
-            DispatchQueue.main.async {
-                switch result{
-                case .success(let response):
-                    if response.contains("success"){
-                        //don't display an alert if successful
-                    } else {
-                        Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+        if let safeGroup = group{
+            let scene = sceneArray[indexPath.row]
+            print("Selected Scene: \(scene.name)")
+            
+            guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/groups/\(safeGroup.id)/action") else {return}
+            print(url)
+            let httpBody = [
+                "scene": scene.id
+            ]
+            DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
+                DispatchQueue.main.async {
+                    switch result{
+                    case .success(let response):
+                        if response.contains("success"){
+                            //don't display an alert if successful
+                        } else {
+                            Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                        }
+                    case .failure(let e): print("Error occured: \(e)")
                     }
-                case .failure(let e): print("Error occured: \(e)")
                 }
             }
         }
+
     }
     
 
@@ -119,14 +126,34 @@ class SceneListVC: ListController, UISearchBarDelegate, BridgeInfoDelegate{
                 let selected = self.sceneArray[indexPath.row]
                 let name = selected.name
                 let id = selected.id
-                let editScene = EditSceneVC(sceneName: name,
-                                            sceneID: id,
-                                            groupNumber: self.groupNumber,
-                                            lightsInGroup: self.lightsInGroup)
-                editScene.delegate = self
-                self.navigationController?.pushViewController(editScene, animated: true)
+                if let safeGroup = self.group{
+                    let editScene = EditSceneVC(sceneName: name,
+                                                sceneID: id,
+                                                group: safeGroup,
+                                                lightsInGroup: self.lightsInGroup)
+                    editScene.delegate = self
+                    self.navigationController?.pushViewController(editScene, animated: true)
+                }
             }
          }
          return action
      }
+}
+//MARK: - UI Search Bar Delegate
+extension SceneListVC: UISearchBarDelegate{
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        sceneArray = originalSceneArray.sorted(by: {$0.name < $1.name})
+        tableView.reloadData()
+    }
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        let searchText = searchText
+        searchBar.text = searchText
+        print("SearchText: \(searchText)")
+        let filtered = sceneArray.filter {$0.name.contains(searchText)}
+        self.sceneArray = filtered.isEmpty ? [] : filtered
+        if searchText == ""{
+            self.sceneArray = originalSceneArray.sorted(by: {$0.name < $1.name})
+        }
+        tableView.reloadData()
+    }
 }

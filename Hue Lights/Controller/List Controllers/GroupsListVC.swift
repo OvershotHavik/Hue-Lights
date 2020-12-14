@@ -7,18 +7,19 @@
 
 import UIKit
 
-class GroupsListVC: ListController, BridgeInfoDelegate, editingGroup{
+class GroupsListVC: ListController, BridgeInfoDelegate, editingGroup, UpdateGroups{
+
+    //edit group delegate
     var group: HueModel.Groups?
     var bridgeIP: String = ""
     var bridgeUser: String = ""
     
 
-
-    private var groupsArray : [HueModel.Groups]
-//    internal var hueResults : HueModel?
-    
+    fileprivate var groupsArray : [HueModel.Groups]
+    fileprivate var originalGroupsArray : [HueModel.Groups]
     init(groupsArray: [HueModel.Groups]) {
         self.groupsArray = groupsArray
+        self.originalGroupsArray = groupsArray
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -47,11 +48,6 @@ class GroupsListVC: ListController, BridgeInfoDelegate, editingGroup{
         bridgeIP = delegate.bridgeIP
         bridgeUser = delegate.bridgeUser
         groupsArray = groupsArray.sorted(by: {$0.name < $1.name})
-//        groupsArray = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
-//        hueResults = delegate.hueResults
-//        if let hueResults = hueResults{
-//            hueGroups.append(contentsOf: hueResults.groups.values)
-//        }
         self.tableView.reloadData()
     }
 
@@ -73,7 +69,6 @@ class GroupsListVC: ListController, BridgeInfoDelegate, editingGroup{
                                  isReachable: true,
                                  lightColor: ConvertColor.getRGB(xy: color, bri: bri ?? 0))
         cell.configureCell(LightData: cellData)
-
         if let tag = Int(row.id){
             cell.onSwitch.tag = tag
             cell.brightnessSlider.tag = tag
@@ -105,38 +100,22 @@ class GroupsListVC: ListController, BridgeInfoDelegate, editingGroup{
                             let lightlistVC = LightsListVC(lightsArray: lightsArray, showingGroup: true)
                             lightlistVC.delegate = self
                             lightlistVC.editingGroupDelegate = self
+                            lightlistVC.updateGroupDelegate = self
                             lightlistVC.title = HueSender.lights.rawValue
                             self.navigationController?.pushViewController(lightlistVC, animated: true)
                         }
                     } catch let e {
                         print("Error getting lights: \(e)")
                     }
-
                 case .failure(let e): print(e)
                 }
             }
         }
-        
-        
-        /*
-         [Groups]
-         Group
-          - ID
-          - Name
-          - ...
-         
-         In our VC, we have a property that is our data model (var groups: [Group] = [])
-         This is mutable - groups can be added, renamed, removed, etc
-         If we want to sort groups in our display, groups.sorted( a.name < b.name )
-         After sorting, we reload the table so that it shows things in the correct order
-         Now that it's sorted in our model, we can directly work with the indices
-        
-        let lightIDsInGroup = groups[indexPath.row]
-        */
-        
-
     }
-
+    func updateGroupsDS(items: [HueModel.Groups]) {
+        groupsArray = items.sorted(by: {$0.name < $1.name})
+        self.tableView.reloadData()
+    }
     
     
     //MARK: - Update Light Color
@@ -226,23 +205,23 @@ extension GroupsListVC: HueCellDelegate{
         selectColor()
         tempChangeColorButton = sender
     }
-    
-
 }
 
 //MARK: - UISearch Bar Delegate
 extension GroupsListVC: UISearchBarDelegate{
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-//        groupsArray = delegate.sourceItems.sorted(by: { $0.lowercased() < $1.lowercased()})
+        groupsArray = originalGroupsArray.sorted(by: {$0.name < $1.name})
         tableView.reloadData()
     }
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         let searchText = searchText
         searchBar.text = searchText
         print("SearchText: \(searchText)")
-//        let filtered = delegate.sourceItems.filter( {$0.contains(searchText) })
         let filtered = groupsArray.filter({$0.name.contains(searchText)})
         self.groupsArray = filtered.isEmpty ? [] : filtered
+        if searchText == ""{
+            self.groupsArray = originalGroupsArray.sorted(by: {$0.name < $1.name})
+        }
         tableView.reloadData()
     }
 }
