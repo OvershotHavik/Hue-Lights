@@ -20,6 +20,33 @@ protocol UpdateSchedules: class {
 }
 
 class ListController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+    lazy var noAlertOnSuccessClosure : (Result<String, NetworkError>) -> Void = {Result in
+        DispatchQueue.main.async {
+            switch Result{
+            case .success(let response):
+                if response.contains("success"){
+                    //don't display an alert if successful
+                } else {
+                    Alert.showBasic(title: "Erorr occured", message: response, vc: self as UIViewController ) // will need changed later
+                }
+            case .failure(let e): print("Error occured: \(e)")
+            }
+        }
+    }
+    lazy var postClosure : (Result<String, NetworkError>, _ message: String) -> Void = {Result, message  in
+        DispatchQueue.main.async {
+            switch Result{
+            case .success(let response):
+                if response.contains("success"){
+                    Alert.showBasic(title: "Success", message: message, vc: self)
+                } else {
+                    Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                }
+            case .failure(let e): print("Error occured: \(e)")
+            }
+        }
+    }
+
     private var filtered = [String]()
     var pickedColor = UIColor.systemBlue
     var colorPicker = UIColorPickerViewController()

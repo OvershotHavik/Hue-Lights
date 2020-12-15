@@ -59,6 +59,12 @@ class LightsListVC: ListController{
 
     override func viewWillDisappear(_ animated: Bool) {
         if showingGroup != nil{
+            //testing
+            DataManager.updateLight(baseURL: baseURL,
+                                    lightID: "",
+                                    method: .put,
+                                    httpBody: ["on": true], completionHandler: self.resultClosure)
+            /*
             guard let url = URL(string: baseURL + HueSender.groups.rawValue) else {return}
 //            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups") else {return}
             print(url)
@@ -75,6 +81,7 @@ class LightsListVC: ListController{
                 case .failure(let e): print(e)
                 }
             }
+             */
         }
     }
     //MARK: - Number of Rows in section

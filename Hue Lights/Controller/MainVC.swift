@@ -8,8 +8,33 @@
 import UIKit
 
 class MainVC: UIViewController {
-    var hueResults : HueModel?
-    var sourceItems = [String]()
+    lazy var testClosure : (Result<String, NetworkError>) -> Void = {Result in
+        DispatchQueue.main.async {
+            switch Result{
+            case .success(let response):
+                if response.contains("success"){
+//                    Alert.showBasic(title: "Success", message: "Success Closure", vc: self)
+                    //don't display an alert if successful
+                } else {
+                    Alert.showBasic(title: "Erorr occured", message: response, vc: self as UIViewController ) // will need changed later
+                }
+            case .failure(let e): print("Error occured: \(e)")
+            }
+        }
+    }
+    lazy var postClosure : (Result<String, NetworkError>, _ message: String) -> Void = {Result, message  in
+        DispatchQueue.main.async {
+            switch Result{
+            case .success(let response):
+                if response.contains("success"){
+                    Alert.showBasic(title: "Success", message: message, vc: self)
+                } else {
+                    Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                }
+            case .failure(let e): print("Error occured: \(e)")
+            }
+        }
+    }
     
     fileprivate var rootView : MainView!
     internal var bridgeIP = String()
@@ -47,7 +72,8 @@ extension MainVC: GetDelegate{
             
             guard let url = URL(string: baseURL + HueSender.lights.rawValue) else {return}
             print(url)
-            DataManager.get(url: url) { (results) in
+            DataManager.getTest(baseURL: baseURL, HueSender: .lights) { results in
+//            DataManager.get(url: url) { (results) in
                 switch results{
                 case .success(let data):
                     do {
@@ -125,6 +151,12 @@ extension MainVC: GetDelegate{
             }
 //MARK: - Light Scenes
         case .lightScenes:
+//            DataManager.updateLight(baseURL: baseURL, lightID: "7", method: .put, httpBody: ["on": false], completionHandler: self.testClosure)
+            let lightName = "Test name"
+            DataManager.updateLight(baseURL: baseURL, lightID: "7", method: .put, httpBody: ["on": true]) { (Result) in
+                self.postClosure(Result,"saved light \(lightName)")
+            }
+            /*
             guard let url = URL(string: baseURL + HueSender.scenes.rawValue) else {return}
             print(url)
             DataManager.get(url: url) { results in
@@ -152,6 +184,7 @@ extension MainVC: GetDelegate{
                 case .failure(let e): print(e)
                 }
             }
+ */
         default:
             print("not setup yet")
         }
