@@ -8,12 +8,11 @@
 import UIKit
 
 class ScheduleListVC: ListController{
-//    fileprivate var filtered = [String]()
     fileprivate var scheduleArray : [HueModel.Schedules]
     fileprivate var originalScheduleArray : [HueModel.Schedules] // used for search
-//    fileprivate var hueResults : HueModel?
-    
-    init(scheduleArray: [HueModel.Schedules]) {
+    fileprivate var baseURL : String
+    init(baseURL: String, scheduleArray: [HueModel.Schedules]) {
+        self.baseURL = baseURL
         self.scheduleArray = scheduleArray
         self.originalScheduleArray = scheduleArray
         super.init(nibName: nil, bundle: nil)
@@ -68,11 +67,10 @@ class ScheduleListVC: ListController{
     }
     
     @objc func onToggled(sender: UISwitch){
-
-        guard let delegate = delegate else { return}
-        let scheduleNumber = sender.tag
+        let scheduleID = sender.tag
         print("sender tag: \(sender.tag)")
-        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/schedules/\(scheduleNumber)") else {return}
+        guard let url = URL(string: baseURL + HueSender.schedules.rawValue + "/\(scheduleID)") else {return}
+//        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/schedules/\(scheduleNumber)") else {return}
         print(url)
         var httpBody = [String: String]()
         if sender.isOn == true{

@@ -7,17 +7,12 @@
 
 import UIKit
 
-class GroupsListVC: ListController, BridgeInfoDelegate, editingGroup, UpdateGroups{
-
-    //edit group delegate
-    var group: HueModel.Groups?
-    var bridgeIP: String = ""
-    var bridgeUser: String = ""
-    
-
+class GroupsListVC: ListController, UpdateGroups{
     fileprivate var groupsArray : [HueModel.Groups]
     fileprivate var originalGroupsArray : [HueModel.Groups]
-    init(groupsArray: [HueModel.Groups]) {
+    fileprivate var baseURL : String
+    init(baseURL: String, groupsArray: [HueModel.Groups]) {
+        self.baseURL = baseURL
         self.groupsArray = groupsArray
         self.originalGroupsArray = groupsArray
         super.init(nibName: nil, bundle: nil)
@@ -41,12 +36,6 @@ class GroupsListVC: ListController, BridgeInfoDelegate, editingGroup, UpdateGrou
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        guard let delegate = delegate else {
-            assertionFailure("Set the delegate")
-            return
-        }
-        bridgeIP = delegate.bridgeIP
-        bridgeUser = delegate.bridgeUser
         groupsArray = groupsArray.sorted(by: {$0.name < $1.name})
         self.tableView.reloadData()
     }
@@ -81,37 +70,36 @@ class GroupsListVC: ListController, BridgeInfoDelegate, editingGroup, UpdateGrou
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        group = groupsArray[indexPath.row]
-        if let safeGroup = group{
-            print("group: \(safeGroup.name) selected")
-            let lightsInGroup = safeGroup.lights
-            print("Lights in group: \(lightsInGroup)")
-            // Get the light model for each light in lightsInGroup
-            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights") else {return}
-            print(url)
-            DataManager.get(url: url) { results in
-                switch results{
-                case .success(let data):
-                    do {
-                        let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
-                        let lights = lightsFromBridge.compactMap{ $0}
-                        let lightsArray = lights.filter{ return lightsInGroup.contains($0.id)}
-                        DispatchQueue.main.async {
-                            let lightlistVC = LightsListVC(lightsArray: lightsArray,
-                                                           showingGroup: true)
-                            lightlistVC.delegate = self
-                            lightlistVC.editingGroupDelegate = self
-                            lightlistVC.updateGroupDelegate = self
-                            lightlistVC.title = HueSender.lights.rawValue
-                            self.navigationController?.pushViewController(lightlistVC, animated: true)
-                        }
-                    } catch let e {
-                        print("Error getting lights: \(e)")
+        let group = groupsArray[indexPath.row]
+        print("group: \(group.name) selected")
+        let lightsInGroup = group.lights
+        print("Lights in group: \(lightsInGroup)")
+        // Get the light model for each light in lightsInGroup
+        guard let url = URL(string: baseURL + HueSender.lights.rawValue) else {return}
+        //            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights") else {return}
+        print(url)
+        DataManager.get(url: url) { results in
+            switch results{
+            case .success(let data):
+                do {
+                    let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
+                    let lights = lightsFromBridge.compactMap{ $0}
+                    let lightsArray = lights.filter{ return lightsInGroup.contains($0.id)}
+                    DispatchQueue.main.async {
+                        let lightlistVC = LightsListVC(baseURL: self.baseURL,
+                                                       lightsArray: lightsArray,
+                                                       showingGroup: group)
+                        lightlistVC.updateGroupDelegate = self
+                        lightlistVC.title = HueSender.lights.rawValue
+                        self.navigationController?.pushViewController(lightlistVC, animated: true)
                     }
-                case .failure(let e): print(e)
+                } catch let e {
+                    print("Error getting lights: \(e)")
                 }
+            case .failure(let e): print(e)
             }
         }
+        
     }
     func updateGroupsDS(items: [HueModel.Groups]) {
         DispatchQueue.main.async {
@@ -124,7 +112,6 @@ class GroupsListVC: ListController, BridgeInfoDelegate, editingGroup, UpdateGrou
     //MARK: - Update Light Color
     override func updatLightColor(){
         guard let tempChangeColorButton = tempChangeColorButton else {return}
-        guard let delegate = delegate else { return}
         tempChangeColorButton.backgroundColor = pickedColor
         let red = pickedColor.components.red
         let green = pickedColor.components.green
@@ -132,8 +119,9 @@ class GroupsListVC: ListController, BridgeInfoDelegate, editingGroup, UpdateGrou
         let colorXY = ConvertColor.getXY(red: red,
                                          green: green,
                                          blue: blue)
-        let lightNumber = tempChangeColorButton.tag
-        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/groups/\(lightNumber)/action") else {return}
+        let groupID = "/\(tempChangeColorButton.tag)"
+        guard let url = URL(string: baseURL + HueSender.groups.rawValue + groupID + HueSender.action.rawValue) else {return}
+//        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/groups/\(lightNumber)/action") else {return}
         print(url)
         let httpBody = [
             "xy": colorXY,
@@ -156,10 +144,11 @@ class GroupsListVC: ListController, BridgeInfoDelegate, editingGroup, UpdateGrou
 //MARK: - Hue Cell Delegate
 extension GroupsListVC: HueCellDelegate{
     func onSwitchToggled(sender: UISwitch) {
-        guard let delegate = delegate else { return}
         print("Sender's Tag: \(sender.tag)")
-        let groupNumber = sender.tag
-        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/groups/\(groupNumber)/action") else {return}
+        
+        let groupID = "/\(sender.tag)"
+        guard let url = URL(string: baseURL + HueSender.groups.rawValue + groupID + HueSender.action.rawValue) else {return}
+//        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/groups/\(groupNumber)/action") else {return}
         print(url)
         let httpBody = [
             "on": sender.isOn,
@@ -181,12 +170,12 @@ extension GroupsListVC: HueCellDelegate{
     //MARK: - Brightness Slider Changed
     func brightnessSliderChanged(sender: UISlider) {
         // Will need to find a way to limit the commands to the bridge to be one command per second, otherwise an error can come up if it tries to process too many (moving the slider back and forth quickly)
-        guard let delegate = delegate else { return}
         print("Brightness slider changed")
         print("Sender's Tag: \(sender.tag)")
         
-        let lightNumber = sender.tag
-        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/groups/\(lightNumber)/action") else {return}
+        let groupID = "/\(sender.tag)"
+        guard let url = URL(string: baseURL + HueSender.groups.rawValue + groupID + HueSender.action.rawValue) else {return}
+//        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/groups/\(lightNumber)/action") else {return}
         print(url)
         let httpBody = [
             "bri": Int(sender.value),

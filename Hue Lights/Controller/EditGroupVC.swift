@@ -11,20 +11,17 @@ protocol UpdateTitle: class {
     func updateTitle(newTitle: String)
 }
 
-class EditGroupVC: UIViewController, BridgeInfoDelegate{
-    var bridgeIP = String()
-    var bridgeUser = String()
-    weak var delegate : BridgeInfoDelegate?
+class EditGroupVC: UIViewController{
     weak var updateTitleDelegate : UpdateTitle?
     weak var updateLightsDelegate : UpdateLights?
     fileprivate var rootView : EditItemView!
-//    fileprivate var lightNameInGroup = [String]()
-//    fileprivate var lightIDsInGroup = [String()]
     fileprivate var lightsInGroup : [HueModel.Light]?
     fileprivate var allLightsOnBridge: [HueModel.Light]
     fileprivate var newGroupName : String?
     fileprivate var group: HueModel.Groups
-    init(group: HueModel.Groups, allLightsOnBridge: [HueModel.Light]) {
+    fileprivate var baseURL : String
+    init(baseURL: String, group: HueModel.Groups, allLightsOnBridge: [HueModel.Light]) {
+        self.baseURL = baseURL
         self.group = group
         self.allLightsOnBridge = allLightsOnBridge
         super.init(nibName: nil, bundle: nil)
@@ -32,15 +29,6 @@ class EditGroupVC: UIViewController, BridgeInfoDelegate{
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    override func viewWillAppear(_ animated: Bool) {
-        guard let delegate = delegate  else {
-            print("setup delegate for EditGroupVC")
-            return
-        }
-        bridgeIP = delegate.bridgeIP
-        bridgeUser = delegate.bridgeUser
-        //        getAllLightsOnBridge()
     }
     override func loadView() {
         rootView = EditItemView(itemName: group.name)
@@ -102,7 +90,8 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
     
     //MARK: - Take user to edit lights in the group
     func editList() {
-        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups") else {return}
+        guard let url = URL(string: baseURL + HueSender.groups.rawValue) else {return}
+//        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups") else {return}
         print(url)
         DataManager.get(url: url) { results in
             
@@ -123,7 +112,7 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
                         availableLights.append(contentsOf: safeLightsInGroup)
                         DispatchQueue.main.async {
                             let lightList = ModifyLightsInGroupVC(limit: 999, selectedItems: safeLightsInGroup, lightsArray: availableLights)
-                            lightList.delegate = self
+//                            lightList.delegate = self
                             lightList.selectedItemsDelegate = self
                             self.navigationController?.pushViewController(lightList, animated: true)
                         }
@@ -141,7 +130,9 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
         
         if let safeLightsInGroup = lightsInGroup{
             let lightIDsInGroup = safeLightsInGroup.map({$0.id})
-            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(group.id)") else {return}
+            let groupID = "/\(group.id)"
+            guard let url = URL(string: baseURL + HueSender.groups.rawValue + groupID) else {return}
+//            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(group.id)") else {return}
             print(url)
             var httpBody = [String: Any]()
             httpBody["name"] = name

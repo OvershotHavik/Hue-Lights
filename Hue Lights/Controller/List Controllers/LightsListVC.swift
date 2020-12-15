@@ -7,20 +7,13 @@
 
 import UIKit
 
-protocol editingGroup: class{
-    var group: HueModel.Groups? {get}
-}
-
-class LightsListVC: ListController, BridgeInfoDelegate{
-    weak var editingGroupDelegate: editingGroup?
+class LightsListVC: ListController{
     weak var updateGroupDelegate : UpdateGroups?
-    var sourceItems = [String]()
-    var bridgeIP = String()
-    var bridgeUser = String()
     
     fileprivate var lightsArray : [HueModel.Light]
     fileprivate var originalLightsArray : [HueModel.Light] // used for search
-    fileprivate var showingGroup: Bool
+    fileprivate var showingGroup: HueModel.Groups?
+    fileprivate var baseURL: String
     var btnScenes: UIButton = {
        let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -28,7 +21,8 @@ class LightsListVC: ListController, BridgeInfoDelegate{
         button.addTarget(self, action: #selector(scenesTapped), for: .touchUpInside)
         return button
     }()
-    init(lightsArray: [HueModel.Light], showingGroup: Bool) {
+    init(baseURL: String, lightsArray: [HueModel.Light], showingGroup: HueModel.Groups?) {
+        self.baseURL = baseURL
         self.lightsArray = lightsArray
         self.showingGroup = showingGroup
         self.originalLightsArray = lightsArray
@@ -40,12 +34,12 @@ class LightsListVC: ListController, BridgeInfoDelegate{
     }
     //MARK: - View Did Load
     override func viewDidLoad() {
-        
+        super.viewDidLoad()
         tableView.register(HueLightsCell.self, forCellReuseIdentifier: Cells.cell) // change the cell depending on which VC is using this
         tableView.delegate = self
         tableView.dataSource = self
         colorPicker.delegate = self
-        if showingGroup == false{
+        if showingGroup == nil{
             setup()
         } else {
             groupsSetup()
@@ -54,13 +48,7 @@ class LightsListVC: ListController, BridgeInfoDelegate{
     //MARK: - View Will Appear
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        guard let delegate = delegate else {
-            assertionFailure("Set the delegate")
-            return
-        }
-        bridgeIP = delegate.bridgeIP
-        bridgeUser = delegate.bridgeUser
-        if showingGroup == true{
+        if showingGroup != nil{
             navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(self.editGroup))
         }
         lightsArray = lightsArray.sorted(by: {$0.name < $1.name })
@@ -70,8 +58,9 @@ class LightsListVC: ListController, BridgeInfoDelegate{
         searchController.searchBar.delegate = self    }
 
     override func viewWillDisappear(_ animated: Bool) {
-        if showingGroup == true{
-            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups") else {return}
+        if showingGroup != nil{
+            guard let url = URL(string: baseURL + HueSender.groups.rawValue) else {return}
+//            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups") else {return}
             print(url)
             DataManager.get(url: url) { results in
                 switch results{
@@ -97,8 +86,7 @@ class LightsListVC: ListController, BridgeInfoDelegate{
         tableView.deselectRow(at: indexPath, animated: true)
         let light = lightsArray[indexPath.row]
         DispatchQueue.main.async {
-            let editLight = EditLightVC(light: light)
-            editLight.delegate = self
+            let editLight = EditLightVC(baseURL: self.baseURL, light: light)
             editLight.updateDelegate = self
             self.navigationController?.pushViewController(editLight, animated: true)
         }
@@ -130,14 +118,15 @@ class LightsListVC: ListController, BridgeInfoDelegate{
     //MARK: - Update Light Color
     override func updatLightColor(){
         guard let tempChangeColorButton = tempChangeColorButton else {return}
-        guard let delegate = delegate else { return}
         tempChangeColorButton.backgroundColor = pickedColor
         let red = pickedColor.components.red
         let green = pickedColor.components.green
         let blue = pickedColor.components.blue
         let colorXY = ConvertColor.getXY(red: red, green: green, blue: blue)
-        let lightNumber = tempChangeColorButton.tag
-        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/lights/\(lightNumber)/state") else {return}
+        let lightID = "/\(tempChangeColorButton.tag)"
+        guard let url = URL(string: baseURL + HueSender.lights.rawValue + lightID + HueSender.state.rawValue) else {return}
+
+//        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/lights/\(lightNumber)/state") else {return}
         print(url)
         let httpBody = [
             "xy": colorXY,
@@ -160,10 +149,9 @@ class LightsListVC: ListController, BridgeInfoDelegate{
 //MARK: - Hue Cell Delegate
 extension LightsListVC: HueCellDelegate{
     func onSwitchToggled(sender: UISwitch) {
-        guard let delegate = delegate else { return}
         print("Sender's Tag: \(sender.tag)")
-        let lightNumber = sender.tag
-        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/lights/\(lightNumber)/state") else {return}
+        let lightID = "/\(sender.tag)"
+        guard let url = URL(string: baseURL + HueSender.lights.rawValue + lightID + HueSender.state.rawValue) else {return}
         print(url)
         let httpBody = [
             "on": sender.isOn,
@@ -184,12 +172,12 @@ extension LightsListVC: HueCellDelegate{
     }
     //MARK: - Brightness Slider Changed
     func brightnessSliderChanged(sender: UISlider) {
-        guard let delegate = delegate else { return}
         print("Brightness slider changed")
         print("Sender's Tag: \(sender.tag)")
-        
-        let lightNumber = sender.tag
-        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/lights/\(lightNumber)/state") else {return}
+    
+        let lightID = "/\(sender.tag)"
+        guard let url = URL(string: baseURL + HueSender.lights.rawValue + lightID + HueSender.state.rawValue) else {return}
+//        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/lights/\(lightNumber)/state") else {return}
         print(url)
         let httpBody = [
             "bri": Int(sender.value),
@@ -249,7 +237,7 @@ extension LightsListVC : UpdateLights{
     
     @objc func editGroup(){
         print("edit tapped - in light list vc")
-        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights") else {return}
+        guard let url = URL(string: baseURL + HueSender.lights.rawValue) else {return}
         print(url)
         DataManager.get(url: url) { (results) in
             switch results{
@@ -258,10 +246,12 @@ extension LightsListVC : UpdateLights{
                     let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
                     let allLightsOnBridge = lightsFromBridge.compactMap{ $0}
                     DispatchQueue.main.async {
-                        guard let groupDelegate = self.editingGroupDelegate else {return}
-                        if let group = groupDelegate.group{
-                            let editGroupVC = EditGroupVC(group: group, allLightsOnBridge: allLightsOnBridge)
-                            editGroupVC.delegate = self
+//                        guard let groupDelegate = self.editingGroupDelegate else {return}
+                        if let group = self.showingGroup{
+                            let editGroupVC = EditGroupVC(baseURL: self.baseURL,
+                                                          group: group,
+                                                          allLightsOnBridge: allLightsOnBridge)
+//                            editGroupVC.delegate = self
                             editGroupVC.updateTitleDelegate = self
                             editGroupVC.updateLightsDelegate = self
                             editGroupVC.title = "Editing \(group.name)"
@@ -306,8 +296,9 @@ extension LightsListVC{
     }
     //MARK: - Scenes Tapped
     @objc func scenesTapped(){
-        guard let group = editingGroupDelegate?.group else {return}
-        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/scenes") else {return}
+        guard let group = showingGroup else {return}
+        guard let url = URL(string: baseURL + HueSender.scenes.rawValue) else {return}
+//        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/scenes") else {return}
         print(url)
         DataManager.get(url: url) {results in
             switch results{
@@ -318,8 +309,8 @@ extension LightsListVC{
                     let sceneArray = scenes.filter{$0.group == group.id}
                     
                     DispatchQueue.main.async {
-                        let sceneList = SceneListVC(group: group, lightsInGroup: self.lightsArray, sceneArray: sceneArray)
-                        sceneList.delegate = self
+                        let sceneList = SceneListVC(baseURL: self.baseURL, group: group, lightsInGroup: self.lightsArray, sceneArray: sceneArray)
+//                        sceneList.delegate = self
                         sceneList.title = HueSender.scenes.rawValue
                         self.navigationController?.pushViewController(sceneList, animated: true)
                     }

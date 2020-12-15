@@ -19,11 +19,15 @@ struct Cells {
 }
 
 enum HueSender : String {
-    case lights = "Lights"
-    case groups = "Groups"
-    case schedules = "Schedules"
-    case scenes = "Scenes"
+    //These have to stsay lowercase for the URL
+    case lights = "lights"
+    case groups = "groups"
+    case schedules = "schedules"
+    case scenes = "scenes"
     case lightScenes = "Light Scenes"
+    case state = "/state"
+    case action = "/action"
+    case lightstates = "/lightstates"
 }
 
 enum Constants: String{

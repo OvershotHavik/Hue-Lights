@@ -6,13 +6,6 @@
 //
 
 import UIKit
-protocol BridgeInfoDelegate : class {
-//    var sourceItems : [String] {get}
-//    var hueResults : HueModel? {get}
-    var bridgeIP : String {get}
-    var bridgeUser: String {get}
-}
-
 protocol UpdateLights: class {
     func updateLightsDS(items: [HueModel.Light])
 }
@@ -27,7 +20,6 @@ protocol UpdateSchedules: class {
 }
 
 class ListController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    weak var delegate: BridgeInfoDelegate?
     private var filtered = [String]()
     var pickedColor = UIColor.systemBlue
     var colorPicker = UIColorPickerViewController()

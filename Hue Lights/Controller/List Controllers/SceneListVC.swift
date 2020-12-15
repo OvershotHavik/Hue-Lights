@@ -7,16 +7,14 @@
 
 import UIKit
 
-class SceneListVC: ListController, BridgeInfoDelegate{
-    var bridgeIP = String()
-    var bridgeUser = String()
-    
+class SceneListVC: ListController{
     fileprivate var sceneArray : [HueModel.Scenes]
     fileprivate var originalSceneArray : [HueModel.Scenes] // used for search
     fileprivate var group: HueModel.Groups?
     fileprivate var lightsInGroup: [HueModel.Light]
-    
-    init(group: HueModel.Groups?, lightsInGroup: [HueModel.Light], sceneArray: [HueModel.Scenes]) {
+    fileprivate var baseURL: String
+    init(baseURL : String, group: HueModel.Groups?, lightsInGroup: [HueModel.Light], sceneArray: [HueModel.Scenes]) {
+        self.baseURL = baseURL
         self.group = group
         self.lightsInGroup = lightsInGroup
         self.sceneArray = sceneArray
@@ -31,12 +29,6 @@ class SceneListVC: ListController, BridgeInfoDelegate{
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        guard let delegate = delegate else {
-            assertionFailure("Set the delegate")
-            return
-        }
-        bridgeIP = delegate.bridgeIP
-        bridgeUser = delegate.bridgeUser
         sceneArray = sceneArray.sorted(by: { $0.name < $1.name})
         self.tableView.reloadData()
     }
@@ -58,9 +50,9 @@ class SceneListVC: ListController, BridgeInfoDelegate{
     @objc func addScene(){
         print("Bring up Add scene")
         if let safeGroup = group{
-            let addScene = EditGroupSceneVC(sceneName: "", sceneID: Constants.newScene.rawValue, group: safeGroup, lightsInGroup: lightsInGroup)
+            let addScene = EditGroupSceneVC(baseURL: baseURL, sceneName: "", sceneID: Constants.newScene.rawValue, group: safeGroup, lightsInGroup: lightsInGroup)
             addScene.updateDelegate = self
-            addScene.delegate = self
+//            addScene.delegate = self
             self.navigationController?.pushViewController(addScene, animated: true)
         } else { // light scenes
             
@@ -80,15 +72,12 @@ class SceneListVC: ListController, BridgeInfoDelegate{
         return sceneArray.count
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let delegate = delegate else {
-            assertionFailure("Set the delegate")
-            return
-        }
         if let safeGroup = group{
             let scene = sceneArray[indexPath.row]
             print("Selected Scene: \(scene.name)")
-            
-            guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/groups/\(safeGroup.id)/action") else {return}
+            let groupID = "/\(safeGroup.id)"
+            guard let url = URL(string: baseURL + HueSender.groups.rawValue + groupID + HueSender.action.rawValue) else {return}
+//            guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/groups/\(safeGroup.id)/action") else {return}
             print(url)
             let httpBody = [
                 "scene": scene.id
@@ -124,11 +113,12 @@ class SceneListVC: ListController, BridgeInfoDelegate{
             DispatchQueue.main.async {
                 let selected = self.sceneArray[indexPath.row]
                 if let safeGroup = self.group{
-                    let editScene = EditGroupSceneVC(sceneName: selected.name,
+                    let editScene = EditGroupSceneVC(baseURL: self.baseURL,
+                                                     sceneName: selected.name,
                                                      sceneID: selected.id,
                                                      group: safeGroup,
                                                      lightsInGroup: self.lightsInGroup)
-                    editScene.delegate = self
+//                    editScene.delegate = self
                     editScene.updateDelegate = self
                     self.navigationController?.pushViewController(editScene, animated: true)
                 }
@@ -136,14 +126,16 @@ class SceneListVC: ListController, BridgeInfoDelegate{
          }
          return action
      }
-    
+//MARK: - Trailing Swipe Action - Delete
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         let scene = sceneArray[indexPath.row]
         if editingStyle == .delete{
             Alert.showConfirmDelete(title: "Delete Scene?", message: "Are you sure you want to delete \(scene.name)?", vc: self) {
                 
                 print("Delete pressed")
-                guard let url = URL(string: "http://\(self.bridgeIP)/api/\(self.bridgeUser)/scenes/\(scene.id)") else {return}
+                let sceneID = "/\(scene.id)"
+                guard let url = URL(string: self.baseURL + HueSender.scenes.rawValue + sceneID) else {return}
+//                guard let url = URL(string: "http://\(self.bridgeIP)/api/\(self.bridgeUser)/scenes/\(scene.id)") else {return}
                 DataManager.sendRequest(method: .delete, url: url, httpBody: [:]) { (results) in
                     DispatchQueue.main.async {
                         switch results{
@@ -173,8 +165,6 @@ extension SceneListVC: UpdateScenes{
             self.tableView.reloadData()
         }
     }
-    
-    
 }
 
 //MARK: - UI Search Bar Delegate

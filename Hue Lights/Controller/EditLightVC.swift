@@ -7,23 +7,21 @@
 
 import UIKit
 
-class EditLightVC: UIViewController, BridgeInfoDelegate{
+class EditLightVC: UIViewController{
     
     fileprivate var rootView : EditItemView!
-    weak var delegate : BridgeInfoDelegate?
     weak var updateDelegate : UpdateLights?
-//    weak var updateTitleDelegate : UpdateTitle?
-    
-    var bridgeIP = String()
-    var bridgeUser = String()
+
     
     fileprivate var light : HueModel.Light
     fileprivate var groupsArray : [HueModel.Groups]?
     fileprivate var initialGroup : HueModel.Groups?
     fileprivate var newGroup : HueModel.Groups?
     fileprivate var noGroup = true
+    fileprivate var baseURL : String
     
-    init(light: HueModel.Light) {
+    init(baseURL: String, light: HueModel.Light) {
+        self.baseURL = baseURL
         self.light = light
         super.init(nibName: nil, bundle: nil)
     }
@@ -32,16 +30,12 @@ class EditLightVC: UIViewController, BridgeInfoDelegate{
         fatalError("init(coder:) has not been implemented")
     }
     
-    
     override func loadView() {
-        guard let delegate = delegate else {return}
-        bridgeIP = delegate.bridgeIP
-        bridgeUser = delegate.bridgeUser
+        super.loadView()
         rootView = EditItemView(itemName: light.name)
         self.view = rootView
         rootView.updateGroupDelegate = self
         getGroups()
-        
     }
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,7 +46,8 @@ class EditLightVC: UIViewController, BridgeInfoDelegate{
     }
     
     func updateLightListVC(){
-        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights") else {return}
+        guard let url = URL(string: baseURL + HueSender.lights.rawValue) else {return}
+//        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights") else {return}
         print(url)
         DataManager.get(url: url) { (results) in
             switch results{
@@ -71,7 +66,9 @@ class EditLightVC: UIViewController, BridgeInfoDelegate{
     }
     
     func getGroups(){
-        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups") else {return}
+        guard let url = URL(string: baseURL + HueSender.groups.rawValue) else {return}
+
+//        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups") else {return}
         print(url)
         DataManager.get(url: url) { results in
             switch results{
@@ -128,19 +125,19 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
             if let safeGroupsArray = self.groupsArray{
                 if  self.newGroup != nil{ // if a new group has been picked already, use that
                     let selectGroup = ModifyGroupVC(allGroups: safeGroupsArray, selectedGroup: self.newGroup)
-                    selectGroup.delegate = self
+//                    selectGroup.delegate = self
                     selectGroup.selectedGroupDelegate = self
                     self.navigationController?.pushViewController(selectGroup, animated: true)
                 } else {
                     if self.noGroup == true { // initial was changed to no group, so blank selection
                         let selectGroup = ModifyGroupVC(allGroups: safeGroupsArray, selectedGroup: nil)
-                        selectGroup.delegate = self
+//                        selectGroup.delegate = self
                         selectGroup.selectedGroupDelegate = self
                         self.navigationController?.pushViewController(selectGroup, animated: true)
                     } else {
                         if self.initialGroup != nil{ // else use the initial group name
                             let selectGroup = ModifyGroupVC(allGroups: safeGroupsArray, selectedGroup: self.initialGroup)
-                            selectGroup.delegate = self
+//                            selectGroup.delegate = self
                             selectGroup.selectedGroupDelegate = self
                             self.navigationController?.pushViewController(selectGroup, animated: true)
                         }
@@ -155,7 +152,10 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
     func saveTapped(name: String) {
         print("save tapped")
         if light.name != name{ // name changed, update the bridge
-            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights/\(light.id)") else {return}
+            let lightID = "/\(light.id)"
+            guard let url = URL(string: baseURL + HueSender.lights.rawValue + lightID) else {return}
+
+//            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights/\(light.id)") else {return}
             print(url)
             let httpBody = ["name" : name]
             DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
@@ -209,7 +209,10 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
             }
         }
         if let safeGroupID = groupID{
-            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(safeGroupID)") else {return}
+            let groupID = "/\(safeGroupID)"
+            guard let url = URL(string: baseURL + HueSender.groups.rawValue + groupID) else {return}
+
+//            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(safeGroupID)") else {return}
             print(url)
             groupLights.append(light.id)
             groupLights = groupLights.unique()
@@ -246,8 +249,10 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
         if var safeGroupLights = groupLights,
            let safeID = groupID{ // if no initial group, skip the removal
             safeGroupLights = safeGroupLights.filter {$0 != light.id}.unique()
-            
-            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(safeID)") else {return}
+            let groupID = "/\(safeID)"
+            guard let url = URL(string: baseURL + HueSender.groups.rawValue + groupID) else {return}
+
+//            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(safeID)") else {return}
             print(url)
             let httpBody = ["lights": safeGroupLights]
             DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in

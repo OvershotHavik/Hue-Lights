@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MainVC: UIViewController, BridgeInfoDelegate {
+class MainVC: UIViewController {
     var hueResults : HueModel?
     var sourceItems = [String]()
     
@@ -17,6 +17,7 @@ class MainVC: UIViewController, BridgeInfoDelegate {
     internal var bridgeKey = String()
     var appOwner = String()
     let decoder = JSONDecoder()
+    var baseURL : String?
     
     override func loadView() {
         super.loadView()
@@ -26,6 +27,7 @@ class MainVC: UIViewController, BridgeInfoDelegate {
         bridgeUser = "0ZaZRrSyiEoQYiw05AKrHmKsOuIcpcu1W8mb0Qox" // Steve's Bridge Username
         bridgeKey = "68D5D9EC03F6AD7A73F95D4E148102E1" // Steve's Bridge Key
         appOwner = "0ZaZRrSyiEoQYiw05AKrHmKsOuIcpcu1W8mb0Qox"
+        
         discovery()
     }
     override func viewDidLoad() {
@@ -35,10 +37,15 @@ class MainVC: UIViewController, BridgeInfoDelegate {
 
 extension MainVC: GetDelegate{
     func getTapped(sender: HueSender) {
+        guard let baseURL = baseURL else {
+            print("Base url not set in discovery")
+            return
+        }
         switch sender {
 //MARK: - Lights
         case .lights:
-            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights") else {return}
+            
+            guard let url = URL(string: baseURL + HueSender.lights.rawValue) else {return}
             print(url)
             DataManager.get(url: url) { (results) in
                 switch results{
@@ -50,9 +57,9 @@ extension MainVC: GetDelegate{
                             print("Light id: \(light.id) - \(light.name)")
                         }
                         DispatchQueue.main.async {
-                            let lightlistVC = LightsListVC(lightsArray: lights, showingGroup: false)
-                            lightlistVC.delegate = self
-                            lightlistVC.title = HueSender.lights.rawValue
+                            let lightlistVC = LightsListVC(baseURL: baseURL, lightsArray: lights, showingGroup: nil)
+//                            lightlistVC.delegate = self
+                            lightlistVC.title = HueSender.lights.rawValue.capitalized
                             self.navigationController?.pushViewController(lightlistVC, animated: true)
                         }
                     } catch let e {
@@ -64,7 +71,7 @@ extension MainVC: GetDelegate{
             }
 //MARK: - Groups
         case .groups:
-            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups") else {return}
+            guard let url = URL(string: baseURL + HueSender.groups.rawValue) else {return}
             print(url)
             DataManager.get(url: url) { results in
                 
@@ -77,9 +84,9 @@ extension MainVC: GetDelegate{
                             print("Group name: \(group.name), Group id: \(group.id)")
                         }
                         DispatchQueue.main.async {
-                            let groupListController = GroupsListVC(groupsArray: groups)
-                            groupListController.delegate = self
-                            groupListController.title = HueSender.groups.rawValue
+                            let groupListController = GroupsListVC(baseURL: baseURL, groupsArray: groups)
+//                            groupListController.delegate = self
+                            groupListController.title = HueSender.groups.rawValue.capitalized
                             self.navigationController?.pushViewController(groupListController, animated: true)
                         }
                     } catch let e {
@@ -92,7 +99,7 @@ extension MainVC: GetDelegate{
             }
 //MARK: - Schedules
         case .schedules:
-            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/schedules") else {return}
+            guard let url = URL(string: baseURL + HueSender.schedules.rawValue) else {return}
             print(url)
             DataManager.get(url: url){results in
                 switch results{
@@ -104,9 +111,9 @@ extension MainVC: GetDelegate{
                             print("Schedule id: \(schedule.id) - \(schedule.name)")
                         }
                         DispatchQueue.main.async {
-                            let scheduleList = ScheduleListVC(scheduleArray: schedules)
-                            scheduleList.delegate = self
-                            scheduleList.title = HueSender.schedules.rawValue
+                            let scheduleList = ScheduleListVC(baseURL: baseURL, scheduleArray: schedules)
+//                            scheduleList.delegate = self
+                            scheduleList.title = HueSender.schedules.rawValue.capitalized
                             self.navigationController?.pushViewController(scheduleList, animated: true)
                         }
                     } catch let e {
@@ -118,7 +125,7 @@ extension MainVC: GetDelegate{
             }
 //MARK: - Light Scenes
         case .lightScenes:
-            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/scenes") else {return}
+            guard let url = URL(string: baseURL + HueSender.scenes.rawValue) else {return}
             print(url)
             DataManager.get(url: url) { results in
                 switch results{
@@ -132,9 +139,9 @@ extension MainVC: GetDelegate{
                             print("Light Sceen Name: \(scene.name)")
                         }
                         DispatchQueue.main.async {
-                            let sceneList = SceneListVC(group: nil, lightsInGroup: [], sceneArray: ownedScenes)
-                            sceneList.delegate = self
-                            sceneList.title = HueSender.lightScenes.rawValue
+                            let sceneList = SceneListVC(baseURL: baseURL, group: nil, lightsInGroup: [], sceneArray: ownedScenes)
+//                            sceneList.delegate = self
+                            sceneList.title = HueSender.lightScenes.rawValue.capitalized
                             self.navigationController?.pushViewController(sceneList, animated: true)
                         }
 
@@ -148,107 +155,6 @@ extension MainVC: GetDelegate{
         default:
             print("not setup yet")
         }
-        
-        /*
-         
-         
-        print("Get Info")
-        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)") else {return}
-        print(url)
-        DataManager.get(url: url) { (results) in
-            switch results{
-            case .success(let data):
-                do {
-                    self.sourceItems = []
-                    self.hueResults = nil
-                    let resultsFromBrdige = try JSONDecoder().decode(HueModel.self, from: data)
-                    self.hueResults = resultsFromBrdige
-                    switch sender{
-                    case .lights:
-//                        let lightsFromBridge = try JSONDecoder().decode(HueModel.Light.self, from: data)
-//                        print(lightsFromBridge.lightID)
-                        
-                        for light in resultsFromBrdige.lights{
-                            
-                            print("=================================================")
-                            print("Key: \(light.key) light name: \(light.value.name), state on: \(light.value.state.on), Brightness: \(light.value.state.bri), is reachable: \(light.value.state.reachable)")
-                            
-                            if let safeHue = light.value.state.hue,
-                               let safeSat = light.value.state.sat{
-                                print("\(light.value.name)'s Hue: \(safeHue), Saturtation: \(safeSat)")
-                            
-                            }
-                            if let safeXY = light.value.state.xy{
-                                print("xy: \(safeXY)")
-                            }
-//                            self.sourceItems.append(light.value.name)
-                        }
-                        let lightsArray: [HueModel.Light] = Array(resultsFromBrdige.lights.values)
-//                        var array = lightsArray
-                        DispatchQueue.main.async {
-                            let lightlistVC = LightsListVC(lightsArray: lightsArray, showingGroup: false)
-                            lightlistVC.delegate = self
-                            lightlistVC.title = HueSender.lights.rawValue
-                            self.navigationController?.pushViewController(lightlistVC, animated: true)
-                        }
-                        
-//MARK: - Groups
-                    case .groups:
-                        for group in resultsFromBrdige.groups{
-                            print("Key: \(group.key) - Group Name: \(group.value.name)")
-//                            self.sourceItems.append(group.value.name)
-                        }
-                        let groupArray = Array(resultsFromBrdige.groups.values)
-                        DispatchQueue.main.async {
-                            let groupListController = GroupsListVC(groupsArray: groupArray)
-                            groupListController.delegate = self
-                            groupListController.title = HueSender.groups.rawValue
-                            self.navigationController?.pushViewController(groupListController, animated: true)
-                        }
-                        
-//MARK: - Schedules
-                    case .schedules:
-                        for schedule in resultsFromBrdige.schedules{
-                            print("Key: \(schedule.key) - Schedule Name: \(schedule.value.name)")
-//                            self.sourceItems.append(schedule.value.name)
-                        }
-                        let scheduleArray = Array(resultsFromBrdige.schedules.values)
-                        DispatchQueue.main.async {
-                            let scheduleList = ScheduleListVC(scheduleArray: scheduleArray)
-                            scheduleList.delegate = self
-                            scheduleList.title = HueSender.schedules.rawValue
-                            self.navigationController?.pushViewController(scheduleList, animated: true)
-                        }
-//MARK: - Light Scenes
-                    case .lightScenes:
-                        print("Light Scenes")
-                        var scenesArray = [HueModel.Scenes]()
-                        for scene in resultsFromBrdige.scenes{
-//                            print("scen: \(scene.value.name) type: \(scene.value.type)")
-                            if scene.value.type == "LightScene"{
-                                if scene.value.owner == self.appOwner{ // this app owner
-                                    print("Light scene: \(scene.value.name)")
-//                                    self.sourceItems.append(scene.value.name)
-                                    scenesArray.append(scene.value)
-                                }
-                            }
-                        }
-                        DispatchQueue.main.async {
-//                            let sceneList = SceneListVC(groupNumber: "", lightsInGroup: [""], sceneArray: scenesArray)
-//                            sceneList.delegate = self
-//                            sceneList.title = HueSender.lightScenes.rawValue
-//                            self.navigationController?.pushViewController(sceneList, animated: true)
-                        }
-                        
-                    default: print("Not setup in get tapped on main vc")
-                    }
-                } catch let e {
-                    print("Error: \(e)")
-                }
-            case .failure(let e): print("Error getting info: \(e)")
-            }
-        }
-         */
     }
 }
 //MARK: - Discovery - Run once
@@ -269,6 +175,7 @@ extension MainVC{
                         print("Bridge ID: \(bridge.id)")
                         print("Brdige IP: \(bridge.internalipaddress)")
                         self.bridgeIP = bridge.internalipaddress
+                        self.baseURL =  "http://\(self.bridgeIP)/api/\(self.bridgeUser)/"
                     }
                 } catch let e{
                     print("Error: \(e)")
