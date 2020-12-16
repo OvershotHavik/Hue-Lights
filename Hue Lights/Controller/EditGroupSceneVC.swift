@@ -56,6 +56,22 @@ class EditGroupSceneVC: UIViewController{
     }
     
     func updateSceneListVC(){
+        DataManager.get(baseURL: baseURL,
+                        HueSender: .scenes) { results in
+            switch results{
+            case .success(let data):
+                do {
+                    let scenesFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Scenes>.self, from: data)
+                    let scenes = scenesFromBridge.compactMap {$0}
+                    let sceneArray = scenes.filter{$0.group == self.group.id}
+                    self.updateDelegate?.updateScenesDS(items: sceneArray)
+                } catch let e {
+                    print("Error getting scenes: \(e)")
+                }
+            case .failure(let e): print(e)
+            }
+        }
+        /*
         guard let url = URL(string: baseURL + HueSender.scenes.rawValue) else {return}
 //        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/scenes") else {return}
         print(url)
@@ -73,6 +89,7 @@ class EditGroupSceneVC: UIViewController{
             case .failure(let e): print(e)
             }
         }
+ */
     }
     //MARK: - Add Child VC - subView - Light List
     func addChildVC(){
@@ -267,6 +284,32 @@ extension EditGroupSceneVC: HueCellDelegate, UITableViewDataSource{
                  sceneLights[light.id] = lightStateData
              }
         } else {
+            DataManager.getSceneLightStates(baseURL: baseURL,
+                                            sceneID: sceneID,
+                                            HueSender: .scenes) { results in
+                switch results{
+                case.success(let data):
+                    do {
+                        print("before json string")
+                        if let JSONString = String(data: data, encoding: String.Encoding.utf8){
+                            print(JSONString)
+                        }
+                        
+                        let resultsFromBridge = try JSONDecoder().decode(HueModel.IndividualScene.self, from: data)
+                        if let safeLightStates = resultsFromBridge.lightstates{
+                            self.sceneLights = safeLightStates
+                            self.applyLightStatesToLights()
+                        }
+                        for light in self.sceneLights{
+                            print("light key: \(light.key), light xy: \(light.value.xy ?? [0,0])")
+                        }
+                    } catch let e{
+                        print(e)
+                    }
+                case .failure(let e): print("error: \(e)")
+                }
+            }
+            /*
             let sceneId = "/\(sceneID)"
             guard let url = URL(string: baseURL + HueSender.scenes.rawValue + sceneId) else {return}
 //            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/scenes/\(sceneID)") else {return}
@@ -294,6 +337,7 @@ extension EditGroupSceneVC: HueCellDelegate, UITableViewDataSource{
                 case .failure(let e): print("error: \(e)")
                 }
             }
+ */
         }
     }
     //MARK: - Apply Light States To Lights

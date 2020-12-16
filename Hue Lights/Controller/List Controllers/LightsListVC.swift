@@ -57,13 +57,27 @@ class LightsListVC: ListController{
         navigationItem.searchController = searchController
         searchController.searchBar.delegate = self    }
 
+
     override func viewWillDisappear(_ animated: Bool) {
-        if showingGroup != nil{
-            //testing
-            DataManager.updateLight(baseURL: baseURL,
-                                    lightID: "",
-                                    method: .put,
-                                    httpBody: ["on": true], completionHandler: self.resultClosure)
+        super.viewWillDisappear(true)
+        
+        if showingGroup == nil{
+
+            DataManager.get(baseURL: baseURL,
+                            HueSender: .groups) { results in
+                switch results{
+                case .success(let data):
+                    do {
+                        let groupsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Groups>.self, from: data)
+                        let groups = groupsFromBridge.compactMap{$0}
+                        self.updateGroupDelegate?.updateGroupsDS(items: groups)
+                    } catch let e {
+                        print("Error getting Groups: \(e)")
+                    }
+                case .failure(let e): print(e)
+                }
+            }
+        }
             /*
             guard let url = URL(string: baseURL + HueSender.groups.rawValue) else {return}
 //            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups") else {return}
@@ -82,7 +96,7 @@ class LightsListVC: ListController{
                 }
             }
              */
-        }
+//        }
     }
     //MARK: - Number of Rows in section
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -93,7 +107,7 @@ class LightsListVC: ListController{
         tableView.deselectRow(at: indexPath, animated: true)
         let light = lightsArray[indexPath.row]
         DispatchQueue.main.async {
-            let editLight = EditLightVC(baseURL: self.baseURL, light: light)
+            let editLight = EditLightVC(baseURL: self.baseURL, light: light, showingInGroup: self.showingGroup)
             editLight.updateDelegate = self
             self.navigationController?.pushViewController(editLight, animated: true)
         }
@@ -244,6 +258,33 @@ extension LightsListVC : UpdateLights{
     
     @objc func editGroup(){
         print("edit tapped - in light list vc")
+        DataManager.get(baseURL: baseURL,
+                        HueSender: .lights) { results in
+            switch results{
+            case .success(let data):
+                do {
+                    let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
+                    let allLightsOnBridge = lightsFromBridge.compactMap{ $0}
+                    DispatchQueue.main.async {
+                        //                        guard let groupDelegate = self.editingGroupDelegate else {return}
+                        if let group = self.showingGroup{
+                            let editGroupVC = EditGroupVC(baseURL: self.baseURL,
+                                                          group: group,
+                                                          allLightsOnBridge: allLightsOnBridge)
+                            //                            editGroupVC.delegate = self
+                            editGroupVC.updateTitleDelegate = self
+                            editGroupVC.updateLightsDelegate = self
+                            editGroupVC.title = "Editing \(group.name)"
+                            self.navigationController?.pushViewController(editGroupVC, animated: true)
+                        }
+                    }
+                } catch let e {
+                    print("Error getting lights: \(e)")
+                }
+            case .failure(let e): print(e)
+            }
+        }
+        /*
         guard let url = URL(string: baseURL + HueSender.lights.rawValue) else {return}
         print(url)
         DataManager.get(url: url) { (results) in
@@ -271,6 +312,7 @@ extension LightsListVC : UpdateLights{
             case .failure(let e): print(e)
             }
         }
+ */
     }
 }
 
@@ -304,6 +346,28 @@ extension LightsListVC{
     //MARK: - Scenes Tapped
     @objc func scenesTapped(){
         guard let group = showingGroup else {return}
+        DataManager.get(baseURL: baseURL,
+                        HueSender: .scenes) { results in
+            switch results{
+            case .success(let data):
+                do {
+                    let scenesFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Scenes>.self, from: data)
+                    let scenes = scenesFromBridge.compactMap {$0}
+                    let sceneArray = scenes.filter{$0.group == group.id}
+                    
+                    DispatchQueue.main.async {
+                        let sceneList = SceneListVC(baseURL: self.baseURL, group: group, lightsInGroup: self.lightsArray, sceneArray: sceneArray)
+//                        sceneList.delegate = self
+                        sceneList.title = HueSender.scenes.rawValue
+                        self.navigationController?.pushViewController(sceneList, animated: true)
+                    }
+                } catch let e {
+                    print("Error getting scenes: \(e)")
+                }
+            case .failure(let e): print(e)
+            }
+        }
+        /*
         guard let url = URL(string: baseURL + HueSender.scenes.rawValue) else {return}
 //        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/scenes") else {return}
         print(url)
@@ -327,5 +391,6 @@ extension LightsListVC{
             case .failure(let e): print(e)
             }
         }
+ */
     }
 }

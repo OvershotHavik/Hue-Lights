@@ -72,9 +72,27 @@ class GroupsListVC: ListController, UpdateGroups{
         
         let group = groupsArray[indexPath.row]
         print("group: \(group.name) selected")
-        let lightsInGroup = group.lights
-        print("Lights in group: \(lightsInGroup)")
-        // Get the light model for each light in lightsInGroup
+        //get updatedLights in group, then get the models for those lights to send to the light vc
+        DataManager.get(baseURL: baseURL,
+                        HueSender: .groups) { results in
+            switch results{
+            case .success(let data):
+                do {
+                    let groupsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Groups>.self, from: data)
+                    let groups = groupsFromBridge.compactMap{$0}
+                    if let updatedGroup = groups.filter({$0 == group}).first{
+                        self.sendLightsListToVC(lightsInGroup: updatedGroup.lights, group: updatedGroup)
+                    }
+                } catch let e {
+                    print("Error getting Groups: \(e)")
+                }
+
+            case .failure(let e): print(e)
+                
+            }
+        }
+
+        /*
         guard let url = URL(string: baseURL + HueSender.lights.rawValue) else {return}
         //            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights") else {return}
         print(url)
@@ -99,7 +117,33 @@ class GroupsListVC: ListController, UpdateGroups{
             case .failure(let e): print(e)
             }
         }
-        
+        */
+    }
+    func sendLightsListToVC(lightsInGroup: [String], group: HueModel.Groups){
+        print("Lights in group: \(lightsInGroup)")
+        // Get the light model for each light in lightsInGroup
+        DataManager.get(baseURL: baseURL,
+                        HueSender: .lights) { results in
+            switch results{
+            case .success(let data):
+                do {
+                    let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
+                    let lights = lightsFromBridge.compactMap{ $0}
+                    let lightsArray = lights.filter{ return lightsInGroup.contains($0.id)}
+                    DispatchQueue.main.async {
+                        let lightlistVC = LightsListVC(baseURL: self.baseURL,
+                                                       lightsArray: lightsArray,
+                                                       showingGroup: group)
+                        lightlistVC.updateGroupDelegate = self
+                        lightlistVC.title = HueSender.lights.rawValue
+                        self.navigationController?.pushViewController(lightlistVC, animated: true)
+                    }
+                } catch let e {
+                    print("Error getting lights: \(e)")
+                }
+            case .failure(let e): print(e)
+            }
+        }
     }
     func updateGroupsDS(items: [HueModel.Groups]) {
         DispatchQueue.main.async {

@@ -57,7 +57,7 @@ class EditGroupVC: UIViewController{
     //MARK: - Update Light List on rootView
     func updateListOnView(list: [String]){
         var text = String()
-        for light in list{
+        for light in list.sorted(by: {$0 < $1}){
             text += "\(light)\n"
         }
         rootView.updateLabel(text: text)
@@ -90,6 +90,38 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
     
     //MARK: - Take user to edit lights in the group
     func editList() {
+        DataManager.get(baseURL: baseURL,
+                        HueSender: .groups) { results in
+            switch results{
+            case .success(let data):
+                do {
+                    let groupsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Groups>.self, from: data)
+                    let groups = groupsFromBridge.compactMap{$0}
+                    for group in groups{
+                        print("Lights in group:\(group.name) - \(group.lights)")
+                    }
+                    //Filter through groups to get all the lights currently assigned
+                    let lightsInGroupsAlready = groups.flatMap{$0.lights}
+                    //Filter through all lights on bridge to get the ones NOT in lights in groups already
+                    var availableLights = self.allLightsOnBridge.filter {return !lightsInGroupsAlready.contains($0.id)}
+                    if let safeLightsInGroup = self.lightsInGroup{
+                        //add lights that are already in this group
+                        availableLights.append(contentsOf: safeLightsInGroup)
+                        DispatchQueue.main.async {
+                            let lightList = ModifyLightsInGroupVC(limit: 999, selectedItems: safeLightsInGroup, lightsArray: availableLights)
+//                            lightList.delegate = self
+                            lightList.selectedItemsDelegate = self
+                            self.navigationController?.pushViewController(lightList, animated: true)
+                        }
+                    }
+  
+                } catch let e {
+                    print("Error getting Groups: \(e)")
+                }
+            case .failure(let e): print(e)
+            }
+        }
+        /*
         guard let url = URL(string: baseURL + HueSender.groups.rawValue) else {return}
 //        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups") else {return}
         print(url)
@@ -124,6 +156,7 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
             case .failure(let e): print(e)
             }
         }
+ */
     }
     //MARK: - Save Tapped
     func saveTapped(name: String) {

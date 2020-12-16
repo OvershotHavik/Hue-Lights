@@ -27,7 +27,7 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 if response.contains("success"){
                     //don't display an alert if successful
                 } else {
-                    Alert.showBasic(title: "Erorr occured", message: response, vc: self as UIViewController ) // will need changed later
+                    Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
                 }
             case .failure(let e): print("Error occured: \(e)")
             }
@@ -46,6 +46,7 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
             }
         }
     }
+
 
     private var filtered = [String]()
     var pickedColor = UIColor.systemBlue

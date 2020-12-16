@@ -69,11 +69,7 @@ extension MainVC: GetDelegate{
         switch sender {
 //MARK: - Lights
         case .lights:
-            
-            guard let url = URL(string: baseURL + HueSender.lights.rawValue) else {return}
-            print(url)
-            DataManager.getTest(baseURL: baseURL, HueSender: .lights) { results in
-//            DataManager.get(url: url) { (results) in
+            DataManager.get(baseURL: baseURL, HueSender: .lights) { results in
                 switch results{
                 case .success(let data):
                     do {
@@ -91,16 +87,13 @@ extension MainVC: GetDelegate{
                     } catch let e {
                         print("Error getting lights: \(e)")
                     }
-
                 case .failure(let e): print(e)
                 }
             }
 //MARK: - Groups
         case .groups:
-            guard let url = URL(string: baseURL + HueSender.groups.rawValue) else {return}
-            print(url)
-            DataManager.get(url: url) { results in
-                
+            DataManager.get(baseURL: baseURL,
+                            HueSender: .groups) { results in
                 switch results{
                 case .success(let data):
                     do {
@@ -125,9 +118,8 @@ extension MainVC: GetDelegate{
             }
 //MARK: - Schedules
         case .schedules:
-            guard let url = URL(string: baseURL + HueSender.schedules.rawValue) else {return}
-            print(url)
-            DataManager.get(url: url){results in
+            DataManager.get(baseURL: baseURL,
+                            HueSender: .schedules) { results in
                 switch results{
                 case .success(let data):
                     do {
@@ -199,7 +191,7 @@ extension MainVC{
         print("Discovering Bridges...")
         guard let url = URL(string: "https://discovery.meethue.com") else {return}
         print(url)
-        DataManager.get(url: url) { (Results) in
+        DataManager.getFromURL(url: url) { (Results) in
             switch Results{
             case .success(let data):
                 do {

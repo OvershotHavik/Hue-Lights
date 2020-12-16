@@ -19,10 +19,12 @@ class EditLightVC: UIViewController{
     fileprivate var newGroup : HueModel.Groups?
     fileprivate var noGroup = true
     fileprivate var baseURL : String
+    fileprivate var showingInGroup: HueModel.Groups?
     
-    init(baseURL: String, light: HueModel.Light) {
+    init(baseURL: String, light: HueModel.Light, showingInGroup: HueModel.Groups?) {
         self.baseURL = baseURL
         self.light = light
+        self.showingInGroup = showingInGroup
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -46,6 +48,44 @@ class EditLightVC: UIViewController{
     }
     
     func updateLightListVC(){
+        if showingInGroup == nil {
+            //Get all updated lights from bridge
+            DataManager.get(baseURL: baseURL,
+                            HueSender: .lights) { results in
+                switch results{
+                case .success(let data):
+                    do {
+                        let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
+                        let lights = lightsFromBridge.compactMap{ $0}
+                        self.updateDelegate?.updateLightsDS(items: lights)
+                    } catch let e {
+                        print("Error getting lights: \(e)")
+                    }
+                case .failure(let e): print(e)
+                }
+            }
+        } else {
+            //Get just the lights in the group, will update groupVC if this one was removed
+            DataManager.get(baseURL: baseURL,
+                            HueSender: .lights) { (results) in
+                switch results{
+                case .success(let data):
+                    do {
+                        let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
+                        let lights = lightsFromBridge.compactMap{ $0}
+                        if let safeGroup = self.showingInGroup{
+                            let lightsInGroup = lights.filter({return safeGroup.lights.contains($0.id)})
+                            self.updateDelegate?.updateLightsDS(items: lightsInGroup)
+                        }
+                    } catch let e {
+                        print("Error getting lights: \(e)")
+                    }
+                case .failure(let e): print(e)
+                }
+            }
+        }
+
+        /*
         guard let url = URL(string: baseURL + HueSender.lights.rawValue) else {return}
 //        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights") else {return}
         print(url)
@@ -63,9 +103,35 @@ class EditLightVC: UIViewController{
             case .failure(let e): print(e)
             }
         }
+ */
     }
     
     func getGroups(){
+        DataManager.get(baseURL: baseURL,
+                        HueSender: .groups) { results in
+            switch results{
+            case .success(let data):
+                do {
+                    let groupsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Groups>.self, from: data)
+                    self.groupsArray = groupsFromBridge.compactMap{$0}
+                    if let safeGroupsArray = self.groupsArray{
+                        let filtered = safeGroupsArray.filter{$0.lights.contains(self.light.id)}
+                        self.initialGroup = filtered.first
+                        if let safeGroup = self.initialGroup{
+                            self.rootView.updateLabel(text: safeGroup.name)
+                            self.noGroup = false
+                        } else {
+                            self.rootView.updateLabel(text: "No group selected")
+                            self.noGroup = true
+                        }
+                    }
+                } catch let e {
+                    print("Error getting Groups: \(e)")
+                }
+            case .failure(let e): print(e)
+            }
+        }
+        /*
         guard let url = URL(string: baseURL + HueSender.groups.rawValue) else {return}
 
 //        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups") else {return}
@@ -93,6 +159,7 @@ class EditLightVC: UIViewController{
             case .failure(let e): print(e)
             }
         }
+ */
     }
 }
 
@@ -150,6 +217,7 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
     }
     
     func saveTapped(name: String) {
+        
         print("save tapped")
         if light.name != name{ // name changed, update the bridge
             let lightID = "/\(light.id)"
@@ -249,6 +317,9 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
         if var safeGroupLights = groupLights,
            let safeID = groupID{ // if no initial group, skip the removal
             safeGroupLights = safeGroupLights.filter {$0 != light.id}.unique()
+            if showingInGroup != nil{
+                showingInGroup?.lights = safeGroupLights
+            }
             let groupID = "/\(safeID)"
             guard let url = URL(string: baseURL + HueSender.groups.rawValue + groupID) else {return}
 

@@ -25,7 +25,8 @@ enum Destination: String{
     case lightstates = "/lightstates"
 }
 class DataManager{
-    static func get(url: URL, completionHandler: @escaping (Result<Data, NetworkError>) throws -> Void){
+    
+    static func getFromURL(url: URL, completionHandler: @escaping (Result<Data, NetworkError>) throws -> Void){
         
         let task = URLSession.shared.dataTask(with: url) { (data, response, error)  in
             guard error == nil else {
@@ -45,6 +46,7 @@ class DataManager{
         }
         task.resume()
     }
+ 
     static func sendRequest(method: HttpMethod,url: URL, httpBody: [String: Any], completionHandler: @escaping (Result<String, NetworkError>) throws -> Void){
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
@@ -65,7 +67,7 @@ class DataManager{
             }.resume()
         }
     }
-    static func getTest(baseURL: String, HueSender: HueSender, completionHandler: @escaping (Result<Data, NetworkError>) throws -> Void){
+    static func get(baseURL: String, HueSender: HueSender, completionHandler: @escaping (Result<Data, NetworkError>) throws -> Void){
         guard let url = URL(string: baseURL + HueSender.rawValue) else {return}
         let task = URLSession.shared.dataTask(with: url) { (data, response, error)  in
             guard error == nil else {
@@ -156,6 +158,27 @@ class DataManager{
             }.resume()
         }
     }
+    static func getSceneLightStates(baseURL: String, sceneID: String, HueSender: HueSender, completionHandler: @escaping (Result<Data, NetworkError>) throws -> Void){
+        guard let url = URL(string: baseURL + HueSender.rawValue) else {return}
+        let task = URLSession.shared.dataTask(with: url) { (data, response, error)  in
+            guard error == nil else {
+                try? completionHandler(.failure(.badURL(error!)))
+                return
+            }
+            guard let httpResponse = response as? HTTPURLResponse else {
+                try? completionHandler(.failure(.badResponse(response!)))
+                return
+            }
+            print("\(httpResponse.statusCode) \(httpResponse.mimeType!)")
+            guard let safeData = data else {
+                try? completionHandler(.failure(.badData))
+                return
+            }
+            try? completionHandler(.success(safeData))
+        }
+        task.resume()
+    }
+    
     static func updateLightStateInScene(baseURL: String, sceneID: String, lightID: String, method: HttpMethod, httpBody: [String: Any], completionHandler: @escaping (Result<String, NetworkError>) throws -> Void){
         let scene = "/\(sceneID)"
         let light = "/\(lightID)"
