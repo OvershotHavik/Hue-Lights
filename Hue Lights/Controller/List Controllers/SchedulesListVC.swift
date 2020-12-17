@@ -67,17 +67,24 @@ class ScheduleListVC: ListController{
     }
     
     @objc func onToggled(sender: UISwitch){
-        let scheduleID = sender.tag
+        let scheduleID = String(sender.tag)
         print("sender tag: \(sender.tag)")
-        guard let url = URL(string: baseURL + HueSender.schedules.rawValue + "/\(scheduleID)") else {return}
-//        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/schedules/\(scheduleNumber)") else {return}
-        print(url)
+
         var httpBody = [String: String]()
         if sender.isOn == true{
             httpBody["status"] = "enabled"
         } else {
             httpBody["status"] = "disabled"
         }
+        DataManager.updateSchedule(baseURL: baseURL,
+                                   scheduleID: scheduleID,
+                                   method: .put,
+                                   httpBody: httpBody,
+                                   completionHandler: self.noAlertOnSuccessClosure)
+        /*
+        guard let url = URL(string: baseURL + HueSender.schedules.rawValue + "/\(scheduleID)") else {return}
+//        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/schedules/\(scheduleNumber)") else {return}
+        print(url)
         DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
             DispatchQueue.main.async {
                 switch result{
@@ -90,8 +97,9 @@ class ScheduleListVC: ListController{
                 case .failure(let e): print("Error occured: \(e)")
                 }
             }
+            */
         }
-    }
+    
 }
 extension ScheduleListVC: UISearchBarDelegate{
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {

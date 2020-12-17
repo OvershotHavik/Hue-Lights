@@ -144,7 +144,14 @@ class LightsListVC: ListController{
         let green = pickedColor.components.green
         let blue = pickedColor.components.blue
         let colorXY = ConvertColor.getXY(red: red, green: green, blue: blue)
-        let lightID = "/\(tempChangeColorButton.tag)"
+        let lightID = String(tempChangeColorButton.tag)
+        let httpBody = ["xy": colorXY]
+        DataManager.updateLight(baseURL: baseURL,
+                                lightID: lightID,
+                                method: .put,
+                                httpBody: httpBody,
+                                completionHandler: noAlertOnSuccessClosure)
+        /*
         guard let url = URL(string: baseURL + HueSender.lights.rawValue + lightID + HueSender.state.rawValue) else {return}
 
 //        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/lights/\(lightNumber)/state") else {return}
@@ -165,13 +172,21 @@ class LightsListVC: ListController{
                 }
             }
         }
+        */
     }
 }
 //MARK: - Hue Cell Delegate
 extension LightsListVC: HueCellDelegate{
     func onSwitchToggled(sender: UISwitch) {
         print("Sender's Tag: \(sender.tag)")
-        let lightID = "/\(sender.tag)"
+        let lightID = String(sender.tag)
+        let httpBody = ["on": sender.isOn]
+        DataManager.updateLight(baseURL: baseURL,
+                                lightID: lightID,
+                                method: .put,
+                                httpBody: httpBody,
+                                completionHandler: noAlertOnSuccessClosure)
+        /*
         guard let url = URL(string: baseURL + HueSender.lights.rawValue + lightID + HueSender.state.rawValue) else {return}
         print(url)
         let httpBody = [
@@ -190,13 +205,20 @@ extension LightsListVC: HueCellDelegate{
                 }
             }
         }
+        */
     }
     //MARK: - Brightness Slider Changed
     func brightnessSliderChanged(sender: UISlider) {
         print("Brightness slider changed")
         print("Sender's Tag: \(sender.tag)")
-    
-        let lightID = "/\(sender.tag)"
+        let lightID = String(sender.tag)
+        let httpBody = ["bri": Int(sender.value)]
+        DataManager.updateLight(baseURL: baseURL,
+                                lightID: lightID,
+                                method: .put,
+                                httpBody: httpBody,
+                                completionHandler: noAlertOnSuccessClosure)
+        /*
         guard let url = URL(string: baseURL + HueSender.lights.rawValue + lightID + HueSender.state.rawValue) else {return}
 //        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/lights/\(lightNumber)/state") else {return}
         print(url)
@@ -216,6 +238,7 @@ extension LightsListVC: HueCellDelegate{
                 }
             }
         }
+        */
     }
     //MARK: - Change Light Color
     func changeLightColor(sender: UIButton) {

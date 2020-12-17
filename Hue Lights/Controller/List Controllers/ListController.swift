@@ -33,7 +33,7 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
             }
         }
     }
-    lazy var postClosure : (Result<String, NetworkError>, _ message: String) -> Void = {Result, message  in
+    lazy var alertClosure : (Result<String, NetworkError>, _ message: String) -> Void = {Result, message  in
         DispatchQueue.main.async {
             switch Result{
             case .success(let response):

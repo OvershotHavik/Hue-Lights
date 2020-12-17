@@ -9,6 +9,33 @@ import UIKit
 
 class EditGroupSceneVC: UIViewController{
     weak var updateDelegate : UpdateScenes?
+    lazy var noAlertOnSuccessClosure : (Result<String, NetworkError>) -> Void = {Result in
+        DispatchQueue.main.async {
+            switch Result{
+            case .success(let response):
+                if response.contains("success"){
+                    //don't display an alert if successful
+                } else {
+                    Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                }
+            case .failure(let e): print("Error occured: \(e)")
+            }
+        }
+    }
+    lazy var alertClosure : (Result<String, NetworkError>, _ message: String) -> Void = {Result, message  in
+        DispatchQueue.main.async {
+            switch Result{
+            case .success(let response):
+                if response.contains("success"){
+                    Alert.showBasic(title: "Success", message: message, vc: self)
+                } else {
+                    Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                }
+            case .failure(let e): print("Error occured: \(e)")
+            }
+        }
+    }
+    
     fileprivate var rootView : EditSceneView!
     fileprivate var subView : LightsListVC!
     fileprivate var sceneName: String
@@ -163,9 +190,15 @@ extension EditGroupSceneVC: HueCellDelegate, UITableViewDataSource{
                                                       bri: currentBRI,
                                                       xy: currentXY)
             sceneLights[lightIDKey] = lightStateData
-            
             //Apply to light
-            let lightID = "/\(lightIDKey)"
+            let lightID = String(lightIDKey)
+            let httpBody = ["on": sender.isOn]
+            DataManager.updateLight(baseURL: baseURL,
+                                    lightID: lightID,
+                                    method: .put,
+                                    httpBody: httpBody,
+                                    completionHandler: noAlertOnSuccessClosure)
+            /*
             guard let url = URL(string: baseURL + HueSender.lights.rawValue + lightID + HueSender.state
                                     .rawValue) else {return}
 //            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights/\(lightID)/state") else {return}
@@ -186,6 +219,7 @@ extension EditGroupSceneVC: HueCellDelegate, UITableViewDataSource{
                     }
                 }
             }
+            */
         }
     }
     //MARK: - Brightness Slider Changed
@@ -198,9 +232,15 @@ extension EditGroupSceneVC: HueCellDelegate, UITableViewDataSource{
                                                       bri: Int(sender.value),
                                                       xy: currentXY)
             sceneLights[lightIDKey] = lightStateData
-            
             //Apply to light
-            let lightID = "/\(lightIDKey)"
+            let lightID = String(lightIDKey)
+            let httpBody = ["bri": Int(sender.value)]
+            DataManager.updateLight(baseURL: baseURL,
+                                    lightID: lightID,
+                                    method: .put,
+                                    httpBody: httpBody,
+                                    completionHandler: noAlertOnSuccessClosure)
+            /*
             guard let url = URL(string: baseURL + HueSender.lights.rawValue + lightID + HueSender.state
                                     .rawValue) else {return}
 //            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights/\(lightID)/state") else {return}
@@ -221,6 +261,7 @@ extension EditGroupSceneVC: HueCellDelegate, UITableViewDataSource{
                     }
                 }
             }
+            */
         }
     }
     //MARK: - Change Light Color tapped
@@ -252,7 +293,14 @@ extension EditGroupSceneVC: HueCellDelegate, UITableViewDataSource{
             sceneLights[lightIDKey] = lightStateData
             
             //Apply to light
-            let lightID = "/\(lightIDKey)"
+            let lightID = String(lightIDKey)
+            let httpBody = ["xy": colorXY]
+            DataManager.updateLight(baseURL: baseURL,
+                                    lightID: lightID,
+                                    method: .put,
+                                    httpBody: httpBody,
+                                    completionHandler: noAlertOnSuccessClosure)
+            /*
             guard let url = URL(string: baseURL + HueSender.lights.rawValue + lightID + HueSender.state
                                     .rawValue) else {return}
 //            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights/\(lightID)/state") else {return}
@@ -273,6 +321,7 @@ extension EditGroupSceneVC: HueCellDelegate, UITableViewDataSource{
                     }
                 }
             }
+            */
         }
     }
     //MARK: - Get Scene Light State From Bridge
@@ -343,16 +392,24 @@ extension EditGroupSceneVC: HueCellDelegate, UITableViewDataSource{
     //MARK: - Apply Light States To Lights
     func applyLightStatesToLights(){
         for light in sceneLights{
-            let lightID = "/\(light.key)"
-            guard let url = URL(string: baseURL + HueSender.lights.rawValue + lightID + HueSender.state.rawValue) else {return}
-//            guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/lights/\(light.key)/state") else {return}
-            print(url)
+            let lightID = String(light.key)
             var httpBody = [String: Any]()
             httpBody["on"] = light.value.on
             httpBody["bri"] = Int(light.value.bri)
             if let safeXY = light.value.xy{
                 httpBody["xy"] = safeXY
             }
+            
+            DataManager.updateLight(baseURL: baseURL,
+                                    lightID: lightID,
+                                    method: .put,
+                                    httpBody: httpBody,
+                                    completionHandler: noAlertOnSuccessClosure)
+            /*
+            guard let url = URL(string: baseURL + HueSender.lights.rawValue + lightID + HueSender.state.rawValue) else {return}
+//            guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/lights/\(light.key)/state") else {return}
+            print(url)
+
             DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
                 DispatchQueue.main.async {
                     switch result{
@@ -366,6 +423,7 @@ extension EditGroupSceneVC: HueCellDelegate, UITableViewDataSource{
                     }
                 }
             }
+            */
         }
     }
 }
@@ -383,6 +441,13 @@ extension EditGroupSceneVC: UpdateItem{
         Alert.showConfirmDelete(title: "Delete Scene", message: "Are you sure you want to delete \(sceneName)?", vc: self) {
 
             print("delete the scene when delete is pressed")
+            DataManager.updateScene(baseURL: self.baseURL,
+                                    sceneID: self.sceneID,
+                                    method: .delete,
+                                    httpBody: [:]) { results in
+                self.alertClosure(results, "Successfully deleted \(self.sceneName)")
+            }
+            /*
             let sceneId = "/\(self.sceneID)"
             guard let url = URL(string: self.baseURL + HueSender.scenes.rawValue + sceneId) else {return}
 //            guard let url = URL(string: "http://\(self.bridgeIP)/api/\(self.bridgeUser)/scenes/\(self.sceneID)") else {return}
@@ -399,6 +464,7 @@ extension EditGroupSceneVC: UpdateItem{
                     }
                 }
             }
+            */
         }
     }
     //MARK: - Save Tapped
@@ -407,11 +473,18 @@ extension EditGroupSceneVC: UpdateItem{
             addNewScene(name: name)
         } else {
             if name != sceneName{
+                let httpBody = ["name": name]
+                DataManager.updateScene(baseURL: baseURL,
+                                        sceneID: sceneID,
+                                        method: .put,
+                                        httpBody: httpBody) { results in
+                    self.alertClosure(results, "Successfully updated \(self.sceneName)")
+                }
+                /*
                 let sceneId = "/\(self.sceneID)"
                 guard let url = URL(string: baseURL + HueSender.scenes.rawValue + sceneId) else {return}
 //                guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/scenes/\(sceneID)") else {return}
                 print(url)
-                let httpBody = ["name": name]
                 
                 DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { (result) in
                     DispatchQueue.main.async {
@@ -426,6 +499,7 @@ extension EditGroupSceneVC: UpdateItem{
                         }
                     }
                 }
+                */
             }
         }
         updateLightState(sceneID: sceneID)
@@ -437,16 +511,44 @@ extension EditGroupSceneVC: UpdateItem{
     //MARK: - Add New Scene
     func addNewScene(name: String){
         print("No key, adding scene to bridge")
-        guard let url = URL(string: baseURL + HueSender.scenes.rawValue) else {return}
-//        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/scenes") else {return}
-        print(url)
+
         var httpBody = [String: Any]()
         httpBody["name"] = name
         httpBody["recycle"] = false
         httpBody["group"] = group.id
         httpBody["type"] = "GroupScene"
         print(httpBody)
-        
+        DataManager.createNewScene(baseURL: baseURL,
+                                   httpBody: httpBody) { results in
+            DispatchQueue.main.async {
+                switch results{
+                case .success(let response):
+                    //once the above info has created a scene key, it will give that to us which we can then use to update the light state for that scene's ID
+                    if response.contains("success"){
+                        do {
+                            if let jsondata = response.data(using: .utf8){
+                                let successResults = try JSONDecoder().decode([SuccessFromBridge].self, from: jsondata)
+                                for x in successResults{
+                                    self.sceneID = x.success.id
+                                }
+                                
+                                self.updateLightState(sceneID: self.sceneID)
+                                
+                            }
+                        }catch let e{
+                            print(e)
+                        }
+                    } else {
+                        Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                    }
+                case .failure(let e): print("Error occured: \(e)")
+                }
+            }
+        }
+        /*
+        guard let url = URL(string: baseURL + HueSender.scenes.rawValue) else {return}
+//        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/scenes") else {return}
+        print(url)
         DataManager.sendRequest(method: .post, url: url, httpBody: httpBody) { (results) in
             DispatchQueue.main.async {
                 switch results{
@@ -473,19 +575,30 @@ extension EditGroupSceneVC: UpdateItem{
                 }
             }
         }
+        */
     }
     //MARK: - Update Light State
     func updateLightState(sceneID: String){
         for light in sceneLights{
+            var httpBody = [String: Any]()
+            httpBody["on"] = light.value.on
+            httpBody["bri"] = light.value.bri
+            httpBody["xy"] = light.value.xy
+            DataManager.updateLightStateInScene(baseURL: baseURL,
+                                                sceneID: sceneID,
+                                                lightID: light.key,
+                                                method: .put,
+                                                httpBody: httpBody) { results in
+                self.alertClosure(results, "Successfully updated \(self.sceneName)")
+            }
+            /*
+            
             let sceneId = "/\(sceneID)"
             let lightID = "/\(light.key)"
             guard let url = URL(string: baseURL + HueSender.scenes.rawValue + sceneId + HueSender.lightstates.rawValue + lightID) else {return}
 //            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/scenes/\(sceneID)/lightstates/\(light.key)") else {return}
             print(url)
-            var httpBody = [String: Any]()
-            httpBody["on"] = light.value.on
-            httpBody["bri"] = light.value.bri
-            httpBody["xy"] = light.value.xy
+
             
             DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { (result) in
                 DispatchQueue.main.async {
@@ -500,6 +613,7 @@ extension EditGroupSceneVC: UpdateItem{
                     }
                 }
             }
+            */
         }
     }
 }

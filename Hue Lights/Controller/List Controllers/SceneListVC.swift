@@ -75,10 +75,19 @@ class SceneListVC: ListController{
         if let safeGroup = group{
             let scene = sceneArray[indexPath.row]
             print("Selected Scene: \(scene.name)")
+            let httpBody = ["scene" : scene.id]
+            DataManager.updateGroup(baseURL: baseURL,
+                                    groupID: safeGroup.id,
+                                    method: .put,
+                                    httpBody: httpBody,
+                                    completionHandler: self.noAlertOnSuccessClosure)
+            
+            /*
             let groupID = "/\(safeGroup.id)"
             guard let url = URL(string: baseURL + HueSender.groups.rawValue + groupID + HueSender.action.rawValue) else {return}
 //            guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/groups/\(safeGroup.id)/action") else {return}
             print(url)
+            
             let httpBody = [
                 "scene": scene.id
             ]
@@ -95,6 +104,7 @@ class SceneListVC: ListController{
                     }
                 }
             }
+            */
         }
 
     }
@@ -131,8 +141,15 @@ class SceneListVC: ListController{
         let scene = sceneArray[indexPath.row]
         if editingStyle == .delete{
             Alert.showConfirmDelete(title: "Delete Scene?", message: "Are you sure you want to delete \(scene.name)?", vc: self) {
-                
                 print("Delete pressed")
+                DataManager.updateScene(baseURL: self.baseURL,
+                                        sceneID: scene.id,
+                                        method: .delete,
+                                        httpBody: [:]) { results in
+                    self.alertClosure(results, "Successfully deleted \(scene.name).")
+                }
+                
+                /*
                 let sceneID = "/\(scene.id)"
                 guard let url = URL(string: self.baseURL + HueSender.scenes.rawValue + sceneID) else {return}
 //                guard let url = URL(string: "http://\(self.bridgeIP)/api/\(self.bridgeUser)/scenes/\(scene.id)") else {return}
@@ -149,6 +166,7 @@ class SceneListVC: ListController{
                         }
                     }
                 }
+                */
                 self.sceneArray.remove(at: indexPath.row)
                 self.tableView.reloadData()
             }

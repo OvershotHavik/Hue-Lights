@@ -163,10 +163,19 @@ class GroupsListVC: ListController, UpdateGroups{
         let colorXY = ConvertColor.getXY(red: red,
                                          green: green,
                                          blue: blue)
-        let groupID = "/\(tempChangeColorButton.tag)"
+        let groupID = String(tempChangeColorButton.tag)
+
+        let httpBody = ["xy": colorXY]
+        DataManager.updateGroup(baseURL: baseURL,
+                                groupID: groupID,
+                                method: .put,
+                                httpBody: httpBody,
+                                completionHandler: self.noAlertOnSuccessClosure)
+        /*
         guard let url = URL(string: baseURL + HueSender.groups.rawValue + groupID + HueSender.action.rawValue) else {return}
 //        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/groups/\(lightNumber)/action") else {return}
         print(url)
+        
         let httpBody = [
             "xy": colorXY,
         ]
@@ -183,13 +192,22 @@ class GroupsListVC: ListController, UpdateGroups{
                 }
             }
         }
+        */
     }
 }
 //MARK: - Hue Cell Delegate
 extension GroupsListVC: HueCellDelegate{
     func onSwitchToggled(sender: UISwitch) {
         print("Sender's Tag: \(sender.tag)")
+        let groupID = String(sender.tag)
+        let httpBody = ["on": sender.isOn]
+        DataManager.updateGroup(baseURL: baseURL,
+                                groupID: groupID,
+                                method: .put,
+                                httpBody: httpBody,
+                                completionHandler: noAlertOnSuccessClosure)
         
+        /*
         let groupID = "/\(sender.tag)"
         guard let url = URL(string: baseURL + HueSender.groups.rawValue + groupID + HueSender.action.rawValue) else {return}
 //        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/groups/\(groupNumber)/action") else {return}
@@ -210,6 +228,7 @@ extension GroupsListVC: HueCellDelegate{
                 }
             }
         }
+        */
     }
     //MARK: - Brightness Slider Changed
     func brightnessSliderChanged(sender: UISlider) {
@@ -217,7 +236,14 @@ extension GroupsListVC: HueCellDelegate{
         print("Brightness slider changed")
         print("Sender's Tag: \(sender.tag)")
         
-        let groupID = "/\(sender.tag)"
+        let groupID = String(sender.tag)
+        let httpBody = ["bri": Int(sender.value)]
+        DataManager.updateGroup(baseURL: baseURL,
+                                groupID: groupID,
+                                method: .put,
+                                httpBody: httpBody,
+                                completionHandler: noAlertOnSuccessClosure)
+        /*
         guard let url = URL(string: baseURL + HueSender.groups.rawValue + groupID + HueSender.action.rawValue) else {return}
 //        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/groups/\(lightNumber)/action") else {return}
         print(url)
@@ -237,6 +263,7 @@ extension GroupsListVC: HueCellDelegate{
                 }
             }
         }
+        */
     }
     func changeLightColor(sender: UIButton) {
         print("change light color tapped")

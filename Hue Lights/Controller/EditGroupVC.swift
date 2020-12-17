@@ -14,6 +14,22 @@ protocol UpdateTitle: class {
 class EditGroupVC: UIViewController{
     weak var updateTitleDelegate : UpdateTitle?
     weak var updateLightsDelegate : UpdateLights?
+    
+    lazy var alertClosure : (Result<String, NetworkError>, _ message: String) -> Void = {Result, message  in
+        DispatchQueue.main.async {
+            switch Result{
+            case .success(let response):
+                if response.contains("success"){
+                    Alert.showBasic(title: "Success", message: message, vc: self)
+                } else {
+                    Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                }
+            case .failure(let e): print("Error occured: \(e)")
+            }
+        }
+    }
+    
+    
     fileprivate var rootView : EditItemView!
     fileprivate var lightsInGroup : [HueModel.Light]?
     fileprivate var allLightsOnBridge: [HueModel.Light]
@@ -160,16 +176,23 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
     }
     //MARK: - Save Tapped
     func saveTapped(name: String) {
-        
         if let safeLightsInGroup = lightsInGroup{
             let lightIDsInGroup = safeLightsInGroup.map({$0.id})
+            var httpBody = [String: Any]()
+            httpBody["name"] = name
+            httpBody["lights"] = lightIDsInGroup
+            DataManager.updateGroup(baseURL: baseURL,
+                                    groupID: group.id,
+                                    method: .put,
+                                    httpBody: httpBody) { results in
+                self.alertClosure(results, "Successfully updated \(name)")
+            }
+            /*
             let groupID = "/\(group.id)"
             guard let url = URL(string: baseURL + HueSender.groups.rawValue + groupID) else {return}
 //            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(group.id)") else {return}
             print(url)
-            var httpBody = [String: Any]()
-            httpBody["name"] = name
-            httpBody["lights"] = lightIDsInGroup
+
             DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
                 DispatchQueue.main.async {
                     switch result{
@@ -183,6 +206,7 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
                     }
                 }
             }
+             */
         }
 
     }
