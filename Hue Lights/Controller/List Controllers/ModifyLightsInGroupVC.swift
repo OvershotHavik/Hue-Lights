@@ -73,7 +73,7 @@ class ModifyLightsInGroupVC: ListController{
                 if let item = selectedItems.firstIndex(of: selectedVal){
                     selectedItems.remove(at: item)
                     tableView.cellForRow(at: indexPath)?.accessoryType = .none
-                    print("Removed \(selectedVal) in limit reached ")
+                    print("Removed \(selectedVal.name) in limit reached ")
                 } else {
                     Alert.showBasic(title: "There can only be One.", message: "Hue lights can only be in one group. ", vc: self)
                 }
@@ -81,7 +81,7 @@ class ModifyLightsInGroupVC: ListController{
                 if let item = selectedItems.firstIndex(of: selectedVal){
                     selectedItems.remove(at: item)
                     tableView.cellForRow(at: indexPath)?.accessoryType = .none
-                    print("Removed \(selectedVal)")
+                    print("Removed \(selectedVal.name)")
                 } else {
                     selectedItems.append(selectedVal)
                     tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark

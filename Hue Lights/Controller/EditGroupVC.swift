@@ -181,7 +181,7 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
             var httpBody = [String: Any]()
             httpBody["name"] = name
             httpBody["lights"] = lightIDsInGroup
-            DataManager.updateGroup(baseURL: baseURL,
+            DataManager.modifyGroup(baseURL: baseURL,
                                     groupID: group.id,
                                     method: .put,
                                     httpBody: httpBody) { results in

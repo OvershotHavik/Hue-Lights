@@ -303,7 +303,7 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
             groupLights.append(light.id)
             groupLights = groupLights.unique()
             let httpBody = ["lights":  groupLights]
-            DataManager.updateGroup(baseURL: baseURL,
+            DataManager.modifyGroup(baseURL: baseURL,
                                     groupID: safeGroupID,
                                     method: .put,
                                     httpBody: httpBody) { results in
@@ -353,7 +353,7 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
                 showingInGroup?.lights = safeGroupLights
             }
             let httpBody = ["lights": safeGroupLights]
-            DataManager.updateGroup(baseURL: baseURL,
+            DataManager.modifyGroup(baseURL: baseURL,
                                     groupID: safeID,
                                     method: .put,
                                     httpBody: httpBody) { results in
