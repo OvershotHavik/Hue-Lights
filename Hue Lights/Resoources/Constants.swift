@@ -12,7 +12,8 @@ class UI{
     static let horizontalSpacing = CGFloat(12)
     static let verticalSpacing = CGFloat(8)
     static let backgroundColor = UIColor.systemBlue
-    static let whiteXY = [0.3227,0.3290] // white per xy printout
+//    static let whiteXY = [0.3227,0.3290] // white per xy printout
+    static let readWhiteXY = [0.4452, 0.4068] // used for lights that dont' have xy
 }
 struct Cells {
     static let cell = "HueLightsCell"

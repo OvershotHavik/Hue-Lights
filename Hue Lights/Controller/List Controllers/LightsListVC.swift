@@ -57,12 +57,10 @@ class LightsListVC: ListController{
         navigationItem.searchController = searchController
         searchController.searchBar.delegate = self    }
 
-
+//MARK: - View Will Dissapear
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
-        
         if showingGroup == nil{
-
             DataManager.get(baseURL: baseURL,
                             HueSender: .groups) { results in
                 switch results{
@@ -78,25 +76,6 @@ class LightsListVC: ListController{
                 }
             }
         }
-            /*
-            guard let url = URL(string: baseURL + HueSender.groups.rawValue) else {return}
-//            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups") else {return}
-            print(url)
-            DataManager.get(url: url) { results in
-                switch results{
-                case .success(let data):
-                    do {
-                        let groupsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Groups>.self, from: data)
-                        let groups = groupsFromBridge.compactMap{$0}
-                        self.updateGroupDelegate?.updateGroupsDS(items: groups)
-                    } catch let e {
-                        print("Error getting Groups: \(e)")
-                    }
-                case .failure(let e): print(e)
-                }
-            }
-             */
-//        }
     }
     //MARK: - Number of Rows in section
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -116,19 +95,9 @@ class LightsListVC: ListController{
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! HueLightsCell
         cell.cellDelegate = self
-        let row = lightsArray[indexPath.row]
-        let rowName = row.name
-        let isOn = row.state.on
-        let bri = row.state.bri
-        let isReachable = row.state.reachable
-        let lightColor = row.state.xy
-        let cellData = LightData(lightName: rowName,
-                                 isOn: isOn,
-                                 brightness: Float(bri),
-                                 isReachable: isReachable,
-                                 lightColor: ConvertColor.getRGB(xy: lightColor, bri: bri))
-        cell.configureCell(LightData: cellData)
-        if let tag = Int(row.id){
+        let light = lightsArray[indexPath.row]
+        cell.configureLightCell(light: light)
+        if let tag = Int(light.id){
             cell.onSwitch.tag = tag
             cell.brightnessSlider.tag = tag
             cell.btnChangeColor.tag = tag
@@ -151,28 +120,6 @@ class LightsListVC: ListController{
                                 method: .put,
                                 httpBody: httpBody,
                                 completionHandler: noAlertOnSuccessClosure)
-        /*
-        guard let url = URL(string: baseURL + HueSender.lights.rawValue + lightID + HueSender.state.rawValue) else {return}
-
-//        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/lights/\(lightNumber)/state") else {return}
-        print(url)
-        let httpBody = [
-            "xy": colorXY,
-        ]
-        DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
-            DispatchQueue.main.async {
-                switch result{
-                case .success(let response):
-                    if response.contains("success"){
-                        //don't display an alert if successful
-                    } else {
-                        Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
-                    }
-                case .failure(let e): print("Error occured: \(e)")
-                }
-            }
-        }
-        */
     }
 }
 //MARK: - Hue Cell Delegate
@@ -186,26 +133,6 @@ extension LightsListVC: HueCellDelegate{
                                 method: .put,
                                 httpBody: httpBody,
                                 completionHandler: noAlertOnSuccessClosure)
-        /*
-        guard let url = URL(string: baseURL + HueSender.lights.rawValue + lightID + HueSender.state.rawValue) else {return}
-        print(url)
-        let httpBody = [
-            "on": sender.isOn,
-        ]
-        DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
-            DispatchQueue.main.async {
-                switch result{
-                case .success(let response):
-                    if response.contains("success"){
-                        //don't display an alert if successful
-                    } else {
-                        Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
-                    }
-                case .failure(let e): print("Error occured: \(e)")
-                }
-            }
-        }
-        */
     }
     //MARK: - Brightness Slider Changed
     func brightnessSliderChanged(sender: UISlider) {
@@ -218,27 +145,6 @@ extension LightsListVC: HueCellDelegate{
                                 method: .put,
                                 httpBody: httpBody,
                                 completionHandler: noAlertOnSuccessClosure)
-        /*
-        guard let url = URL(string: baseURL + HueSender.lights.rawValue + lightID + HueSender.state.rawValue) else {return}
-//        guard let url = URL(string: "http://\(delegate.bridgeIP)/api/\(delegate.bridgeUser)/lights/\(lightNumber)/state") else {return}
-        print(url)
-        let httpBody = [
-            "bri": Int(sender.value),
-        ]
-        DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
-            DispatchQueue.main.async {
-                switch result{
-                case .success(let response):
-                    if response.contains("success"){
-                        //don't display an alert if successful
-                    } else {
-                        Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
-                    }
-                case .failure(let e): print("Error occured: \(e)")
-                }
-            }
-        }
-        */
     }
     //MARK: - Change Light Color
     func changeLightColor(sender: UIButton) {
@@ -278,7 +184,7 @@ extension LightsListVC : UpdateLights{
             self.tableView.reloadData()
         }
     }
-    
+    //MARK: - objc - EditGroup
     @objc func editGroup(){
         print("edit tapped - in light list vc")
         DataManager.get(baseURL: baseURL,
@@ -289,7 +195,6 @@ extension LightsListVC : UpdateLights{
                     let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
                     let allLightsOnBridge = lightsFromBridge.compactMap{ $0}
                     DispatchQueue.main.async {
-                        //                        guard let groupDelegate = self.editingGroupDelegate else {return}
                         if let group = self.showingGroup{
                             let editGroupVC = EditGroupVC(baseURL: self.baseURL,
                                                           group: group,
@@ -307,35 +212,6 @@ extension LightsListVC : UpdateLights{
             case .failure(let e): print(e)
             }
         }
-        /*
-        guard let url = URL(string: baseURL + HueSender.lights.rawValue) else {return}
-        print(url)
-        DataManager.get(url: url) { (results) in
-            switch results{
-            case .success(let data):
-                do {
-                    let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
-                    let allLightsOnBridge = lightsFromBridge.compactMap{ $0}
-                    DispatchQueue.main.async {
-//                        guard let groupDelegate = self.editingGroupDelegate else {return}
-                        if let group = self.showingGroup{
-                            let editGroupVC = EditGroupVC(baseURL: self.baseURL,
-                                                          group: group,
-                                                          allLightsOnBridge: allLightsOnBridge)
-//                            editGroupVC.delegate = self
-                            editGroupVC.updateTitleDelegate = self
-                            editGroupVC.updateLightsDelegate = self
-                            editGroupVC.title = "Editing \(group.name)"
-                            self.navigationController?.pushViewController(editGroupVC, animated: true)
-                        }
-                    }
-                } catch let e {
-                    print("Error getting lights: \(e)")
-                }
-            case .failure(let e): print(e)
-            }
-        }
- */
     }
 }
 
@@ -349,6 +225,7 @@ extension LightsListVC: UpdateTitle{
 
 //MARK: - Group Setup
 extension LightsListVC{
+    //MARK: - Group Setup
     func groupsSetup(){
         self.view.backgroundColor = UI.backgroundColor
         view.addSubview(btnScenes)
@@ -377,10 +254,8 @@ extension LightsListVC{
                     let scenesFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Scenes>.self, from: data)
                     let scenes = scenesFromBridge.compactMap {$0}
                     let sceneArray = scenes.filter{$0.group == group.id}
-                    
                     DispatchQueue.main.async {
                         let sceneList = SceneListVC(baseURL: self.baseURL, group: group, lightsInGroup: self.lightsArray, sceneArray: sceneArray)
-//                        sceneList.delegate = self
                         sceneList.title = HueSender.scenes.rawValue
                         self.navigationController?.pushViewController(sceneList, animated: true)
                     }
@@ -390,30 +265,5 @@ extension LightsListVC{
             case .failure(let e): print(e)
             }
         }
-        /*
-        guard let url = URL(string: baseURL + HueSender.scenes.rawValue) else {return}
-//        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/scenes") else {return}
-        print(url)
-        DataManager.get(url: url) {results in
-            switch results{
-            case .success(let data):
-                do {
-                    let scenesFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Scenes>.self, from: data)
-                    let scenes = scenesFromBridge.compactMap {$0}
-                    let sceneArray = scenes.filter{$0.group == group.id}
-                    
-                    DispatchQueue.main.async {
-                        let sceneList = SceneListVC(baseURL: self.baseURL, group: group, lightsInGroup: self.lightsArray, sceneArray: sceneArray)
-//                        sceneList.delegate = self
-                        sceneList.title = HueSender.scenes.rawValue
-                        self.navigationController?.pushViewController(sceneList, animated: true)
-                    }
-                } catch let e {
-                    print("Error getting scenes: \(e)")
-                }
-            case .failure(let e): print(e)
-            }
-        }
- */
     }
 }

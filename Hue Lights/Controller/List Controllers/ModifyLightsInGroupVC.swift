@@ -28,16 +28,17 @@ class ModifyLightsInGroupVC: ListController{
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    //MARK: - View Will Appear
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         lightsArray = lightsArray.sorted(by: { $0.name < $1.name})
         self.tableView.reloadData()
     }
-    
+    //MARK: - View Did Load
     override func viewDidLoad() {
         super.viewDidLoad()
         colorPicker.delegate = self
-        tableView.register(ListCell.self, forCellReuseIdentifier: Cells.cell) // change the cell depending on which VC is using this
+        tableView.register(ListCell.self, forCellReuseIdentifier: Cells.cell)
         tableView.delegate = self
         tableView.dataSource = self
         tableView.rowHeight = 50
@@ -51,9 +52,11 @@ class ModifyLightsInGroupVC: ListController{
         super.viewWillDisappear(animated)
         selectedItemsDelegate?.selectedLights(lights: selectedItems)
     }
+    //MARK: - Number Of Rows
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return lightsArray.count
     }
+    //MARK: - Cell For Row
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! ListCell
         cell.accessoryType = .none
@@ -65,7 +68,7 @@ class ModifyLightsInGroupVC: ListController{
         cell.lblListItem.text = itemRow.name
         return cell
     }
-    
+    //MARK: - Did Select Row
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedVal = lightsArray[indexPath.row]
         if selectedItems.count <= limit{
@@ -90,7 +93,6 @@ class ModifyLightsInGroupVC: ListController{
         }
         tableView.deselectRow(at: indexPath, animated: true)
     }
-    
 }
 //MARK: - UISearchbar Delegate
 extension ModifyLightsInGroupVC: UISearchBarDelegate {

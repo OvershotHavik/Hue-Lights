@@ -44,7 +44,7 @@ class EditLightVC: UIViewController{
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+    //MARK: - Load View
     override func loadView() {
         super.loadView()
         rootView = EditItemView(itemName: light.name)
@@ -52,14 +52,12 @@ class EditLightVC: UIViewController{
         rootView.updateGroupDelegate = self
         getGroups()
     }
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
+    //MARK: - View Will Disappear
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         updateLightListVC()
     }
-    
+    //MARK: - Update Light List VC
     func updateLightListVC(){
         if showingInGroup == nil {
             //Get all updated lights from bridge
@@ -97,28 +95,8 @@ class EditLightVC: UIViewController{
                 }
             }
         }
-
-        /*
-        guard let url = URL(string: baseURL + HueSender.lights.rawValue) else {return}
-//        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights") else {return}
-        print(url)
-        DataManager.get(url: url) { (results) in
-            switch results{
-            case .success(let data):
-                do {
-                    let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
-                    let lights = lightsFromBridge.compactMap{ $0}
-                    self.updateDelegate?.updateLightsDS(items: lights)
-                } catch let e {
-                    print("Error getting lights: \(e)")
-                }
-
-            case .failure(let e): print(e)
-            }
-        }
- */
     }
-    
+    //MARK: -  Get Groups
     func getGroups(){
         DataManager.get(baseURL: baseURL,
                         HueSender: .groups) { results in
@@ -144,39 +122,10 @@ class EditLightVC: UIViewController{
             case .failure(let e): print(e)
             }
         }
-        /*
-        guard let url = URL(string: baseURL + HueSender.groups.rawValue) else {return}
-
-//        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups") else {return}
-        print(url)
-        DataManager.get(url: url) { results in
-            switch results{
-            case .success(let data):
-                do {
-                    let groupsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Groups>.self, from: data)
-                    self.groupsArray = groupsFromBridge.compactMap{$0}
-                    if let safeGroupsArray = self.groupsArray{
-                        let filtered = safeGroupsArray.filter{$0.lights.contains(self.light.id)}
-                        self.initialGroup = filtered.first
-                        if let safeGroup = self.initialGroup{
-                            self.rootView.updateLabel(text: safeGroup.name)
-                            self.noGroup = false
-                        } else {
-                            self.rootView.updateLabel(text: "No group selected")
-                            self.noGroup = true
-                        }
-                    }
-                } catch let e {
-                    print("Error getting Groups: \(e)")
-                }
-            case .failure(let e): print(e)
-            }
-        }
- */
     }
 }
 
-
+//MARK: - Update Item and Selected Group Delegate
 extension EditLightVC: UpdateItem, SelectedGroupDelegate{
     func selectedGroup(group: HueModel.Groups?) {
         if let safeGroup = group{
@@ -193,14 +142,11 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
         }
     }
     
-    
     func deleteTapped(name: String) {
         
     }
-    
+    //MARK: - Edit List
     func editList() {
-        
-        
         DispatchQueue.main.async {
             if let safeGroupsArray = self.groupsArray{
                 if  self.newGroup != nil{ // if a new group has been picked already, use that
@@ -226,14 +172,11 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
             }
         }
         print("edit tapped")
- 
     }
-    
+    //MARK: - Save Tapped
     func saveTapped(name: String) {
-        
         print("save tapped")
         if light.name != name{ // name changed, update the bridge
-            
             let httpBody = ["name" : name]
             DataManager.updateLight(baseURL: baseURL,
                                     lightID: light.id,
@@ -241,30 +184,7 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
                                     httpBody: httpBody) { results in
                 self.alertClosure(results, "Successfully updated \(name)")
             }
-            /*
-             let lightID = "/\(light.id)"
-            guard let url = URL(string: baseURL + HueSender.lights.rawValue + lightID) else {return}
-
-//            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/lights/\(light.id)") else {return}
-            print(url)
-            
-            DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
-                DispatchQueue.main.async {
-                    switch result{
-                    case .success(let response):
-                        if response.contains("Success") || response.contains("success") {
-                            Alert.showBasic(title: "Saved!", message: "Successfully updated \(name)", vc: self)
-                        } else {
-                            Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
-                        }
-                    case .failure(let e): print("Error occured: \(e)")
-                    }
-                }
-            }
-            */
         }
-        
-        
         if let safeNewGroup = newGroup{
             addToGroup(newGroup: safeNewGroup)
         } else {
@@ -276,9 +196,8 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
             }
         }
     }
+    //MARK: - Add To Group
     func addToGroup(newGroup: HueModel.Groups){
-        
-        
         if let safeInitialGroup = initialGroup{
             print("Group changed")
             if newGroup != safeInitialGroup{
@@ -286,8 +205,6 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
                 removeFromInitialGroup() // group changed, so remove from previous group first
             }
         }
-        
-        
         var groupLights = [String]()
         var groupID : String?
         if groupsArray != nil{
@@ -309,30 +226,9 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
                                     httpBody: httpBody) { results in
                 self.alertClosure(results, "Added to \(newGroup.name)")
             }
-            /*
-            let groupID = "/\(safeGroupID)"
-            guard let url = URL(string: baseURL + HueSender.groups.rawValue + groupID) else {return}
-
-//            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(safeGroupID)") else {return}
-            print(url)
-
-            DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
-                DispatchQueue.main.async {
-                    switch result{
-                    case .success(let response):
-                        if response.contains("success"){
-                            Alert.showBasic(title: "Success", message: "Added to \(newGroup.name)", vc: self)
-                        } else {
-                            Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
-                        }
-                    case .failure(let e): print("Error occured: \(e)")
-                    }
-                }
-            }
-            */
         }
     }
-    
+    //MARK: - Remove from initial group
     func removeFromInitialGroup(){
         print("remove from initial group")
         var groupLights : [String]?
@@ -359,31 +255,6 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
                                     httpBody: httpBody) { results in
                 self.alertClosure(results, "Successfully removed from group")
             }
-            /*
-            let groupID = "/\(safeID)"
-            guard let url = URL(string: baseURL + HueSender.groups.rawValue + groupID) else {return}
-
-//            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(safeID)") else {return}
-            print(url)
-            DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
-                DispatchQueue.main.async {
-                    switch result{
-                    case .success(let response):
-                        if response.contains("success"){
-                            if self.newGroup == nil{
-                                Alert.showBasic(title: "Success", message: "Successfully removed from group", vc: self)
-                            }
-                            //don't display an alert if successful
-                        } else {
-                            Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
-                        }
-                    case .failure(let e): print("Error occured: \(e)")
-                    }
-                }
-            }
-            */
         }
     }
-    
-    
 }

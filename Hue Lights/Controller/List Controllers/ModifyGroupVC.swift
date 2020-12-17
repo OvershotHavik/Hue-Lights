@@ -27,16 +27,17 @@ class ModifyGroupVC: ListController{
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+    //MARK: - View Will Appear
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         allGroups = allGroups.sorted(by: { $0.name < $1.name})
         self.tableView.reloadData()
     }
+    //MARK: - View Did Load
     override func viewDidLoad() {
         super.viewDidLoad()
         colorPicker.delegate = self
-        tableView.register(ListCell.self, forCellReuseIdentifier: Cells.cell) // change the cell depending on which VC is using this
+        tableView.register(ListCell.self, forCellReuseIdentifier: Cells.cell)
         tableView.delegate = self
         tableView.dataSource = self
         tableView.rowHeight = 50
@@ -51,9 +52,11 @@ class ModifyGroupVC: ListController{
         super.viewWillDisappear(animated)
         selectedGroupDelegate?.selectedGroup(group: selectedGroup)
     }
+    //MARK: - Number Of Rows
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return allGroups.count
     }
+    //MARK: - Cell For Row
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! ListCell
         cell.accessoryType = .none
@@ -67,7 +70,7 @@ class ModifyGroupVC: ListController{
         cell.lblListItem.text = itemRow.name
         return cell
     }
-    
+    //MARK: - Did Select Row
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedVal = allGroups[indexPath.row]
         if let safeSelectedGroup = selectedGroup{
@@ -87,6 +90,7 @@ class ModifyGroupVC: ListController{
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }
+//MARK: - Search Bar Delegate
 extension ModifyGroupVC: UISearchBarDelegate {
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         allGroups = originalAllGroups.sorted(by: {$0.name < $1.name})

@@ -29,7 +29,7 @@ struct HueModel: Codable{
             case state, type, name, modelid, manufacturername, productname, capabilities, config, uniqueid, swversion, swconfigid, productid
         }
         let id : String
-        let state : State
+        var state : State
         let type: String
         let name: String
         let modelid : String
@@ -61,16 +61,16 @@ struct HueModel: Codable{
 
     //MARK: - Light - State
     struct State: Codable{
-        let on : Bool
-        let bri: Int
-        let hue : Int?
-        let sat: Int?
-        let effect: String?
-        let xy: [Double]?
-        let ct : Int?
-        let alert : String
-        let mode: String
-        let reachable: Bool
+        var on : Bool
+        var bri: Int
+        var hue : Int?
+        var sat: Int?
+        var effect: String?
+        var xy: [Double]?
+        var ct : Int?
+        var alert : String
+        var mode: String
+        var reachable: Bool
     }
     //MARK: - Light - Capabilities
     struct Capabilities: Codable{

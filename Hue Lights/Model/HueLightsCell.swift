@@ -12,13 +12,7 @@ protocol HueCellDelegate {
     func brightnessSliderChanged(sender: UISlider)
     func changeLightColor(sender: UIButton)
 }
-struct LightData{
-    var lightName: String
-    var isOn: Bool
-    var brightness: Float
-    var isReachable: Bool
-    var lightColor: UIColor
-}
+
 class HueLightsCell: UITableViewCell {
     var cellDelegate: HueCellDelegate?
     
@@ -107,18 +101,42 @@ class HueLightsCell: UITableViewCell {
         setup()
     }
     
-    
-    func configureCell(LightData: LightData){
-        lightName = LightData.lightName
-        isOn = LightData.isOn
-        brightness = LightData.brightness
+    func configureLightCell(light: HueModel.Light){
+        lightName = light.name
+        isOn = light.state.on
+        brightness = Float(light.state.bri)
         if brightness == 0{
             noLightsInGroup = true
         }
-        isReachable = LightData.isReachable
-        btnChangeColor.backgroundColor = LightData.lightColor
+        isReachable = light.state.reachable
+        if light.state.xy != nil{
+            btnChangeColor.backgroundColor = ConvertColor.getRGB(xy: light.state.xy, bri: light.state.bri)
+        } else {
+            btnChangeColor.setImage(UIImage(), for: .normal)
+            btnChangeColor.backgroundColor = ConvertColor.getRGB(xy: UI.readWhiteXY, bri: 254) // default to the readWhite color temp
+            btnChangeColor.isEnabled = false
+        }
     }
-    
+    func configureGroupCell(group: HueModel.Groups){
+        lightName = group.name
+        isOn = group.action.on
+        
+        if let safeBri = group.action.bri{
+            brightness = Float(safeBri)
+        }
+//        brightness = Float(light.action.bri)
+        if brightness == 0{
+            noLightsInGroup = true
+        }
+        isReachable = true
+        if group.action.xy != nil{
+            btnChangeColor.backgroundColor = ConvertColor.getRGB(xy: group.action.xy, bri: Int(brightness))
+        } else {
+            btnChangeColor.setImage(UIImage(), for: .normal)
+            btnChangeColor.backgroundColor = ConvertColor.getRGB(xy: UI.readWhiteXY, bri: 254) // default to the readWhite color temp
+            btnChangeColor.isEnabled = false
+        }
+    }
     
     func setup(){
         contentView.addSubview(btnChangeColor)

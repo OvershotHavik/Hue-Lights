@@ -29,7 +29,6 @@ class EditGroupVC: UIViewController{
         }
     }
     
-    
     fileprivate var rootView : EditItemView!
     fileprivate var lightsInGroup : [HueModel.Light]?
     fileprivate var allLightsOnBridge: [HueModel.Light]
@@ -46,11 +45,13 @@ class EditGroupVC: UIViewController{
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    //MARK: - Load View
     override func loadView() {
         rootView = EditItemView(itemName: group.name)
         self.view = rootView
         rootView.updateGroupDelegate = self
     }
+    //MARK: - View Did Load
     override func viewDidLoad() {
         super.viewDidLoad()
         lightsInGroup = allLightsOnBridge.filter({return group.lights.contains($0.id)})
@@ -59,7 +60,7 @@ class EditGroupVC: UIViewController{
             updateListOnView(list: lightNames)
         }
     }
-    
+    //MARK: - View Will Disappear
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
         if let safeNewGroupName = newGroupName{
@@ -103,7 +104,6 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
         return filteredLights
     }
     
-    
     //MARK: - Take user to edit lights in the group
     func editList() {
         DataManager.get(baseURL: baseURL,
@@ -113,9 +113,6 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
                 do {
                     let groupsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Groups>.self, from: data)
                     let groups = groupsFromBridge.compactMap{$0}
-                    for group in groups{
-                        print("Lights in group:\(group.name) - \(group.lights)")
-                    }
                     //Filter through groups to get all the lights currently assigned
                     let lightsInGroupsAlready = groups.flatMap{$0.lights}
                     //Filter through all lights on bridge to get the ones NOT in lights in groups already
@@ -125,7 +122,6 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
                         availableLights.append(contentsOf: safeLightsInGroup)
                         DispatchQueue.main.async {
                             let lightList = ModifyLightsInGroupVC(limit: 999, selectedItems: safeLightsInGroup, lightsArray: availableLights)
-//                            lightList.delegate = self
                             lightList.selectedItemsDelegate = self
                             self.navigationController?.pushViewController(lightList, animated: true)
                         }
@@ -137,42 +133,6 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
             case .failure(let e): print(e)
             }
         }
-        /*
-        guard let url = URL(string: baseURL + HueSender.groups.rawValue) else {return}
-//        guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups") else {return}
-        print(url)
-        DataManager.get(url: url) { results in
-            
-            switch results{
-            case .success(let data):
-                do {
-                    let groupsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Groups>.self, from: data)
-                    let groups = groupsFromBridge.compactMap{$0}
-                    for group in groups{
-                        print("Lights in group:\(group.name) - \(group.lights)")
-                    }
-                    //Filter through groups to get all the lights currently assigned
-                    let lightsInGroupsAlready = groups.flatMap{$0.lights}
-                    //Filter through all lights on bridge to get the ones NOT in lights in groups already
-                    var availableLights = self.allLightsOnBridge.filter {return !lightsInGroupsAlready.contains($0.id)}
-                    if let safeLightsInGroup = self.lightsInGroup{
-                        //add lights that are already in this group
-                        availableLights.append(contentsOf: safeLightsInGroup)
-                        DispatchQueue.main.async {
-                            let lightList = ModifyLightsInGroupVC(limit: 999, selectedItems: safeLightsInGroup, lightsArray: availableLights)
-//                            lightList.delegate = self
-                            lightList.selectedItemsDelegate = self
-                            self.navigationController?.pushViewController(lightList, animated: true)
-                        }
-                    }
-  
-                } catch let e {
-                    print("Error getting Groups: \(e)")
-                }
-            case .failure(let e): print(e)
-            }
-        }
- */
     }
     //MARK: - Save Tapped
     func saveTapped(name: String) {
@@ -187,27 +147,6 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
                                     httpBody: httpBody) { results in
                 self.alertClosure(results, "Successfully updated \(name)")
             }
-            /*
-            let groupID = "/\(group.id)"
-            guard let url = URL(string: baseURL + HueSender.groups.rawValue + groupID) else {return}
-//            guard let url = URL(string: "http://\(bridgeIP)/api/\(bridgeUser)/groups/\(group.id)") else {return}
-            print(url)
-
-            DataManager.sendRequest(method: .put, url: url, httpBody: httpBody) { result in
-                DispatchQueue.main.async {
-                    switch result{
-                    case .success(let response):
-                        if response.contains("success"){
-                            Alert.showBasic(title: "Saved!", message: "Successfully updated \(name)", vc: self)
-                        } else {
-                            Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
-                        }
-                    case .failure(let e): print("Error occured: \(e)")
-                    }
-                }
-            }
-             */
         }
-
     }
 }

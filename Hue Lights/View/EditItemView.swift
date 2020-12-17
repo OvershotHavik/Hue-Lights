@@ -64,7 +64,7 @@ class EditItemView: UIView{
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+    //MARK: - Setup
     func setup(){
         backgroundColor = UI.backgroundColor
         self.addSubview(tfChangeName)
@@ -73,7 +73,7 @@ class EditItemView: UIView{
         self.addSubview(btnSave)
         setupConstraints()
     }
-    
+    //MARK: - Setup Constraints
     func setupConstraints(){
         let safeArea = self.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
@@ -88,12 +88,11 @@ class EditItemView: UIView{
             btnEdit.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
             btnEdit.topAnchor.constraint(equalTo: label.bottomAnchor, constant: UI.verticalSpacing),
             
-            
             btnSave.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
             btnSave.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -UI.verticalSpacing),
         ])
     }
-    
+    //MARK: - Objc Functions
     @objc func saveTapped(){
         print("Save tapped")
         updateGroupDelegate?.saveTapped(name: tfChangeName.text!)
@@ -107,6 +106,7 @@ class EditItemView: UIView{
         print("Scene tapped")
         applyToGroupDelegate?.showScenes()
     }
+    //MARK: - Update Label
     func updateLabel(text: String){
         DispatchQueue.main.async {
             self.label.text = text

@@ -47,7 +47,7 @@ class EditSceneView: UIView{
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+    //MARK: - Setup
     func setup(){
         self.backgroundColor = UI.backgroundColor
         addSubview(tfChangeName)
@@ -55,7 +55,7 @@ class EditSceneView: UIView{
         addSubview(btnDelete)
         setupConstraints()
     }
-    
+    //MARK: - Setup Constraints
     func setupConstraints(){
         let safeArea = self.safeAreaLayoutGuide
         NSLayoutConstraint.activate([

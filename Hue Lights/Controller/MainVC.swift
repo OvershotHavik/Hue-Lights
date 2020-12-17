@@ -8,34 +8,6 @@
 import UIKit
 
 class MainVC: UIViewController {
-    lazy var testClosure : (Result<String, NetworkError>) -> Void = {Result in
-        DispatchQueue.main.async {
-            switch Result{
-            case .success(let response):
-                if response.contains("success"){
-//                    Alert.showBasic(title: "Success", message: "Success Closure", vc: self)
-                    //don't display an alert if successful
-                } else {
-                    Alert.showBasic(title: "Erorr occured", message: response, vc: self as UIViewController ) // will need changed later
-                }
-            case .failure(let e): print("Error occured: \(e)")
-            }
-        }
-    }
-    lazy var postClosure : (Result<String, NetworkError>, _ message: String) -> Void = {Result, message  in
-        DispatchQueue.main.async {
-            switch Result{
-            case .success(let response):
-                if response.contains("success"){
-                    Alert.showBasic(title: "Success", message: message, vc: self)
-                } else {
-                    Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
-                }
-            case .failure(let e): print("Error occured: \(e)")
-            }
-        }
-    }
-    
     fileprivate var rootView : MainView!
     internal var bridgeIP = String()
     internal var bridgeUser = String()
@@ -59,7 +31,7 @@ class MainVC: UIViewController {
         super.viewDidLoad()
     }
 }
-
+//MARK: - Get Delegate
 extension MainVC: GetDelegate{
     func getTapped(sender: HueSender) {
         guard let baseURL = baseURL else {
@@ -80,7 +52,6 @@ extension MainVC: GetDelegate{
                         }
                         DispatchQueue.main.async {
                             let lightlistVC = LightsListVC(baseURL: baseURL, lightsArray: lights, showingGroup: nil)
-//                            lightlistVC.delegate = self
                             lightlistVC.title = HueSender.lights.rawValue.capitalized
                             self.navigationController?.pushViewController(lightlistVC, animated: true)
                         }
@@ -104,7 +75,6 @@ extension MainVC: GetDelegate{
                         }
                         DispatchQueue.main.async {
                             let groupListController = GroupsListVC(baseURL: baseURL, groupsArray: groups)
-//                            groupListController.delegate = self
                             groupListController.title = HueSender.groups.rawValue.capitalized
                             self.navigationController?.pushViewController(groupListController, animated: true)
                         }
@@ -130,7 +100,6 @@ extension MainVC: GetDelegate{
                         }
                         DispatchQueue.main.async {
                             let scheduleList = ScheduleListVC(baseURL: baseURL, scheduleArray: schedules)
-//                            scheduleList.delegate = self
                             scheduleList.title = HueSender.schedules.rawValue.capitalized
                             self.navigationController?.pushViewController(scheduleList, animated: true)
                         }
@@ -142,12 +111,8 @@ extension MainVC: GetDelegate{
                 }
             }
 //MARK: - Light Scenes
-        case .lightScenes:
-//            DataManager.updateLight(baseURL: baseURL, lightID: "7", method: .put, httpBody: ["on": false], completionHandler: self.testClosure)
-            let lightName = "Test name"
-            DataManager.updateLight(baseURL: baseURL, lightID: "7", method: .put, httpBody: ["on": true]) { (Result) in
-                self.postClosure(Result,"saved light \(lightName)")
-            }
+        case .lightScenes: ()
+
             /*
             guard let url = URL(string: baseURL + HueSender.scenes.rawValue) else {return}
             print(url)
