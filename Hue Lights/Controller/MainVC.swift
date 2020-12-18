@@ -51,9 +51,9 @@ extension MainVC: GetDelegate{
                             print("Light id: \(light.id) - \(light.name)")
                         }
                         DispatchQueue.main.async {
-                            let lightlistVC = LightsListVC(baseURL: baseURL, lightsArray: lights, showingGroup: nil)
-                            lightlistVC.title = HueSender.lights.rawValue.capitalized
-                            self.navigationController?.pushViewController(lightlistVC, animated: true)
+                            let lightListVC = LightsListVC(baseURL: baseURL, lightsArray: lights, showingGroup: nil)
+                            lightListVC.title = HueSender.lights.rawValue.capitalized
+                            self.navigationController?.pushViewController(lightListVC, animated: true)
                         }
                     } catch let e {
                         print("Error getting lights: \(e)")
@@ -112,11 +112,8 @@ extension MainVC: GetDelegate{
             }
 //MARK: - Light Scenes
         case .lightScenes: ()
-
-            /*
-            guard let url = URL(string: baseURL + HueSender.scenes.rawValue) else {return}
-            print(url)
-            DataManager.get(url: url) { results in
+            DataManager.get(baseURL: baseURL,
+                            HueSender: .scenes) { results in
                 switch results{
                 case .success(let data):
                     do {
@@ -128,7 +125,7 @@ extension MainVC: GetDelegate{
                             print("Light Sceen Name: \(scene.name)")
                         }
                         DispatchQueue.main.async {
-                            let sceneList = SceneListVC(baseURL: baseURL, group: nil, lightsInGroup: [], sceneArray: ownedScenes)
+                            let sceneList = SceneListVC(baseURL: baseURL, group: nil, lightsInScene: [], sceneArray: ownedScenes)
 //                            sceneList.delegate = self
                             sceneList.title = HueSender.lightScenes.rawValue.capitalized
                             self.navigationController?.pushViewController(sceneList, animated: true)
@@ -141,7 +138,7 @@ extension MainVC: GetDelegate{
                 case .failure(let e): print(e)
                 }
             }
- */
+ 
         default:
             print("not setup yet")
         }

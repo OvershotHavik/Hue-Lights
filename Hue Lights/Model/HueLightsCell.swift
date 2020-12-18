@@ -63,6 +63,11 @@ class HueLightsCell: UITableViewCell {
     var isOn = Bool(){
         didSet{
             onSwitch.isOn = isOn
+            if isOn == true{
+                brightnessSlider.isHidden = false
+            } else {
+                brightnessSlider.isHidden = true // can't adjust bri if light is off
+            }
         }
     }
     var brightness = Float(){
@@ -100,7 +105,7 @@ class HueLightsCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
         setup()
     }
-    
+    //MARK: - Configure Light Cell
     func configureLightCell(light: HueModel.Light){
         lightName = light.name
         isOn = light.state.on
@@ -117,6 +122,7 @@ class HueLightsCell: UITableViewCell {
             btnChangeColor.isEnabled = false
         }
     }
+    //MARK: - Configure Group Cell
     func configureGroupCell(group: HueModel.Groups){
         lightName = group.name
         isOn = group.action.on
@@ -124,7 +130,6 @@ class HueLightsCell: UITableViewCell {
         if let safeBri = group.action.bri{
             brightness = Float(safeBri)
         }
-//        brightness = Float(light.action.bri)
         if brightness == 0{
             noLightsInGroup = true
         }
@@ -137,7 +142,7 @@ class HueLightsCell: UITableViewCell {
             btnChangeColor.isEnabled = false
         }
     }
-    
+    //MARK: - Setup
     func setup(){
         contentView.addSubview(btnChangeColor)
         contentView.addSubview(lblLightName)
@@ -146,6 +151,7 @@ class HueLightsCell: UITableViewCell {
         contentView.addSubview(lblBrightness)
         setupConstraints()
     }
+    //MARK: - Setup Constraints
     func setupConstraints(){
         let safeArea = contentView.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
@@ -172,7 +178,14 @@ class HueLightsCell: UITableViewCell {
         ])
         
     }
+    //MARK: - Objc Functions
     @objc func onSwitchToggle(sender: UISwitch){
+        isOn = sender.isOn
+        if isOn == true{
+            brightnessSlider.isHidden = false
+        } else {
+            brightnessSlider.isHidden = true // can't adjust bri if light is off
+        }
         cellDelegate?.onSwitchToggled(sender: sender)
     }
     @objc func brightnessChanged(sender: UISlider){

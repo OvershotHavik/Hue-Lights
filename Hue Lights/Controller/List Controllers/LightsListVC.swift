@@ -10,7 +10,7 @@ import UIKit
 class LightsListVC: ListController{
     weak var updateGroupDelegate : UpdateGroups?
     
-    fileprivate var lightsArray : [HueModel.Light]
+    var lightsArray : [HueModel.Light]
     fileprivate var originalLightsArray : [HueModel.Light] // used for search
     fileprivate var showingGroup: HueModel.Groups?
     fileprivate var baseURL: String
@@ -255,7 +255,7 @@ extension LightsListVC{
                     let scenes = scenesFromBridge.compactMap {$0}
                     let sceneArray = scenes.filter{$0.group == group.id}
                     DispatchQueue.main.async {
-                        let sceneList = SceneListVC(baseURL: self.baseURL, group: group, lightsInGroup: self.lightsArray, sceneArray: sceneArray)
+                        let sceneList = SceneListVC(baseURL: self.baseURL, group: group, lightsInScene: self.lightsArray, sceneArray: sceneArray)
                         sceneList.title = HueSender.scenes.rawValue
                         self.navigationController?.pushViewController(sceneList, animated: true)
                     }

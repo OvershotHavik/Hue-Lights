@@ -14,6 +14,9 @@ class UI{
     static let backgroundColor = UIColor.systemBlue
 //    static let whiteXY = [0.3227,0.3290] // white per xy printout
     static let readWhiteXY = [0.4452, 0.4068] // used for lights that dont' have xy
+    
+    // red: ["xy": [0.627414953685422, 0.31605528565059454]]
+
 }
 struct Cells {
     static let cell = "HueLightsCell"

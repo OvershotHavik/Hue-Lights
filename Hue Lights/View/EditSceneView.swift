@@ -9,7 +9,6 @@ import UIKit
 
 class EditSceneView: UIView{
     weak var updateSceneDelegate: UpdateItem?
-    fileprivate var sceneName: String
 
     lazy var tfChangeName : UITextField = {
        let textField = UITextField()
@@ -20,8 +19,7 @@ class EditSceneView: UIView{
         textField.textColor = .black
         return textField
     }()
-
-     var btnSave : UIButton = {
+    var btnSave : UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Save", for: .normal)
@@ -29,7 +27,15 @@ class EditSceneView: UIView{
         button.backgroundColor = .systemGreen
         return button
     }()
-    var btnDelete : UIButton = {
+    fileprivate var btnSelectLights : UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Select Lights", for: .normal)
+        button.addTarget(self, action: #selector(editTapped), for: .touchUpInside)
+        return button
+    }()
+    
+    fileprivate var btnDelete : UIButton = {
        let button = UIButton()
        button.translatesAutoresizingMaskIntoConstraints = false
        button.setTitle("Delete", for: .normal)
@@ -37,9 +43,11 @@ class EditSceneView: UIView{
        button.backgroundColor = .systemRed
        return button
    }()
-    
-    init(sceneName: String, frame: CGRect = .zero){
+    fileprivate var sceneName: String
+    fileprivate var showingGroupScene: Bool
+    init(sceneName: String, showingGroupScene: Bool, frame: CGRect = .zero){
         self.sceneName = sceneName
+        self.showingGroupScene = showingGroupScene
         super.init(frame: .zero)
         setup()
     }
@@ -53,6 +61,10 @@ class EditSceneView: UIView{
         addSubview(tfChangeName)
         addSubview(btnSave)
         addSubview(btnDelete)
+        addSubview(btnSelectLights)
+        if showingGroupScene == true{
+            btnSelectLights.isHidden = true
+        }
         setupConstraints()
     }
     //MARK: - Setup Constraints
@@ -63,7 +75,10 @@ class EditSceneView: UIView{
             tfChangeName.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
             tfChangeName.widthAnchor.constraint(equalToConstant: 150),
             tfChangeName.heightAnchor.constraint(equalToConstant: 35),
-
+            
+            btnSelectLights.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: UI.verticalSpacing),
+            btnSelectLights.leadingAnchor.constraint(equalTo: tfChangeName.trailingAnchor, constant: UI.horizontalSpacing),
+            
             //Light VC is added via the EditSceneVC where top is tf change name bottomCon and bottom is btn save topCon.
             
             btnSave.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
@@ -75,7 +90,10 @@ class EditSceneView: UIView{
             
         ])
     }
-    
+    @objc func editTapped(){
+        print("Edit tapped in view")
+        updateSceneDelegate?.editList()
+    }
     
     @objc func saveTapped(){
         print("Save tapped in view")

@@ -9,14 +9,15 @@ import UIKit
 
 class SceneListVC: ListController{
     fileprivate var sceneArray : [HueModel.Scenes]
+    fileprivate var sceneLights = [String : HueModel.Lightstates]()
     fileprivate var originalSceneArray : [HueModel.Scenes] // used for search
     fileprivate var group: HueModel.Groups?
-    fileprivate var lightsInGroup: [HueModel.Light]
+    fileprivate var lightsInScene: [HueModel.Light]
     fileprivate var baseURL: String
-    init(baseURL : String, group: HueModel.Groups?, lightsInGroup: [HueModel.Light], sceneArray: [HueModel.Scenes]) {
+    init(baseURL : String, group: HueModel.Groups?, lightsInScene: [HueModel.Light], sceneArray: [HueModel.Scenes]) {
         self.baseURL = baseURL
         self.group = group
-        self.lightsInGroup = lightsInGroup
+        self.lightsInScene = lightsInScene
         self.sceneArray = sceneArray
         self.originalSceneArray = sceneArray
         super.init(nibName: nil, bundle: nil)
@@ -49,12 +50,17 @@ class SceneListVC: ListController{
     @objc func addScene(){
         print("Bring up Add scene")
         if let safeGroup = group{
-            let addScene = EditGroupSceneVC(baseURL: baseURL, sceneName: "", sceneID: Constants.newScene.rawValue, group: safeGroup, lightsInGroup: lightsInGroup)
+            let addScene = EditSceneVC(baseURL: baseURL, sceneName: "", sceneID: Constants.newScene.rawValue, group: safeGroup, lightsInScene: lightsInScene)
             addScene.updateDelegate = self
-//            addScene.delegate = self
             self.navigationController?.pushViewController(addScene, animated: true)
         } else { // light scenes
-            
+            let addScene = EditSceneVC(baseURL: baseURL,
+                                       sceneName: "",
+                                       sceneID: Constants.newScene.rawValue,
+                                       group: nil,
+                                       lightsInScene: [])
+            addScene.updateDelegate = self
+            self.navigationController?.pushViewController(addScene, animated: true)
         }
     }
 //MARK: - Cell For Row
@@ -72,8 +78,8 @@ class SceneListVC: ListController{
     }
     //MARK: - Did Select Row
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let scene = sceneArray[indexPath.row]
         if let safeGroup = group{
-            let scene = sceneArray[indexPath.row]
             print("Selected Scene: \(scene.name)")
             let httpBody = ["scene" : scene.id]
             DataManager.updateGroup(baseURL: baseURL,
@@ -81,9 +87,51 @@ class SceneListVC: ListController{
                                     method: .put,
                                     httpBody: httpBody,
                                     completionHandler: self.noAlertOnSuccessClosure)
+        } else {
+            getSceneLightStates(scene: scene, editing: false)
         }
     }
-
+    //MARK: - Get Scene Light State From Bridge
+    func getSceneLightStates(scene: HueModel.Scenes, editing: Bool){
+        DataManager.getSceneLightStates(baseURL: baseURL,
+                                        sceneID: scene.id,
+                                        HueSender: .scenes) { results in
+            switch results{
+            case.success(let data):
+                do {
+                    let resultsFromBridge = try JSONDecoder().decode(HueModel.IndividualScene.self, from: data)
+                    if let safeLightStates = resultsFromBridge.lightstates{
+                        self.sceneLights = safeLightStates
+                        self.applyLightStatesToLights()
+                    }
+                    for light in self.sceneLights{
+                        print("light key: \(light.key), light xy: \(light.value.xy ?? [0,0])")
+                    }
+                } catch let e{
+                    print(e)
+                }
+            case .failure(let e): print("error: \(e)")
+            }
+        }
+    }
+    
+    //MARK: - Apply Light States To Lights
+    func applyLightStatesToLights(){
+        for light in sceneLights{
+            let lightID = String(light.key)
+            var httpBody = [String: Any]()
+            httpBody["on"] = light.value.on
+            httpBody["bri"] = Int(light.value.bri)
+            if let safeXY = light.value.xy{
+                httpBody["xy"] = safeXY
+            }
+            DataManager.updateLight(baseURL: baseURL,
+                                    lightID: lightID,
+                                    method: .put,
+                                    httpBody: httpBody,
+                                    completionHandler: noAlertOnSuccessClosure)
+        }
+    }
 //MARK: - Leading Swipe Action
      func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
          let edit = self.edit(indexPath: indexPath)
@@ -92,23 +140,70 @@ class SceneListVC: ListController{
      }
 //MARK: - Leading Swipe Action - Edit
     func edit(indexPath: IndexPath) -> UIContextualAction {
-         let action = UIContextualAction(style: .normal, title: "Edit") { (_, _, _) in
-             print("Take user to edit scene")
-            DispatchQueue.main.async {
-                let selected = self.sceneArray[indexPath.row]
-                if let safeGroup = self.group{
-                    let editScene = EditGroupSceneVC(baseURL: self.baseURL,
-                                                     sceneName: selected.name,
-                                                     sceneID: selected.id,
-                                                     group: safeGroup,
-                                                     lightsInGroup: self.lightsInGroup)
+        let action = UIContextualAction(style: .normal, title: "Edit") { (_, _, _) in
+            print("Take user to edit scene")
+            
+            if self.group == nil{
+                DataManager.get(baseURL: self.baseURL,
+                                HueSender: .scenes) { results in
+                    switch results{
+                    case .success(let data):
+                        do {
+                            let scenesFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Scenes>.self, from: data)
+                            let scenes = scenesFromBridge.compactMap {$0}
+                            let filteredScene = scenes.filter({$0.id == self.sceneArray[indexPath.row].id})
+                            if let updatedScene = filteredScene.first{
+                                self.getLightModelForLightsInScene(scene: updatedScene)
+                            }
+                        } catch let e {
+                            print("Error getting scenes: \(e)")
+                        }
+
+                    case .failure(let e): print(e)
+                    }
+                }
+//                self.getLightModelForLightsInScene(scene: self.sceneArray[indexPath.row])
+            } else {
+                DispatchQueue.main.async {
+                    let selected = self.sceneArray[indexPath.row]
+                    let editScene = EditSceneVC(baseURL: self.baseURL,
+                                                sceneName: selected.name,
+                                                sceneID: selected.id,
+                                                group: self.group,
+                                                lightsInScene: self.lightsInScene)
                     editScene.updateDelegate = self
                     self.navigationController?.pushViewController(editScene, animated: true)
                 }
             }
-         }
-         return action
+        }
+        return action
      }
+    //MARK: - Get Light Model For Lights In Scene
+    func getLightModelForLightsInScene(scene: HueModel.Scenes){
+        DataManager.get(baseURL: baseURL, HueSender: .lights) { results in
+            switch results{
+            case .success(let data):
+                do {
+                    let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
+                    let lights = lightsFromBridge.compactMap{ $0}
+                    self.lightsInScene = lights.filter {return scene.lights.contains($0.id)}
+                    print("lights in scene: \(self.lightsInScene.count)")
+                    DispatchQueue.main.async {
+                        let editScene = EditSceneVC(baseURL: self.baseURL,
+                                                    sceneName: scene.name,
+                                                    sceneID: scene.id,
+                                                    group: self.group,
+                                                    lightsInScene: self.lightsInScene)
+                        editScene.updateDelegate = self
+                        self.navigationController?.pushViewController(editScene, animated: true)
+                    }
+                } catch let e {
+                    print("Error getting lights: \(e)")
+                }
+            case .failure(let e): print(e)
+            }
+        }
+    }
 //MARK: - Trailing Swipe Action - Delete
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         let scene = sceneArray[indexPath.row]
