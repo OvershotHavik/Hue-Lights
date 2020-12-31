@@ -167,7 +167,7 @@ class EditSceneVC: UIViewController, UpdateItem{
     //MARK: - Update Delegate functions
     //MARK: - Delete Tapped
     func deleteTapped(name: String) {
-        Alert.showConfirmDelete(title: "Delete Scene", message: "Are you sure you want to delete \(sceneName)?", vc: self) {
+        Alert.showConfirmDelete(title: "Delete Scene", message: "Are you sure you want to delete \(name)?", vc: self) {
 
             print("delete the scene when delete is pressed")
             DataManager.updateScene(baseURL: self.baseURL,

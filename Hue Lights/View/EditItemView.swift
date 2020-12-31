@@ -62,6 +62,14 @@ class EditItemView: UIView{
         button.backgroundColor = .systemGreen
         return button
     }()
+    private var btnDelete : UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Delete", for: .normal)
+        button.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
+        button.backgroundColor = .systemRed
+        return button
+    }()
     
     init(itemName: String,  frame: CGRect = .zero)  {
         self.itemName = itemName
@@ -80,6 +88,7 @@ class EditItemView: UIView{
         self.addSubview(label)
         self.addSubview(btnEdit)
         self.addSubview(btnSave)
+        self.addSubview(btnDelete)
         setupConstraints()
     }
     //MARK: - Setup Constraints
@@ -101,8 +110,15 @@ class EditItemView: UIView{
             btnEdit.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
             btnEdit.topAnchor.constraint(equalTo: label.bottomAnchor, constant: UI.verticalSpacing),
             
-            btnSave.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            btnSave.heightAnchor.constraint(equalToConstant: 40),
+            btnSave.widthAnchor.constraint(equalToConstant: 100),
+            btnSave.trailingAnchor.constraint(equalTo: safeArea.centerXAnchor, constant: -UI.horizontalSpacing),
             btnSave.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -UI.verticalSpacing),
+            
+            btnDelete.heightAnchor.constraint(equalToConstant: 40),
+            btnDelete.widthAnchor.constraint(equalToConstant: 100),
+            btnDelete.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -UI.verticalSpacing),
+            btnDelete.leadingAnchor.constraint(equalTo: safeArea.centerXAnchor, constant: UI.horizontalSpacing),
         ])
     }
     //MARK: - Objc Functions
@@ -122,6 +138,10 @@ class EditItemView: UIView{
     @objc func identifyTapped(){
         print("Identify Tapped")
         updateItemDelegate?.identifyTapped()
+    }
+    @objc func deleteTapped(){
+        print("Delete Tapped")
+        updateItemDelegate?.deleteTapped(name: tfChangeName.text!)
     }
     //MARK: - Update Label
     func updateLabel(text: String){

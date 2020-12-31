@@ -158,15 +158,27 @@ extension MainVC{
             case .success(let data):
                 do {
                     let bridges = try JSONDecoder().decode([Discovery].self, from: data)
+                    
+                    
+                    //will need changed, just testing with original base for  now
+
+                    
                     for bridge in bridges{
                         print("Bridge ID: \(bridge.id)")
                         print("Brdige IP: \(bridge.internalipaddress)")
                         self.bridgeIP = bridge.internalipaddress
-//                        self.baseURL =  "http://\(self.bridgeIP)/api/\(self.bridgeUser)/"
+                        self.baseURL =  "http://\(self.bridgeIP)/api/\(self.bridgeUser)/"
                     }
-                    //will need changed, just testing right now
+                    
+                    
+                    
                     self.bridgeIP = "192.168.1.175"
                     self.baseURL =  "http://\(self.bridgeIP)/api/\(self.bridgeUser)/"
+                    
+                    
+                    
+                    
+                    
                 } catch let e{
                     print("Error: \(e)")
                 }

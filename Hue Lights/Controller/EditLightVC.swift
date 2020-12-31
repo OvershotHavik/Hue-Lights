@@ -172,7 +172,17 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
     }
     
     func deleteTapped(name: String) {
-        
+        print("Delete tapped in edit light vc")
+        Alert.showConfirmDelete(title: "Delete \(name)?", message: "Are you sure you want to delete \(name)", vc: self) {
+            print("delete pressed")
+            DataManager.modifyLight(baseURL: self.baseURL,
+                                    lightID: self.light.id,
+                                    method: .delete,
+                                    httpBody: [:]) { results in
+                self.alertClosure(results, "Successfully deleted \(name)")
+                self.navigationController?.popViewController(animated: true)
+            }
+        }
     }
     //MARK: - Edit List
     func editList() {
