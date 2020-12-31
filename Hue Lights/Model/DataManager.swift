@@ -11,7 +11,14 @@ enum NetworkError: Error{
     case badURL(Error)
     case badData
     case failure(Error)
+ 
 }
+/*
+ only works when the enum conforms to string protocol. This would allow the error.localizedDescription to display whatever is set as the string of the error case
+extension NetworkError: LocalizedError{
+    var errorDescription: String? { return NSLocalizedString(rawValue, comment: "")}
+}
+ */
 enum HttpMethod: String {
     case get = "GET"
     case post = "POST"

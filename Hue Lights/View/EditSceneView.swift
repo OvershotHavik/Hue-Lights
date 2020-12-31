@@ -27,6 +27,13 @@ class EditSceneView: UIView{
         button.backgroundColor = .systemGreen
         return button
     }()
+    private var btnIdentify: UIButton = {
+       let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Identify", for: .normal)
+        button.addTarget(self, action: #selector(identifyTapped), for: .touchUpInside)
+        return button
+    }()
     fileprivate var btnSelectLights : UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -59,6 +66,7 @@ class EditSceneView: UIView{
     func setup(){
         self.backgroundColor = UI.backgroundColor
         addSubview(tfChangeName)
+        addSubview(btnIdentify)
         addSubview(btnSave)
         addSubview(btnDelete)
         addSubview(btnSelectLights)
@@ -75,6 +83,10 @@ class EditSceneView: UIView{
             tfChangeName.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
             tfChangeName.widthAnchor.constraint(equalToConstant: 150),
             tfChangeName.heightAnchor.constraint(equalToConstant: 35),
+            
+            btnIdentify.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: UI.horizontalSpacing),
+            btnIdentify.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: UI.verticalSpacing),
+            btnIdentify.trailingAnchor.constraint(equalTo: tfChangeName.leadingAnchor),
             
             btnSelectLights.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: UI.verticalSpacing),
             btnSelectLights.leadingAnchor.constraint(equalTo: tfChangeName.trailingAnchor, constant: UI.horizontalSpacing),
@@ -102,5 +114,9 @@ class EditSceneView: UIView{
     @objc func deleteTapped(){
         print("Delete tapped in view")
         updateSceneDelegate?.deleteTapped(name: tfChangeName.text!)
+    }
+    @objc func identifyTapped(){
+        print("Identify tapped")
+        updateSceneDelegate?.identifyTapped()
     }
 }

@@ -93,12 +93,12 @@ class GroupsListVC: ListController, UpdateGroups{
                     let lights = lightsFromBridge.compactMap{ $0}
                     let lightsArray = lights.filter{ return lightsInGroup.contains($0.id)}
                     DispatchQueue.main.async {
-                        let lightlistVC = LightsListVC(baseURL: self.baseURL,
+                        let lightListVC = LightsListVC(baseURL: self.baseURL,
                                                        lightsArray: lightsArray,
                                                        showingGroup: group)
-                        lightlistVC.updateGroupDelegate = self
-                        lightlistVC.title = HueSender.lights.rawValue
-                        self.navigationController?.pushViewController(lightlistVC, animated: true)
+                        lightListVC.updateGroupDelegate = self
+                        lightListVC.title = group.name
+                        self.navigationController?.pushViewController(lightListVC, animated: true)
                     }
                 } catch let e {
                     print("Error getting lights: \(e)")
@@ -116,7 +116,7 @@ class GroupsListVC: ListController, UpdateGroups{
     }
     
     //MARK: - Update Light Color
-    override func updatLightColor(){
+    override func updateLightColor(){
         guard let tempChangeColorButton = tempChangeColorButton else {return}
         tempChangeColorButton.backgroundColor = pickedColor
         let red = pickedColor.components.red

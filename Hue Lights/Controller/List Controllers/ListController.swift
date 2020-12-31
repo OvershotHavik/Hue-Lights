@@ -27,9 +27,9 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 if response.contains("success"){
                     //don't display an alert if successful
                 } else {
-                    Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                    Alert.showBasic(title: "Error occurred", message: response, vc: self) // will need changed later
                 }
-            case .failure(let e): print("Error occured: \(e)")
+            case .failure(let e): print("Error occurred: \(e)")
             }
         }
     }
@@ -40,9 +40,9 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 if response.contains("success"){
                     Alert.showBasic(title: "Success", message: message, vc: self)
                 } else {
-                    Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                    Alert.showBasic(title: "Error occurred", message: response, vc: self) // will need changed later
                 }
-            case .failure(let e): print("Error occured: \(e)")
+            case .failure(let e): print("Error occurred: \(e)")
             }
         }
     }
@@ -96,17 +96,17 @@ class ListController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        //being overridden in sub classess
+        //being overrides in sub classes
         return 0
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        //being overridden in sub classess
+        //being overrides in sub classes
         let cell = UITableViewCell()
         return cell
     }
-    func updatLightColor(){
-        //being overriden in sub classess
+    func updateLightColor(){
+        //being overrides in sub classes
     }
 }
 
@@ -115,7 +115,7 @@ extension ListController : UIColorPickerViewControllerDelegate{
     func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
 //        print("test: \(viewController)")
         pickedColor = viewController.selectedColor
-        updatLightColor()
+        updateLightColor()
     }
     func colorPickerViewControllerDidFinish(_ viewController: UIColorPickerViewController) {
         print("color picker controler did finish")

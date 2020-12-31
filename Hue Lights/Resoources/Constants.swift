@@ -11,9 +11,9 @@ import UIKit
 class UI{
     static let horizontalSpacing = CGFloat(12)
     static let verticalSpacing = CGFloat(8)
-    static let backgroundColor = UIColor.systemBlue
+    static let backgroundColor = UIColor.systemGray
 //    static let whiteXY = [0.3227,0.3290] // white per xy printout
-    static let readWhiteXY = [0.4452, 0.4068] // used for lights that dont' have xy
+    static let readWhiteXY = [0.4452, 0.4068] // used for lights that don't have xy
     
     // red: ["xy": [0.627414953685422, 0.31605528565059454]]
 

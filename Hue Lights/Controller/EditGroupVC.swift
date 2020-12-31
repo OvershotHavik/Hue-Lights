@@ -22,9 +22,9 @@ class EditGroupVC: UIViewController{
                 if response.contains("success"){
                     Alert.showBasic(title: "Success", message: message, vc: self)
                 } else {
-                    Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                    Alert.showBasic(title: "Error occurred", message: response, vc: self) // will need changed later
                 }
-            case .failure(let e): print("Error occured: \(e)")
+            case .failure(let e): print("Error occurred: \(e)")
             }
         }
     }
@@ -49,7 +49,7 @@ class EditGroupVC: UIViewController{
     override func loadView() {
         rootView = EditItemView(itemName: group.name)
         self.view = rootView
-        rootView.updateGroupDelegate = self
+        rootView.updateItemDelegate = self
     }
     //MARK: - View Did Load
     override func viewDidLoad() {
@@ -83,6 +83,10 @@ class EditGroupVC: UIViewController{
 }
 //MARK: - Update Group Delegate
 extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
+    func identifyTapped() {
+        print("ID tapped in edit group vc")
+    }
+    
     func selectedLights(lights: [HueModel.Light]) {
         lightsInGroup = lights
         updateListOnView(list: lights.map{$0.name})

@@ -162,8 +162,11 @@ extension MainVC{
                         print("Bridge ID: \(bridge.id)")
                         print("Brdige IP: \(bridge.internalipaddress)")
                         self.bridgeIP = bridge.internalipaddress
-                        self.baseURL =  "http://\(self.bridgeIP)/api/\(self.bridgeUser)/"
+//                        self.baseURL =  "http://\(self.bridgeIP)/api/\(self.bridgeUser)/"
                     }
+                    //will need changed, just testing right now
+                    self.bridgeIP = "192.168.1.175"
+                    self.baseURL =  "http://\(self.bridgeIP)/api/\(self.bridgeUser)/"
                 } catch let e{
                     print("Error: \(e)")
                 }

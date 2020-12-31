@@ -11,6 +11,7 @@ protocol UpdateItem: class {
     func saveTapped(name: String)
     func editList()
     func deleteTapped(name: String)
+    func identifyTapped()
 }
 
 protocol ApplyToGroup: class{
@@ -18,7 +19,7 @@ protocol ApplyToGroup: class{
 }
 
 class EditItemView: UIView{
-    weak var updateGroupDelegate: UpdateItem?
+    weak var updateItemDelegate: UpdateItem?
     weak var applyToGroupDelegate: ApplyToGroup?
     fileprivate var itemName : String
     
@@ -46,6 +47,13 @@ class EditItemView: UIView{
         button.addTarget(self, action: #selector(editLightsTapped), for: .touchUpInside)
         return button
     }()
+    private var btnIdentify: UIButton = {
+       let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Identify", for: .normal)
+        button.addTarget(self, action: #selector(identifyTapped), for: .touchUpInside)
+        return button
+    }()
     private var btnSave : UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -67,6 +75,7 @@ class EditItemView: UIView{
     //MARK: - Setup
     func setup(){
         backgroundColor = UI.backgroundColor
+        self.addSubview(btnIdentify)
         self.addSubview(tfChangeName)
         self.addSubview(label)
         self.addSubview(btnEdit)
@@ -82,6 +91,10 @@ class EditItemView: UIView{
             tfChangeName.widthAnchor.constraint(equalToConstant: 150),
             tfChangeName.heightAnchor.constraint(equalToConstant: 35),
             
+            btnIdentify.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: UI.horizontalSpacing),
+            btnIdentify.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: UI.verticalSpacing),
+            btnIdentify.trailingAnchor.constraint(equalTo: tfChangeName.leadingAnchor),
+            
             label.topAnchor.constraint(equalTo: tfChangeName.bottomAnchor, constant: UI.verticalSpacing),
             label.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
             
@@ -95,16 +108,20 @@ class EditItemView: UIView{
     //MARK: - Objc Functions
     @objc func saveTapped(){
         print("Save tapped")
-        updateGroupDelegate?.saveTapped(name: tfChangeName.text!)
+        updateItemDelegate?.saveTapped(name: tfChangeName.text!)
     }
     
     @objc func editLightsTapped(){
         print("edit tapped")
-        updateGroupDelegate?.editList()
+        updateItemDelegate?.editList()
     }
     @objc func sceneTapped(){
         print("Scene tapped")
         applyToGroupDelegate?.showScenes()
+    }
+    @objc func identifyTapped(){
+        print("Identify Tapped")
+        updateItemDelegate?.identifyTapped()
     }
     //MARK: - Update Label
     func updateLabel(text: String){

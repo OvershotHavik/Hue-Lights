@@ -8,6 +8,8 @@
 import UIKit
 
 class EditSceneVC: UIViewController, UpdateItem{
+
+    
     weak var updateDelegate : UpdateScenes?
     lazy var noAlertOnSuccessClosure : (Result<String, NetworkError>) -> Void = {Result in
         DispatchQueue.main.async {
@@ -16,9 +18,9 @@ class EditSceneVC: UIViewController, UpdateItem{
                 if response.contains("success"){
                     //don't display an alert if successful
                 } else {
-                    Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                    Alert.showBasic(title: "Error occurred", message: response, vc: self) // will need changed later
                 }
-            case .failure(let e): print("Error occured: \(e)")
+            case .failure(let e): print("Error occurred: \(e)")
             }
         }
     }
@@ -29,9 +31,9 @@ class EditSceneVC: UIViewController, UpdateItem{
                 if response.contains("success"){
                     Alert.showBasic(title: "Success", message: message, vc: self)
                 } else {
-                    Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                    Alert.showBasic(title: "Error occurred", message: response, vc: self) // will need changed later
                 }
-            case .failure(let e): print("@objc Error occured: \(e)")
+            case .failure(let e): print("@objc Error occurred: \(e)")
             }
         }
     }
@@ -149,6 +151,18 @@ class EditSceneVC: UIViewController, UpdateItem{
             subView.view.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor),
             subView.view.bottomAnchor.constraint(equalTo: rootView.btnSave.topAnchor, constant: -UI.verticalSpacing)
         ])
+    }
+    //MARK: - Identify Tapped
+    func identifyTapped() {
+        print("identify tapped in edit scene vc")
+        let httpBody = ["alert": "select"]
+        for light in lightsInScene{
+            DataManager.updateLight(baseURL: baseURL,
+                                    lightID: light.id,
+                                    method: .put,
+                                    httpBody: httpBody,
+                                    completionHandler: noAlertOnSuccessClosure)
+        }
     }
     //MARK: - Update Delegate functions
     //MARK: - Delete Tapped

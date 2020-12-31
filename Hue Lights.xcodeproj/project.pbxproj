@@ -219,8 +219,8 @@
 			children = (
 				B3CC3E0F257CE9FA00058933 /* List Controllers */,
 				B37EEA812561A9B4003FBC42 /* MainVC.swift */,
-				B30753E725718DA900C8CA4F /* EditGroupVC.swift */,
 				B3A66A752573FEF100EAAB8C /* EditLightVC.swift */,
+				B30753E725718DA900C8CA4F /* EditGroupVC.swift */,
 				B3CC3E10257CEA3900058933 /* EditSceneVC.swift */,
 				B3E9539E258793B900567B61 /* EditLightSceneVC.swift */,
 			);

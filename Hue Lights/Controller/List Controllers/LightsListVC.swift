@@ -21,6 +21,13 @@ class LightsListVC: ListController{
         button.addTarget(self, action: #selector(scenesTapped), for: .touchUpInside)
         return button
     }()
+    private var btnIdentify: UIButton = {
+       let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Identify", for: .normal)
+        button.addTarget(self, action: #selector(identifyTapped), for: .touchUpInside)
+        return button
+    }()
     init(baseURL: String, lightsArray: [HueModel.Light], showingGroup: HueModel.Groups?) {
         self.baseURL = baseURL
         self.lightsArray = lightsArray
@@ -57,7 +64,7 @@ class LightsListVC: ListController{
         navigationItem.searchController = searchController
         searchController.searchBar.delegate = self    }
 
-//MARK: - View Will Dissapear
+//MARK: - View Will Disappear
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
         if showingGroup == nil{
@@ -106,7 +113,7 @@ class LightsListVC: ListController{
         return cell
     }
     //MARK: - Update Light Color
-    override func updatLightColor(){
+    override func updateLightColor(){
         guard let tempChangeColorButton = tempChangeColorButton else {return}
         tempChangeColorButton.backgroundColor = pickedColor
         let red = pickedColor.components.red
@@ -228,6 +235,7 @@ extension LightsListVC{
     //MARK: - Group Setup
     func groupsSetup(){
         self.view.backgroundColor = UI.backgroundColor
+        view.addSubview(btnIdentify)
         view.addSubview(btnScenes)
         view.addSubview(tableView)
         
@@ -236,7 +244,12 @@ extension LightsListVC{
             btnScenes.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: UI.verticalSpacing),
             btnScenes.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
             btnScenes.heightAnchor.constraint(equalToConstant: 40),
-
+            
+            btnIdentify.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: UI.horizontalSpacing),
+            btnIdentify.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: UI.verticalSpacing),
+            btnIdentify.trailingAnchor.constraint(equalTo: btnScenes.leadingAnchor, constant: UI.horizontalSpacing),
+            btnIdentify.heightAnchor.constraint(equalToConstant: 40),
+            
             tableView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 50),
             tableView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor),
@@ -266,4 +279,16 @@ extension LightsListVC{
             }
         }
     }
+    @objc func identifyTapped(){
+        print("Identify tapped for Group")
+        let httpBody = ["alert" : "select"]
+        if let safeGroup = showingGroup{
+            DataManager.updateGroup(baseURL: baseURL,
+                                    groupID: safeGroup.id,
+                                    method: .put,
+                                    httpBody: httpBody,
+                                    completionHandler: noAlertOnSuccessClosure)
+        }
+    }
+
 }

@@ -19,9 +19,22 @@ class EditLightVC: UIViewController{
                 if response.contains("success"){
                     Alert.showBasic(title: "Success", message: message, vc: self)
                 } else {
-                    Alert.showBasic(title: "Erorr occured", message: response, vc: self) // will need changed later
+                    Alert.showBasic(title: "Error occurred", message: response, vc: self) // will need changed later
                 }
-            case .failure(let e): print("Error occured: \(e)")
+            case .failure(let e): print("Error occurred: \(e)")
+            }
+        }
+    }
+    lazy var noAlertOnSuccessClosure : (Result<String, NetworkError>) -> Void = {Result in
+        DispatchQueue.main.async {
+            switch Result{
+            case .success(let response):
+                if response.contains("success"){
+                    //don't display an alert if successful
+                } else {
+                    Alert.showBasic(title: "Error occurred", message: response, vc: self) // will need changed later
+                }
+            case .failure(let e): print("Error occurred: \(e)")
             }
         }
     }
@@ -49,7 +62,7 @@ class EditLightVC: UIViewController{
         super.loadView()
         rootView = EditItemView(itemName: light.name)
         self.view = rootView
-        rootView.updateGroupDelegate = self
+        rootView.updateItemDelegate = self
         getGroups()
     }
     //MARK: - View Will Disappear
@@ -106,14 +119,20 @@ class EditLightVC: UIViewController{
                     let groupsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Groups>.self, from: data)
                     self.groupsArray = groupsFromBridge.compactMap{$0}
                     if let safeGroupsArray = self.groupsArray{
-                        let filtered = safeGroupsArray.filter{$0.lights.contains(self.light.id)}
-                        self.initialGroup = filtered.first
-                        if let safeGroup = self.initialGroup{
-                            self.rootView.updateLabel(text: safeGroup.name)
-                            self.noGroup = false
-                        } else {
+                        let filtered = safeGroupsArray.filter{$0.lights.contains(self.light.id)}.sorted(by: {$0.name < $1.name})
+                        var groups = ""
+                        for group in filtered{
+                            groups += "\(group.name)\n"
+                            if group.type == "Room"{
+                                self.initialGroup = group
+                            }
+                        }
+                        if groups == ""{
                             self.rootView.updateLabel(text: "No group selected")
                             self.noGroup = true
+                        } else {
+                            self.rootView.updateLabel(text: groups)
+                            self.noGroup = false
                         }
                     }
                 } catch let e {
@@ -127,6 +146,16 @@ class EditLightVC: UIViewController{
 
 //MARK: - Update Item and Selected Group Delegate
 extension EditLightVC: UpdateItem, SelectedGroupDelegate{
+    func identifyTapped() {
+        print("Identity tapped in Edit Lights VC")
+        let httpBody = ["alert": "select"]
+        DataManager.updateLight(baseURL: baseURL,
+                                lightID: light.id,
+                                method: .put,
+                                httpBody: httpBody,
+                                completionHandler: noAlertOnSuccessClosure)
+    }
+    
     func selectedGroup(group: HueModel.Groups?) {
         if let safeGroup = group{
             newGroup = safeGroup
