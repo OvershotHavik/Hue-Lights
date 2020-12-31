@@ -51,6 +51,14 @@ class LightsListVC: ListController{
         } else {
             groupsSetup()
         }
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addLight))
+    }
+    
+    @objc func addLight(){
+        print("Searching for new lights on bridge")
+        DataManager.searchForNewLights(baseURL: baseURL) { results in
+            self.alertClosure(results, "Searching for new lights. Refresh in 30 seconds")
+        }
     }
     //MARK: - View Will Appear
     override func viewWillAppear(_ animated: Bool) {

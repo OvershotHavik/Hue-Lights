@@ -180,7 +180,9 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
                                     method: .delete,
                                     httpBody: [:]) { results in
                 self.alertClosure(results, "Successfully deleted \(name)")
-                self.navigationController?.popViewController(animated: true)
+                DispatchQueue.main.async {
+                    self.navigationController?.popViewController(animated: true)
+                }
             }
         }
     }
@@ -217,7 +219,7 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
         print("save tapped")
         if light.name != name{ // name changed, update the bridge
             let httpBody = ["name" : name]
-            DataManager.updateLight(baseURL: baseURL,
+            DataManager.modifyLight(baseURL: baseURL,
                                     lightID: light.id,
                                     method: .put,
                                     httpBody: httpBody) { results in
