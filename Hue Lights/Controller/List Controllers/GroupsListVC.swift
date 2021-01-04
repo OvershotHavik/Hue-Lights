@@ -30,7 +30,11 @@ class GroupsListVC: ListController, UpdateGroups{
         searchController.searchBar.isTranslucent = false
         navigationItem.searchController = searchController
         searchController.searchBar.delegate = self
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addGroup))
         setup()
+    }
+    @objc func addGroup(){
+        print("Add group tapped")
     }
     //MARK: - View Will Appear
     override func viewWillAppear(_ animated: Bool) {

@@ -16,10 +16,10 @@ class MainVC: UIViewController {
     fileprivate var baseURL : String?
     fileprivate let defaults = UserDefaults.standard
     fileprivate var discoveredBridges = [Discovery]()
-    lazy var selectedBridge = self.defaults.object(forKey: Constants.selectedBridge.rawValue) as? String ?? String()
+    lazy var selectedBridgeID = self.defaults.object(forKey: Constants.selectedBridge.rawValue) as? String ?? String()
     override func loadView() {
         super.loadView()
-        rootView = MainView(selectedBridge: selectedBridge)
+        rootView = MainView(selectedBridgeID: selectedBridgeID)
         self.view = rootView
         rootView.getDelegate = self
         rootView.bridgeDelegate = self
@@ -158,15 +158,22 @@ extension MainVC{
             case .success(let data):
                 do {
                     self.discoveredBridges = try JSONDecoder().decode([Discovery].self, from: data)
-                    self.rootView.updateTable(list: self.discoveredBridges.sorted(by: {$0.id < $1.id}), selectedBridge: self.selectedBridge)
-                    
-
+                    self.rootView.updateTable(list: self.discoveredBridges.sorted(by: {$0.id < $1.id}), selectedBridge: self.selectedBridgeID)
+                    //if a bridge is already selected, filter the bridges for the selected bridge
+                    let filteredBridges = self.discoveredBridges.filter({$0.id == self.selectedBridgeID})
+                    if let selectedBridge = filteredBridges.first{
+                        self.selectedBridge(bridge: selectedBridge)
+                    }
+                    /*
+                     
                     if self.discoveredBridges.count == 1 { // defaults to the only bridge so user doesn't have to select it
                         self.bridgeIP = self.discoveredBridges[0].internalipaddress
                         if let safeBridge = self.discoveredBridges.first{
                             self.selectedBridge(bridge: safeBridge) // will then set the base URL for this single bridge
                         }
                     }
+                    */
+                    
                     for bridge in self.discoveredBridges{
                         print("Bridge ID: \(bridge.id)")
                         print("Brdige IP: \(bridge.internalipaddress)")

@@ -63,9 +63,9 @@ class MainView: UIView {
         return label
     }()
 
-    fileprivate var selectedBridge: String?
-    init(selectedBridge: String?, frame: CGRect = .zero) {
-        self.selectedBridge = selectedBridge
+    fileprivate var selectedBridgeID: String?
+    init(selectedBridgeID: String?, frame: CGRect = .zero) {
+        self.selectedBridgeID = selectedBridgeID
         super.init(frame: frame)
         setup()
     }
@@ -115,7 +115,7 @@ class MainView: UIView {
         }
     }
     func updateTable(list: [Discovery], selectedBridge: String){
-        self.selectedBridge = selectedBridge
+        self.selectedBridgeID = selectedBridge
         self.discoveredBridges = list
         DispatchQueue.main.async {
             self.tableView.reloadData()
@@ -133,7 +133,7 @@ extension MainView: UITableViewDelegate, UITableViewDataSource{
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! ListCell
         guard let discoveredBridges = discoveredBridges else {return cell}
         let bridge = discoveredBridges[indexPath.row]
-        if bridge.id == selectedBridge{
+        if bridge.id == selectedBridgeID{
             cell.accessoryType = .checkmark
         } else {
             cell.accessoryType = .none
