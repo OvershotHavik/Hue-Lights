@@ -40,6 +40,7 @@ enum Constants: String{
     case disabled = "disabled"
     case newScene = "New Scene"
     case savedBridges = "SavedBridges"
+    case selectedBridge = "SelectedBridge"
 }
 
 

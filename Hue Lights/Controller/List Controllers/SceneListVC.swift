@@ -14,12 +14,14 @@ class SceneListVC: ListController{
     fileprivate var group: HueModel.Groups?
     fileprivate var lightsInScene: [HueModel.Light]
     fileprivate var baseURL: String
-    init(baseURL : String, group: HueModel.Groups?, lightsInScene: [HueModel.Light], sceneArray: [HueModel.Scenes]) {
+    fileprivate var appOwner: String?
+    init(baseURL : String, group: HueModel.Groups?, lightsInScene: [HueModel.Light], sceneArray: [HueModel.Scenes], appOwner: String?) {
         self.baseURL = baseURL
         self.group = group
         self.lightsInScene = lightsInScene
         self.sceneArray = sceneArray
         self.originalSceneArray = sceneArray
+        self.appOwner = appOwner
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -50,7 +52,12 @@ class SceneListVC: ListController{
     @objc func addScene(){
         print("Bring up Add scene")
         if let safeGroup = group{
-            let addScene = EditSceneVC(baseURL: baseURL, sceneName: "", sceneID: Constants.newScene.rawValue, group: safeGroup, lightsInScene: lightsInScene)
+            let addScene = EditSceneVC(baseURL: baseURL,
+                                       sceneName: "",
+                                       sceneID: Constants.newScene.rawValue,
+                                       group: safeGroup,
+                                       lightsInScene: lightsInScene,
+                                       appOwner: appOwner)
             addScene.updateDelegate = self
             self.navigationController?.pushViewController(addScene, animated: true)
         } else { // light scenes
@@ -58,7 +65,8 @@ class SceneListVC: ListController{
                                        sceneName: "",
                                        sceneID: Constants.newScene.rawValue,
                                        group: nil,
-                                       lightsInScene: [])
+                                       lightsInScene: [],
+                                       appOwner: appOwner)
             addScene.updateDelegate = self
             self.navigationController?.pushViewController(addScene, animated: true)
         }
@@ -170,7 +178,8 @@ class SceneListVC: ListController{
                                                 sceneName: selected.name,
                                                 sceneID: selected.id,
                                                 group: self.group,
-                                                lightsInScene: self.lightsInScene)
+                                                lightsInScene: self.lightsInScene,
+                                                appOwner: self.appOwner)
                     editScene.updateDelegate = self
                     self.navigationController?.pushViewController(editScene, animated: true)
                 }
@@ -193,7 +202,8 @@ class SceneListVC: ListController{
                                                     sceneName: scene.name,
                                                     sceneID: scene.id,
                                                     group: self.group,
-                                                    lightsInScene: self.lightsInScene)
+                                                    lightsInScene: self.lightsInScene,
+                                                    appOwner: self.appOwner)
                         editScene.updateDelegate = self
                         self.navigationController?.pushViewController(editScene, animated: true)
                     }

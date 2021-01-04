@@ -115,7 +115,7 @@ struct HueModel: Codable{
         var name: String
         var lights: [String]
         let sensors: [String] // I don't have any sensors, so it's blank in the json, not sure what it is by default
-        let type: String
+        let type: String?
         let state: GroupState
         let recycle: Bool
         let groupClass : String
@@ -183,7 +183,7 @@ struct HueModel: Codable{
         let proxyaddress: String
         let proxyport: Int
         let UTC: String
-        let localtime: String
+        let localtime: String?
         let timezone: String
         let modelid: String
         let datastoreversion: String
@@ -233,7 +233,7 @@ struct HueModel: Codable{
         let name: String
         let description: String
         let command: Command
-        let localtime: String
+        let localtime: String?
         let time: String
         let created: String
         let status: String
@@ -245,7 +245,7 @@ struct HueModel: Codable{
             name = try container.decode(String.self, forKey: .name)
             description = try container.decode(String.self, forKey: .description)
             command = try container.decode(Command.self, forKey: .command)
-            localtime = try container.decode(String.self, forKey: .localtime)
+            localtime = try container.decodeIfPresent(String.self, forKey: .localtime)
             time = try container.decode(String.self, forKey: .time)
             created = try container.decode(String.self, forKey: .created)
             status = try container.decode(String.self, forKey: .status)
@@ -273,7 +273,7 @@ struct HueModel: Codable{
         }
         var id : String
         var name: String
-        var type: String
+        var type: String?
         var group: String?
         var lights: [String]
         var owner: String
@@ -289,7 +289,7 @@ struct HueModel: Codable{
             let container = try decoder.container(keyedBy: CodingKeys.self)
             id = container.codingPath.first!.stringValue
             name = try container.decode(String.self, forKey: .name)
-            type = try container.decode(String.self, forKey: .type)
+            type = try container.decodeIfPresent(String.self, forKey: .type)
             group = try container.decodeIfPresent(String.self, forKey: .group)
             lights = try container.decode([String].self, forKey: .lights)
             owner = try container.decode(String.self, forKey: .owner)

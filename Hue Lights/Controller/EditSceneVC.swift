@@ -46,12 +46,14 @@ class EditSceneVC: UIViewController, UpdateItem{
     fileprivate var group : HueModel.Groups?
     fileprivate var lightsInScene : [HueModel.Light]
     fileprivate var baseURL: String
-    init(baseURL: String, sceneName: String, sceneID: String, group: HueModel.Groups?, lightsInScene: [HueModel.Light]) {
+    fileprivate var appOwner : String?
+    init(baseURL: String, sceneName: String, sceneID: String, group: HueModel.Groups?, lightsInScene: [HueModel.Light], appOwner: String?) {
         self.baseURL = baseURL
         self.sceneName = sceneName
         self.sceneID = sceneID
         self.group = group
         self.lightsInScene = lightsInScene
+        self.appOwner = appOwner
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -93,7 +95,6 @@ class EditSceneVC: UIViewController, UpdateItem{
     }
     //MARK: - Update Scene List VC
     func updateSceneListVC(){
-        let appOwner = "0ZaZRrSyiEoQYiw05AKrHmKsOuIcpcu1W8mb0Qox"
         if let safeGroup = group{
             DataManager.get(baseURL: baseURL,
                             HueSender: .scenes) { results in
@@ -112,25 +113,28 @@ class EditSceneVC: UIViewController, UpdateItem{
             }
         } else {
             print("Update light group list")
-            DataManager.get(baseURL: baseURL,
-                            HueSender: .scenes) { results in
-                switch results{
-                case .success(let data):
-                    do {
-                        let scenesFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Scenes>.self, from: data)
-                        let scenes = scenesFromBridge.compactMap {$0}
-                        let lightScenes = scenes.filter({$0.type == "LightScene"})
-                        let ownedScenes = lightScenes.filter({$0.owner == appOwner}) // to display only scenes created by this app
-                        for scene in ownedScenes{
-                            print("Light Scene Name: \(scene.name)")
+            if let safeAppOwner = self.appOwner{
+                DataManager.get(baseURL: baseURL,
+                                HueSender: .scenes) { results in
+                    switch results{
+                    case .success(let data):
+                        do {
+                            let scenesFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Scenes>.self, from: data)
+                            let scenes = scenesFromBridge.compactMap {$0}
+                            let lightScenes = scenes.filter({$0.type == "LightScene"})
+                            let ownedScenes = lightScenes.filter({$0.owner == safeAppOwner}) // to display only scenes created by this app
+                            for scene in ownedScenes{
+                                print("Light Scene Name: \(scene.name)")
+                            }
+                            self.updateDelegate?.updateScenesDS(items: ownedScenes)
+                        } catch let e {
+                            print("Error getting scenes: \(e)")
                         }
-                        self.updateDelegate?.updateScenesDS(items: ownedScenes)
-                    } catch let e {
-                        print("Error getting scenes: \(e)")
-                    }
 
-                case .failure(let e): print(e)
-                }
+                    case .failure(let e): print(e)
+                    }
+            }
+
             }
         }
     }
@@ -192,7 +196,7 @@ class EditSceneVC: UIViewController, UpdateItem{
                     self.alertClosure(results, "Successfully updated \(self.sceneName)")
                 }
             }
-            if group == nil{ // Update the list of lights if no gorup
+            if group == nil{ // Update the list of lights if no group
                 let lightIDs = lightsInScene.map({$0.id})
                 let httpBody = ["lights": lightIDs]
                 DataManager.updateScene(baseURL: baseURL,

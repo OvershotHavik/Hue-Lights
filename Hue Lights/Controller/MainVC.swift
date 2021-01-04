@@ -12,27 +12,23 @@ class MainVC: UIViewController {
     internal var bridgeIP = String()
     internal var bridgeUser = String()
     internal var bridgeKey = String()
-    var appOwner : String?
-    var baseURL : String?
-    let defaults = UserDefaults.standard
-    
-    
+    fileprivate var appOwner : String?
+    fileprivate var baseURL : String?
+    fileprivate let defaults = UserDefaults.standard
+    fileprivate var discoveredBridges = [Discovery]()
+    lazy var selectedBridge = self.defaults.object(forKey: Constants.selectedBridge.rawValue) as? String ?? String()
     override func loadView() {
         super.loadView()
-        rootView = MainView()
+        rootView = MainView(selectedBridge: selectedBridge)
         self.view = rootView
         rootView.getDelegate = self
         rootView.bridgeDelegate = self
         bridgeKey = "68D5D9EC03F6AD7A73F95D4E148102E1" // Steve's Bridge Key
-        appOwner = "0ZaZRrSyiEoQYiw05AKrHmKsOuIcpcu1W8mb0Qox"
         discovery()
     }
     override func viewDidLoad() {
         super.viewDidLoad()
     }
-
-    
-    
 }
 //MARK: - Get Delegate
 extension MainVC: GetDelegate{
@@ -129,7 +125,7 @@ extension MainVC: GetDelegate{
                             print("Light Sceen Name: \(scene.name)")
                         }
                         DispatchQueue.main.async {
-                            let sceneList = SceneListVC(baseURL: baseURL, group: nil, lightsInScene: [], sceneArray: ownedScenes)
+                            let sceneList = SceneListVC(baseURL: baseURL, group: nil, lightsInScene: [], sceneArray: ownedScenes, appOwner: self.appOwner)
 //                            sceneList.delegate = self
                             sceneList.title = HueSender.lightScenes.rawValue.capitalized
                             self.navigationController?.pushViewController(sceneList, animated: true)
@@ -148,10 +144,10 @@ extension MainVC: GetDelegate{
         }
     }
 }
-//MARK: - Discovery - Run once
+//MARK: - Discovery
 extension MainVC{
     func discovery(){
-        //runs at start up. If the bridge IP is different then what is stored in defaults, do the process to get a new username ----- not setup yet
+        //runs at start up. If the bridge IP is different then what is stored in defaults, do the process to get a new username
         
         //will need to get app owner through this as well later for light scenes to work
         print("Discovering Bridges...")
@@ -161,18 +157,17 @@ extension MainVC{
             switch Results{
             case .success(let data):
                 do {
-                    let bridges = try JSONDecoder().decode([Discovery].self, from: data)
-                    //will need changed, just testing with original base for  now
-                    self.rootView.updateTable(list: bridges.sorted(by: {$0.id < $1.id}))
+                    self.discoveredBridges = try JSONDecoder().decode([Discovery].self, from: data)
+                    self.rootView.updateTable(list: self.discoveredBridges.sorted(by: {$0.id < $1.id}), selectedBridge: self.selectedBridge)
                     
 
-                    if bridges.count == 1 { // defaults to the only bridge so user doesn't have to select it
-                        self.bridgeIP = bridges[0].internalipaddress
-                        if let safeBridge = bridges.first{
+                    if self.discoveredBridges.count == 1 { // defaults to the only bridge so user doesn't have to select it
+                        self.bridgeIP = self.discoveredBridges[0].internalipaddress
+                        if let safeBridge = self.discoveredBridges.first{
                             self.selectedBridge(bridge: safeBridge) // will then set the base URL for this single bridge
                         }
                     }
-                    for bridge in bridges{
+                    for bridge in self.discoveredBridges{
                         print("Bridge ID: \(bridge.id)")
                         print("Brdige IP: \(bridge.internalipaddress)")
                     }
@@ -192,13 +187,17 @@ extension MainVC: BridgeDelegate{
         self.bridgeIP = bridge.internalipaddress
         var savedBridgesFromDefaults = self.defaults.object(forKey: Constants.savedBridges.rawValue) as? [String: String] ?? [String: String]()
         print("Saved Bridges before: \(savedBridgesFromDefaults)")
+
         let bridgeExists = savedBridgesFromDefaults[bridge.id] != nil
         
         if bridgeExists == true {
             print("Bridge exists in defaults")
             if let username = savedBridgesFromDefaults[bridge.id]{
                 print("bridge: \(bridge.internalipaddress) user: \(username)")
+                self.appOwner = username
+                self.defaults.set(bridge.id, forKey: Constants.selectedBridge.rawValue)
                 self.baseURL = "http://\(self.bridgeIP)/api/\(username)/"
+                self.rootView.updateTable(list: self.discoveredBridges.sorted(by: {$0.id < $1.id}), selectedBridge: bridge.id)
                 print("test to see if the bridge is responding")
                 if let safeBaseURL = self.baseURL{
                     
@@ -213,9 +212,7 @@ extension MainVC: BridgeDelegate{
                         }
                     }
                 }
-                
             }
-            
         } else {
             print("bridge does not exist in defaults")
             print("setup new user")
@@ -235,6 +232,7 @@ extension MainVC: BridgeDelegate{
                                     print(username)
                                     savedBridgesFromDefaults[bridge.id] = username
                                     self.defaults.set(savedBridgesFromDefaults, forKey: Constants.savedBridges.rawValue)
+                                    self.defaults.set(bridge.id, forKey: Constants.selectedBridge.rawValue)
                                     print(savedBridgesFromDefaults.keys)
                                     print("Saved Bridges after: \(savedBridgesFromDefaults)")
                                     print("Added to defaults")
@@ -261,26 +259,6 @@ extension MainVC: BridgeDelegate{
                 }
             }
         }
-        
-        /*
-        if (savedBridgesFromDefaults[bridge.id] != nil){
-            //bridge exists
-            print("bridge: \(bridge.internalipaddress) user: \()")
-        } else {
-            //bridge does not
-        }
-*/
-        
-//        if let safeBridge = defaults.object(forKey: Constants.savedBridges.rawValue) as? [String: String] {
-//
-//            print(safeBridge)
-//            print("use existing user")
-//        }else {
-//
-//        }
- 
     }
-
-    
     
 }

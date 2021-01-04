@@ -146,7 +146,11 @@ extension LightsInGroupVC: GroupDelegate{
                     let scenes = scenesFromBridge.compactMap {$0}
                     let sceneArray = scenes.filter{$0.group == self.group.id}
                     DispatchQueue.main.async {
-                        let sceneList = SceneListVC(baseURL: self.baseURL, group: self.group, lightsInScene: self.lightsArray, sceneArray: sceneArray)
+                        let sceneList = SceneListVC(baseURL: self.baseURL,
+                                                    group: self.group,
+                                                    lightsInScene: self.lightsArray,
+                                                    sceneArray: sceneArray,
+                                                    appOwner: nil)
                         sceneList.title = HueSender.scenes.rawValue
                         self.navigationController?.pushViewController(sceneList, animated: true)
                     }

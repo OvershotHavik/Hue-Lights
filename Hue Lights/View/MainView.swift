@@ -18,8 +18,8 @@ protocol BridgeDelegate: class{
 class MainView: UIView {
     weak var getDelegate: GetDelegate?
     weak var bridgeDelegate: BridgeDelegate?
-    var discoveredBridges : [Discovery]?
-    var tableView : UITableView = {
+    fileprivate var discoveredBridges : [Discovery]?
+    fileprivate var tableView : UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.register(ListCell.self, forCellReuseIdentifier: Cells.cell)
@@ -63,7 +63,9 @@ class MainView: UIView {
         return label
     }()
 
-    override init(frame: CGRect) {
+    fileprivate var selectedBridge: String?
+    init(selectedBridge: String?, frame: CGRect = .zero) {
+        self.selectedBridge = selectedBridge
         super.init(frame: frame)
         setup()
     }
@@ -112,7 +114,8 @@ class MainView: UIView {
             getDelegate?.getTapped(sender: HueSender(rawValue: safeTitle)!)
         }
     }
-    func updateTable(list: [Discovery]){
+    func updateTable(list: [Discovery], selectedBridge: String){
+        self.selectedBridge = selectedBridge
         self.discoveredBridges = list
         DispatchQueue.main.async {
             self.tableView.reloadData()
@@ -130,12 +133,19 @@ extension MainView: UITableViewDelegate, UITableViewDataSource{
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! ListCell
         guard let discoveredBridges = discoveredBridges else {return cell}
         let bridge = discoveredBridges[indexPath.row]
+        if bridge.id == selectedBridge{
+            cell.accessoryType = .checkmark
+        } else {
+            cell.accessoryType = .none
+        }
         cell.lblListItem.text = "Hue Bridge IP: \(bridge.internalipaddress)"
         return cell
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let discoveredBridges = discoveredBridges else {return}
         let bridge = discoveredBridges[indexPath.row]
+        // Unselect the row.
+        tableView.deselectRow(at: indexPath, animated: false)
         bridgeDelegate?.selectedBridge(bridge: bridge)
     }
     
