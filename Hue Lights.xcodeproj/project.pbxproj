@@ -29,6 +29,9 @@
 		B37EEA822561A9B4003FBC42 /* MainVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA812561A9B4003FBC42 /* MainVC.swift */; };
 		B37EEA872561A9DE003FBC42 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37EEA862561A9DE003FBC42 /* MainView.swift */; };
 		B3A47335259E7738003DC350 /* WebSocketTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A47334259E7738003DC350 /* WebSocketTest.swift */; };
+		B3A4733A25A09B46003DC350 /* CreateUserOnBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A4733925A09B46003DC350 /* CreateUserOnBridge.swift */; };
+		B3A4734125A346F8003DC350 /* LightsInGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A4734025A346F8003DC350 /* LightsInGroupView.swift */; };
+		B3A4734625A34A83003DC350 /* LightsInGroupVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A4734525A34A83003DC350 /* LightsInGroupVC.swift */; };
 		B3A66A762573FEF100EAAB8C /* EditLightVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A66A752573FEF100EAAB8C /* EditLightVC.swift */; };
 		B3A66A8125742AEA00EAAB8C /* Sequence+UniqueHash.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A66A8025742AEA00EAAB8C /* Sequence+UniqueHash.swift */; };
 		B3AF8EE92565A04C0060C968 /* Discovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AF8EE82565A04C0060C968 /* Discovery.swift */; };
@@ -92,6 +95,9 @@
 		B37EEA812561A9B4003FBC42 /* MainVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainVC.swift; sourceTree = "<group>"; };
 		B37EEA862561A9DE003FBC42 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		B3A47334259E7738003DC350 /* WebSocketTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketTest.swift; sourceTree = "<group>"; };
+		B3A4733925A09B46003DC350 /* CreateUserOnBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserOnBridge.swift; sourceTree = "<group>"; };
+		B3A4734025A346F8003DC350 /* LightsInGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightsInGroupView.swift; sourceTree = "<group>"; };
+		B3A4734525A34A83003DC350 /* LightsInGroupVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightsInGroupVC.swift; sourceTree = "<group>"; };
 		B3A66A752573FEF100EAAB8C /* EditLightVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditLightVC.swift; sourceTree = "<group>"; };
 		B3A66A8025742AEA00EAAB8C /* Sequence+UniqueHash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sequence+UniqueHash.swift"; sourceTree = "<group>"; };
 		B3AF8EE82565A04C0060C968 /* Discovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Discovery.swift; sourceTree = "<group>"; };
@@ -145,6 +151,7 @@
 		B30753CE256EB5C300C8CA4F /* For Reference */ = {
 			isa = PBXGroup;
 			children = (
+				B3E9539E258793B900567B61 /* EditLightSceneVC.swift */,
 				B30753C9256EB56400C8CA4F /* SectionedListController.swift */,
 			);
 			path = "For Reference";
@@ -212,6 +219,7 @@
 				B37EEA862561A9DE003FBC42 /* MainView.swift */,
 				B30753E225718CEC00C8CA4F /* EditItemView.swift */,
 				B3CC3E0A257CE93F00058933 /* EditSceneView.swift */,
+				B3A4734025A346F8003DC350 /* LightsInGroupView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -224,8 +232,8 @@
 				B3A66A752573FEF100EAAB8C /* EditLightVC.swift */,
 				B30753E725718DA900C8CA4F /* EditGroupVC.swift */,
 				B3CC3E10257CEA3900058933 /* EditSceneVC.swift */,
-				B3E9539E258793B900567B61 /* EditLightSceneVC.swift */,
 				B3A47334259E7738003DC350 /* WebSocketTest.swift */,
+				B3A4734525A34A83003DC350 /* LightsInGroupVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -256,6 +264,7 @@
 				B318248F2577F13900D9D06E /* GetImageFromURLIV.swift */,
 				B33631C92581532100B83432 /* SuccessModel.swift */,
 				B33631CE258174D600B83432 /* HueConfiguration.swift */,
+				B3A4733925A09B46003DC350 /* CreateUserOnBridge.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -419,6 +428,7 @@
 			files = (
 				B3AF8EE92565A04C0060C968 /* Discovery.swift in Sources */,
 				B3AF8F092566A6B30060C968 /* Constants.swift in Sources */,
+				B3A4734125A346F8003DC350 /* LightsInGroupView.swift in Sources */,
 				B33631D92583895D00B83432 /* DecodeArray.swift in Sources */,
 				B31824902577F13900D9D06E /* GetImageFromURLIV.swift in Sources */,
 				B30753D3256EB6CD00C8CA4F /* GroupsListVC.swift in Sources */,
@@ -429,6 +439,7 @@
 				B3A66A762573FEF100EAAB8C /* EditLightVC.swift in Sources */,
 				B318249C2577F24E00D9D06E /* SceneListVC.swift in Sources */,
 				B3AF8EFF25669CFB0060C968 /* ListController.swift in Sources */,
+				B3A4733A25A09B46003DC350 /* CreateUserOnBridge.swift in Sources */,
 				B30753CA256EB56500C8CA4F /* SectionedListController.swift in Sources */,
 				B3D2E0EB2572939100B4B46B /* ModifyLightsInGroupVC.swift in Sources */,
 				B3DA93CD2561B60E004BF5E1 /* DataManager.swift in Sources */,
@@ -443,6 +454,7 @@
 				B3E9539F258793B900567B61 /* EditLightSceneVC.swift in Sources */,
 				B318246525779F6600D9D06E /* SchedulesListVC.swift in Sources */,
 				B3CC3E0B257CE93F00058933 /* EditSceneView.swift in Sources */,
+				B3A4734625A34A83003DC350 /* LightsInGroupVC.swift in Sources */,
 				B37EEA822561A9B4003FBC42 /* MainVC.swift in Sources */,
 				B33631CA2581532100B83432 /* SuccessModel.swift in Sources */,
 				B33631CF258174D600B83432 /* HueConfiguration.swift in Sources */,

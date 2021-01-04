@@ -98,6 +98,28 @@ class DataManager{
         task.resume()
     }
     
+//MARK: - Create User
+    static func createUser(baseURL: URL, httpBody: [String: Any], completionHandler: @escaping (Result<Data, NetworkError>) throws -> Void){
+        var request = URLRequest(url: baseURL)
+        request.httpMethod = HttpMethod.post.rawValue
+        print(httpBody)
+        if let jsonData = try? JSONSerialization.data(withJSONObject: httpBody, options: []){
+            URLSession.shared.uploadTask(with: request, from: jsonData) { (data, response, error) in
+                if let httpresponse = response as? HTTPURLResponse{
+                    print(httpresponse.statusCode)
+                }
+                guard let safeData = data else {
+                    
+                    try? completionHandler(.failure(.badData))
+                    return
+                }
+                if let JSONString = String(data: safeData, encoding: String.Encoding.utf8){
+                    print(JSONString)
+                }
+                try? completionHandler(.success(safeData))
+            }.resume()
+        }
+    }
     
 //MARK: - Update Light
     static func updateLight(baseURL: String, lightID: String, method: HttpMethod, httpBody: [String: Any], completionHandler: @escaping (Result<String, NetworkError>) throws -> Void){

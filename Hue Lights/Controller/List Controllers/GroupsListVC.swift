@@ -93,12 +93,12 @@ class GroupsListVC: ListController, UpdateGroups{
                     let lights = lightsFromBridge.compactMap{ $0}
                     let lightsArray = lights.filter{ return lightsInGroup.contains($0.id)}
                     DispatchQueue.main.async {
-                        let lightListVC = LightsListVC(baseURL: self.baseURL,
+                        let lightsInGroupVC = LightsInGroupVC(baseURL: self.baseURL,
                                                        lightsArray: lightsArray,
-                                                       showingGroup: group)
-                        lightListVC.updateGroupDelegate = self
-                        lightListVC.title = group.name
-                        self.navigationController?.pushViewController(lightListVC, animated: true)
+                                                       group: group)
+                        lightsInGroupVC.updateGroupDelegate = self
+                        lightsInGroupVC.title = group.name
+                        self.navigationController?.pushViewController(lightsInGroupVC, animated: true)
                     }
                 } catch let e {
                     print("Error getting lights: \(e)")

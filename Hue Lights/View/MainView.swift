@@ -11,10 +11,23 @@ import UIKit
 protocol GetDelegate: class{
     func getTapped(sender: HueSender)
 }
-
+protocol BridgeDelegate: class{
+    func selectedBridge(bridge: Discovery)
+}
 
 class MainView: UIView {
     weak var getDelegate: GetDelegate?
+    weak var bridgeDelegate: BridgeDelegate?
+    var discoveredBridges : [Discovery]?
+    var tableView : UITableView = {
+        let tableView = UITableView()
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.register(ListCell.self, forCellReuseIdentifier: Cells.cell)
+        tableView.rowHeight = 50
+        tableView.backgroundColor = .clear
+        return tableView
+    }()
+    
     fileprivate var btnGetLightInfo : UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -60,7 +73,10 @@ class MainView: UIView {
     }
     
     func setup(){
+        tableView.delegate = self
+        tableView.dataSource = self
         backgroundColor = UI.backgroundColor
+        addSubview(tableView)
         addSubview(btnGetLightInfo)
         addSubview(btnGetGroupInfo)
         addSubview(btnGetSchedulesInfo)
@@ -71,6 +87,12 @@ class MainView: UIView {
     func setupConstraints(){
         let safeArea = self.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: UI.verticalSpacing),
+            tableView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: UI.horizontalSpacing),
+            tableView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -UI.horizontalSpacing),
+            tableView.heightAnchor.constraint(equalToConstant: 100),
+            
+            
             btnGetLightInfo.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor, constant: -100),
             btnGetLightInfo.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
             
@@ -90,4 +112,31 @@ class MainView: UIView {
             getDelegate?.getTapped(sender: HueSender(rawValue: safeTitle)!)
         }
     }
+    func updateTable(list: [Discovery]){
+        self.discoveredBridges = list
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
+    }
+    
+}
+//MARK: - TableView Delegates
+extension MainView: UITableViewDelegate, UITableViewDataSource{
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return discoveredBridges?.count ?? 0
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! ListCell
+        guard let discoveredBridges = discoveredBridges else {return cell}
+        let bridge = discoveredBridges[indexPath.row]
+        cell.lblListItem.text = "Hue Bridge IP: \(bridge.internalipaddress)"
+        return cell
+    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let discoveredBridges = discoveredBridges else {return}
+        let bridge = discoveredBridges[indexPath.row]
+        bridgeDelegate?.selectedBridge(bridge: bridge)
+    }
+    
 }

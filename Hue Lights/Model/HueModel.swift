@@ -98,7 +98,7 @@ struct HueModel: Codable{
     //MARK: - Light - Startup
     struct Startup: Codable{
         let mode : String
-        let configured : Bool
+        let configured : Bool?
     }
     
     //MARK: - Groups

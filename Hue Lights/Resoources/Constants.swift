@@ -29,15 +29,17 @@ enum HueSender : String {
     case schedules = "schedules"
     case scenes = "scenes"
     case lightScenes = "Light Scenes"
-    case state = "/state"
-    case action = "/action"
-    case lightstates = "/lightstates"
+    case config = "config"
+//    case state = "/state"
+//    case action = "/action"
+//    case lightstates = "/lightstates"
 }
 
 enum Constants: String{
     case enabled = "enabled"
     case disabled = "disabled"
     case newScene = "New Scene"
+    case savedBridges = "SavedBridges"
 }
 
 
