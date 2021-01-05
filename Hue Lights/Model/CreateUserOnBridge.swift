@@ -11,8 +11,14 @@ struct CreateUserOnBridge: Codable{
     let error: ErrorFromBridge?
     struct Success: Codable{
         let username : String
+        let clientkey : String
     }
     struct ErrorFromBridge: Codable {
         let description : String
     }
+}
+
+enum BridgeUser: String{
+    case username = "username"
+    case clientKey = "clientkey"
 }
