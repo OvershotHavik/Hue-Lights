@@ -35,6 +35,29 @@ class GroupsListVC: ListController, UpdateGroups{
     }
     @objc func addGroup(){
         print("Add group tapped")
+        DataManager.get(baseURL: baseURL, HueSender: .lights) { results in
+            switch results{
+            case .success(let data):
+                do {
+                    let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
+                    let lights = lightsFromBridge.compactMap{ $0}
+                    for light in lights{
+                        print("Light id: \(light.id) - \(light.name)")
+                    }
+                    DispatchQueue.main.async {
+                        let createGroupVC = EditGroupVC(baseURL: self.baseURL,
+                                                        group: nil,
+                                                        allLightsOnBridge: lights)
+                        createGroupVC.title = "Create a new Group"
+                        self.navigationController?.pushViewController(createGroupVC, animated: true)
+                    }
+                } catch let e {
+                    print("Error getting lights: \(e)")
+                }
+            case .failure(let e): print(e)
+            }
+        }
+
     }
     //MARK: - View Will Appear
     override func viewWillAppear(_ animated: Bool) {

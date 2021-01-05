@@ -33,9 +33,9 @@ class EditGroupVC: UIViewController{
     fileprivate var lightsInGroup : [HueModel.Light]?
     fileprivate var allLightsOnBridge: [HueModel.Light]
     fileprivate var newGroupName : String?
-    fileprivate var group: HueModel.Groups
+    fileprivate var group: HueModel.Groups?
     fileprivate var baseURL : String
-    init(baseURL: String, group: HueModel.Groups, allLightsOnBridge: [HueModel.Light]) {
+    init(baseURL: String, group: HueModel.Groups?, allLightsOnBridge: [HueModel.Light]) {
         self.baseURL = baseURL
         self.group = group
         self.allLightsOnBridge = allLightsOnBridge
@@ -47,14 +47,16 @@ class EditGroupVC: UIViewController{
     }
     //MARK: - Load View
     override func loadView() {
-        rootView = EditItemView(itemName: group.name)
+        rootView = EditItemView(itemName: group?.name ?? "")
         self.view = rootView
         rootView.updateItemDelegate = self
     }
     //MARK: - View Did Load
     override func viewDidLoad() {
         super.viewDidLoad()
-        lightsInGroup = allLightsOnBridge.filter({return group.lights.contains($0.id)})
+        if let safeGroup = group{
+            lightsInGroup = allLightsOnBridge.filter({return (safeGroup.lights.contains($0.id))})
+        }
         if let safeLightsInGroup = lightsInGroup{
             let lightNames = safeLightsInGroup.map({$0.name})
             updateListOnView(list: lightNames)
@@ -93,7 +95,18 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
     }
     
     func deleteTapped(name: String) {
-        
+        Alert.showConfirmDelete(title: "Delete Group", message: "Are you sure you want to delete \(name)?", vc: self) {
+
+            print("delete the scene when delete is pressed")
+            if let safeGroup = self.group{
+                DataManager.modifyGroup(baseURL: self.baseURL,
+                                        groupID: safeGroup.id,
+                                        method: .delete,
+                                        httpBody: [:]) { results in
+                    self.alertClosure(results, "Successfully deleted \(safeGroup.name)")
+                }
+            }
+        }
     }
     
     //MARK: - Get Light Names From Numbers
@@ -124,13 +137,14 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
                     if let safeLightsInGroup = self.lightsInGroup{
                         //add lights that are already in this group
                         availableLights.append(contentsOf: safeLightsInGroup)
-                        DispatchQueue.main.async {
-                            let lightList = ModifyLightsInGroupVC(limit: 999, selectedItems: safeLightsInGroup, lightsArray: availableLights)
-                            lightList.selectedItemsDelegate = self
-                            self.navigationController?.pushViewController(lightList, animated: true)
-                        }
                     }
-  
+                    DispatchQueue.main.async {
+                        let lightList = ModifyLightsInGroupVC(limit: 999,
+                                                              selectedItems: self.lightsInGroup ?? [],
+                                                              lightsArray: availableLights)
+                        lightList.selectedItemsDelegate = self
+                        self.navigationController?.pushViewController(lightList, animated: true)
+                    }
                 } catch let e {
                     print("Error getting Groups: \(e)")
                 }
@@ -145,11 +159,22 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
             var httpBody = [String: Any]()
             httpBody["name"] = name
             httpBody["lights"] = lightIDsInGroup
-            DataManager.modifyGroup(baseURL: baseURL,
-                                    groupID: group.id,
-                                    method: .put,
-                                    httpBody: httpBody) { results in
-                self.alertClosure(results, "Successfully updated \(name)")
+            if let safeGroup = group{
+                DataManager.modifyGroup(baseURL: baseURL,
+                                        groupID: safeGroup.id,
+                                        method: .put,
+                                        httpBody: httpBody) { results in
+                    self.alertClosure(results, "Successfully updated \(name)")
+                }
+            } else {
+                // Create a new group on the bridge
+                httpBody["type"] = "Room"
+                httpBody["class"] = "Other" // change later once user can select the icon for the group
+                DataManager.createGroup(baseURL: baseURL,
+                                        httpBody: httpBody) { (Results) in
+                    self.alertClosure(Results, "Successfully created group: \(name)")
+                }
+                
             }
         }
     }

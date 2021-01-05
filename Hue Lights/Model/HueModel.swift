@@ -118,7 +118,7 @@ struct HueModel: Codable{
         let type: String?
         let state: GroupState
         let recycle: Bool
-        let groupClass : String
+        let groupClass : String?
         let action: GroupAction
         let stream: Stream?
         let locations: [String: [Double]]?
@@ -131,7 +131,7 @@ struct HueModel: Codable{
             type = try container.decode(String.self, forKey: .type)
             state = try container.decode(GroupState.self, forKey: .state)
             recycle = try container.decode(Bool.self, forKey: .recycle)
-            groupClass = try container.decode(String.self, forKey: .groupClass)
+            groupClass = try container.decodeIfPresent(String.self, forKey: .groupClass)
             action = try container.decode(GroupAction.self, forKey: .action)
             stream = try container.decodeIfPresent(Stream.self, forKey: .stream)
             locations = try container.decodeIfPresent([String:[Double]].self, forKey: .locations)

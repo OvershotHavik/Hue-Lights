@@ -241,6 +241,29 @@ class DataManager{
             }.resume()
         }
     }
+//MARK: - Create Group
+    static func createGroup(baseURL: String, httpBody: [String: Any], completionHandler: @escaping (Result<String, NetworkError>) throws -> Void){
+        guard let url = URL(string: baseURL + HueSender.groups.rawValue) else {return}
+        print(url)
+        var request = URLRequest(url: url)
+        request.httpMethod = HttpMethod.post.rawValue
+        print(httpBody)
+        if let jsonData = try? JSONSerialization.data(withJSONObject: httpBody, options: []){
+            URLSession.shared.uploadTask(with: request, from: jsonData) { (data, response, error) in
+                if let httpresponse = response as? HTTPURLResponse{
+                    print(httpresponse.statusCode)
+                }
+                if let data = data{
+                    if let JSONString = String(data: data, encoding: String.Encoding.utf8){
+                        print(JSONString)
+                        try? completionHandler(.success(JSONString))
+                    }
+                } else {
+                    try? completionHandler(.failure(.badData))
+                }
+            }.resume()
+        }
+    }
     
 //MARK: - Update Scene
     static func updateScene(baseURL: String, sceneID: String, method: HttpMethod, httpBody: [String: Any], completionHandler: @escaping (Result<String, NetworkError>) throws -> Void){

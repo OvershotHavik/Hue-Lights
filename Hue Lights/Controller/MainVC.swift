@@ -165,7 +165,7 @@ extension MainVC{
                         self.selectedBridge(bridge: selectedBridge)
                     }
                     /*
-                     
+                     this block should be covered with the above, keeping for now just to be safe
                     if self.discoveredBridges.count == 1 { // defaults to the only bridge so user doesn't have to select it
                         self.bridgeIP = self.discoveredBridges[0].internalipaddress
                         if let safeBridge = self.discoveredBridges.first{
