@@ -22,7 +22,7 @@ class HueLightsCell: UITableViewCell {
         button.backgroundColor = .white
 //        button.setTitle("Color", for: .normal)
         button.setImage(UIImage(systemName: "eyedropper"), for: .normal)
-        button.tintColor = .label
+        button.tintColor = .black
         button.addTarget(self, action: #selector(changeColorTapped), for: .touchUpInside)
         return button
     }()
@@ -30,7 +30,7 @@ class HueLightsCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
-        label.textColor = .black
+        label.textColor = .label
         return label
     }()
     lazy var onSwitch : UISwitch = {

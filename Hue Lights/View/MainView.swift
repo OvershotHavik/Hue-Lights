@@ -32,6 +32,8 @@ class MainView: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(HueSender.lights.rawValue, for: .normal)
+//        button.tintColor = .label
+        button.setTitleColor(.label, for: .normal)
         button.addTarget(self, action: #selector(getInfo), for: .touchUpInside)
         return button
     }()
@@ -39,6 +41,7 @@ class MainView: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(HueSender.groups.rawValue, for: .normal)
+        button.setTitleColor(.label, for: .normal)
         button.addTarget(self, action: #selector(getInfo), for: .touchUpInside)
         return button
     }()
@@ -46,6 +49,7 @@ class MainView: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(HueSender.schedules.rawValue, for: .normal)
+        button.setTitleColor(.label, for: .normal)
         button.addTarget(self, action: #selector(getInfo), for: .touchUpInside)
         return button
     }()
@@ -53,7 +57,9 @@ class MainView: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(HueSender.lightScenes.rawValue, for: .normal)
-        button.addTarget(self, action: #selector(getInfo), for: .touchUpInside)
+        button.setTitleColor(.label, for: .normal)
+        button.addTarget(self, action: #selector(getInfo), for: .touchUpInside
+        )
         return button
     }()
     lazy var lblTitle : UILabel = {

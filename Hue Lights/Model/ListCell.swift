@@ -35,7 +35,7 @@ class ListCell: UITableViewCell{
         lblListItem.translatesAutoresizingMaskIntoConstraints = false
         lblListItem.numberOfLines = 0
         lblListItem.adjustsFontSizeToFitWidth = true
-        lblListItem.textColor = .black
+        lblListItem.textColor = .label
         
         NSLayoutConstraint.activate([
             ivImage.centerYAnchor.constraint(equalTo: centerYAnchor),

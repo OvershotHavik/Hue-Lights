@@ -14,6 +14,8 @@
 		B30753DE256EC74B00C8CA4F /* LightsListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30753DD256EC74B00C8CA4F /* LightsListVC.swift */; };
 		B30753E325718CEC00C8CA4F /* EditItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30753E225718CEC00C8CA4F /* EditItemView.swift */; };
 		B30753E825718DA900C8CA4F /* EditGroupVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30753E725718DA900C8CA4F /* EditGroupVC.swift */; };
+		B312CFD825A6209B005ED002 /* EditScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B312CFD725A6209B005ED002 /* EditScheduleView.swift */; };
+		B312CFDD25A620BB005ED002 /* EditScheduleVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B312CFDC25A620BB005ED002 /* EditScheduleVC.swift */; };
 		B318246525779F6600D9D06E /* SchedulesListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B318246425779F6600D9D06E /* SchedulesListVC.swift */; };
 		B31824902577F13900D9D06E /* GetImageFromURLIV.swift in Sources */ = {isa = PBXBuildFile; fileRef = B318248F2577F13900D9D06E /* GetImageFromURLIV.swift */; };
 		B318249C2577F24E00D9D06E /* SceneListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B318249B2577F24E00D9D06E /* SceneListVC.swift */; };
@@ -74,6 +76,8 @@
 		B30753DD256EC74B00C8CA4F /* LightsListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightsListVC.swift; sourceTree = "<group>"; };
 		B30753E225718CEC00C8CA4F /* EditItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditItemView.swift; sourceTree = "<group>"; };
 		B30753E725718DA900C8CA4F /* EditGroupVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditGroupVC.swift; sourceTree = "<group>"; };
+		B312CFD725A6209B005ED002 /* EditScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditScheduleView.swift; sourceTree = "<group>"; };
+		B312CFDC25A620BB005ED002 /* EditScheduleVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditScheduleVC.swift; sourceTree = "<group>"; };
 		B318246425779F6600D9D06E /* SchedulesListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulesListVC.swift; sourceTree = "<group>"; };
 		B318248F2577F13900D9D06E /* GetImageFromURLIV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetImageFromURLIV.swift; sourceTree = "<group>"; };
 		B318249B2577F24E00D9D06E /* SceneListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneListVC.swift; sourceTree = "<group>"; };
@@ -220,6 +224,7 @@
 				B30753E225718CEC00C8CA4F /* EditItemView.swift */,
 				B3CC3E0A257CE93F00058933 /* EditSceneView.swift */,
 				B3A4734025A346F8003DC350 /* LightsInGroupView.swift */,
+				B312CFD725A6209B005ED002 /* EditScheduleView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -234,6 +239,7 @@
 				B3CC3E10257CEA3900058933 /* EditSceneVC.swift */,
 				B3A47334259E7738003DC350 /* WebSocketTest.swift */,
 				B3A4734525A34A83003DC350 /* LightsInGroupVC.swift */,
+				B312CFDC25A620BB005ED002 /* EditScheduleVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -445,9 +451,11 @@
 				B3DA93CD2561B60E004BF5E1 /* DataManager.swift in Sources */,
 				B30753DE256EC74B00C8CA4F /* LightsListVC.swift in Sources */,
 				B37EEA872561A9DE003FBC42 /* MainView.swift in Sources */,
+				B312CFD825A6209B005ED002 /* EditScheduleView.swift in Sources */,
 				B3A47335259E7738003DC350 /* WebSocketTest.swift in Sources */,
 				B3AF8EF12565AC490060C968 /* HueModel.swift in Sources */,
 				B30753E825718DA900C8CA4F /* EditGroupVC.swift in Sources */,
+				B312CFDD25A620BB005ED002 /* EditScheduleVC.swift in Sources */,
 				B3E95391258630EA00567B61 /* ModifyGroupVC.swift in Sources */,
 				B3AF8F0425669EFE0060C968 /* HueLightsCell.swift in Sources */,
 				B30753E325718CEC00C8CA4F /* EditItemView.swift in Sources */,

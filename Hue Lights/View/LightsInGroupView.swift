@@ -18,6 +18,7 @@ class LightsInGroupView: UIView{
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(HueSender.scenes.rawValue, for: .normal)
         button.addTarget(self, action: #selector(scenesTapped), for: .touchUpInside)
+        button.setTitleColor(.label, for: .normal)
         return button
     }()
     private var btnIdentify: UIButton = {
@@ -25,6 +26,7 @@ class LightsInGroupView: UIView{
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Identify", for: .normal)
         button.addTarget(self, action: #selector(identifyTapped), for: .touchUpInside)
+        button.setTitleColor(.label, for: .normal)
         return button
     }()
     //MARK: - Init

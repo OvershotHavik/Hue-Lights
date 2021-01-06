@@ -32,6 +32,7 @@ class EditSceneView: UIView{
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Identify", for: .normal)
         button.addTarget(self, action: #selector(identifyTapped), for: .touchUpInside)
+        button.setTitleColor(.label, for: .normal)
         return button
     }()
     fileprivate var btnSelectLights : UIButton = {
@@ -39,16 +40,18 @@ class EditSceneView: UIView{
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Select Lights", for: .normal)
         button.addTarget(self, action: #selector(editTapped), for: .touchUpInside)
+        button.setTitleColor(.label, for: .normal)
         return button
     }()
     
     fileprivate var btnDelete : UIButton = {
-       let button = UIButton()
-       button.translatesAutoresizingMaskIntoConstraints = false
-       button.setTitle("Delete", for: .normal)
-       button.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
-       button.backgroundColor = .systemRed
-       return button
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Delete", for: .normal)
+        button.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
+        button.setTitleColor(.label, for: .normal)
+        button.backgroundColor = .systemRed
+        return button
    }()
     fileprivate var sceneName: String
     fileprivate var showingGroupScene: Bool

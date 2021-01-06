@@ -45,6 +45,7 @@ class EditItemView: UIView{
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Edit Lights In Group", for: .normal)
         button.addTarget(self, action: #selector(editLightsTapped), for: .touchUpInside)
+        button.setTitleColor(.label, for: .normal)
         return button
     }()
     private var btnIdentify: UIButton = {
@@ -52,6 +53,7 @@ class EditItemView: UIView{
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Identify", for: .normal)
         button.addTarget(self, action: #selector(identifyTapped), for: .touchUpInside)
+        button.setTitleColor(.label, for: .normal)
         return button
     }()
     private var btnSave : UIButton = {
@@ -59,6 +61,7 @@ class EditItemView: UIView{
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Save", for: .normal)
         button.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
+        button.setTitleColor(.label, for: .normal)
         button.backgroundColor = .systemGreen
         return button
     }()
@@ -67,6 +70,7 @@ class EditItemView: UIView{
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Delete", for: .normal)
         button.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
+        button.setTitleColor(.label, for: .normal)
         button.backgroundColor = .systemRed
         return button
     }()
