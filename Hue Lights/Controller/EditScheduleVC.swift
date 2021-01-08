@@ -9,9 +9,20 @@ import UIKit
 
 class EditScheduleVC: UIViewController{
     fileprivate var rootView : EditScheduleView!
+    fileprivate var schedule: HueModel.Schedules?
     
+    init(schedule: HueModel.Schedules?) {
+        self.schedule = schedule
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     override func loadView() {
-        rootView = EditScheduleView()
+        super.loadView()
+        rootView = EditScheduleView(schedule: schedule)
         self.view = rootView
+
     }
 }

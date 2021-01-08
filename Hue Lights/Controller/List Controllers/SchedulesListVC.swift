@@ -107,7 +107,8 @@ extension ScheduleListVC: UISearchBarDelegate{
         func edit(indexPath: IndexPath) -> UIContextualAction {
             let action = UIContextualAction(style: .normal, title: "Edit") { (_, _, _) in
                 print("Take user to edit schedule")
-                let editScheduleVC = EditScheduleVC()
+                let schedule = self.scheduleArray[indexPath.row]
+                let editScheduleVC = EditScheduleVC(schedule: schedule)
                 self.navigationController?.pushViewController(editScheduleVC, animated: true)
                 
             }
