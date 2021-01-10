@@ -8,6 +8,19 @@
 import UIKit
 
 class EditScheduleVC: UIViewController {
+    lazy var noAlertOnSuccessClosure : (Result<String, NetworkError>) -> Void = {Result in
+        DispatchQueue.main.async {
+            switch Result{
+            case .success(let response):
+                if response.contains("success"){
+                    //don't display an alert if successful
+                } else {
+                    Alert.showBasic(title: "Error occurred", message: response, vc: self) // will need changed later
+                }
+            case .failure(let e): print("Error occurred: \(e)")
+            }
+        }
+    }
     lazy var alertClosure : (Result<String, NetworkError>, _ message: String) -> Void = {Result, message  in
         DispatchQueue.main.async {
             switch Result{
@@ -36,6 +49,7 @@ class EditScheduleVC: UIViewController {
     fileprivate var isOn: Bool? // only include in the schedule if changed by user
     fileprivate var briValue: Int? // only include in the schedule if changed by user
     fileprivate var pickedColor: UIColor? // only include in the schedule if changed by user
+    fileprivate var colorPicker = UIColorPickerViewController()
     fileprivate var tempChangeColorButton : UIButton? // used to update the color of the cell's button
 
     init(baseURL: String, appOwner: String, schedule: HueModel.Schedules?) {
@@ -52,7 +66,7 @@ class EditScheduleVC: UIViewController {
         super.loadView()
         rootView = EditScheduleView(schedule: schedule)
         rootView.scheduleDelegate = self
-
+        colorPicker.delegate = self
         self.view = rootView
 
     }
@@ -90,6 +104,8 @@ extension EditScheduleVC: ScheduleDelegate{
         if let safeColor = sender.backgroundColor{
             self.pickedColor = safeColor
         }
+        selectColor()
+        tempChangeColorButton = sender
     }
     
     func briChanged(sender: UISlider) {
@@ -133,13 +149,14 @@ extension EditScheduleVC: ScheduleDelegate{
         //MARK: - xy
         var xy : [Double]?
         if let pickedColor = self.pickedColor{
-            guard let tempChangeColorButton = tempChangeColorButton else {return}
-            tempChangeColorButton.backgroundColor = pickedColor
-            let red = pickedColor.components.red
-            let green = pickedColor.components.green
-            let blue = pickedColor.components.blue
-            let colorXY = ConvertColor.getXY(red: red, green: green, blue: blue)
-            xy = colorXY
+            if let tempChangeColorButton = tempChangeColorButton{
+                tempChangeColorButton.backgroundColor = pickedColor
+                let red = pickedColor.components.red
+                let green = pickedColor.components.green
+                let blue = pickedColor.components.blue
+                let colorXY = ConvertColor.getXY(red: red, green: green, blue: blue)
+                xy = colorXY
+            }
         }
         //MARK: - Alert
         var alert : String?
@@ -173,7 +190,7 @@ extension EditScheduleVC: ScheduleDelegate{
         let newSchedule = CreateSchedule(name: name,
                                          description: desc,
                                          command: command,
-                                         time: time)
+                                         localtime: time)
         //MARK: - Encode and send to bridge
         do {
             let encoder = JSONEncoder()
@@ -208,4 +225,36 @@ extension EditScheduleVC: SelectedGroupDelegate{
     }
 
     
+}
+extension EditScheduleVC : UIColorPickerViewControllerDelegate{
+    func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
+        pickedColor = viewController.selectedColor
+        guard let tempChangeColorButton = tempChangeColorButton else {return}
+        tempChangeColorButton.backgroundColor = pickedColor
+//        updateLightColor()
+    }
+    func colorPickerViewControllerDidFinish(_ viewController: UIColorPickerViewController) {
+        print("color picker controler did finish")
+    }
+    func selectColor(){
+        colorPicker.supportsAlpha = false
+        colorPicker.selectedColor = pickedColor ?? UIColor()
+        self.present(colorPicker, animated: true)
+    }
+    func updateLightColor(){
+        guard let tempChangeColorButton = tempChangeColorButton else {return}
+        guard let pickedColor = self.pickedColor else {return}
+        tempChangeColorButton.backgroundColor = pickedColor
+        let red = pickedColor.components.red
+        let green = pickedColor.components.green
+        let blue = pickedColor.components.blue
+        let colorXY = ConvertColor.getXY(red: red, green: green, blue: blue)
+        let lightID = String(tempChangeColorButton.tag)
+        let httpBody = ["xy": colorXY]
+        DataManager.updateLight(baseURL: baseURL,
+                                lightID: lightID,
+                                method: .put,
+                                httpBody: httpBody,
+                                completionHandler: noAlertOnSuccessClosure)
+    }
 }

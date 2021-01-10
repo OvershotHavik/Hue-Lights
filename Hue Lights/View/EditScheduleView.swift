@@ -20,31 +20,31 @@ protocol ScheduleDelegate: class{
 class EditScheduleView: UIView{
     weak var scheduleDelegate : ScheduleDelegate?
     fileprivate lazy var mainVScroll: UIScrollView = {
-       let scroll = UIScrollView()
+        let scroll = UIScrollView()
         scroll.translatesAutoresizingMaskIntoConstraints = false
-//        scroll.backgroundColor = .green
+        //        scroll.backgroundColor = .green
         return scroll
     }()
     fileprivate lazy var mainVStack: UIStackView = {
-       let stack = UIStackView()
+        let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .vertical
         stack.spacing = UI.verticalSpacing
         stack.alignment = .center
-//        stack.backgroundColor = .blue
+        //        stack.backgroundColor = .blue
         return stack
     }()
     
     //MARK: - Schedule Name
     fileprivate var nameHStack : UIStackView = {
         let stack = UIStackView()
-         stack.translatesAutoresizingMaskIntoConstraints = false
-         stack.axis = .horizontal
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .horizontal
         stack.distribution = .fillProportionally
-
-         stack.spacing = UI.horizontalSpacing
-//        stack.alignment = .trailing
-         return stack
+        
+        stack.spacing = UI.horizontalSpacing
+        //        stack.alignment = .trailing
+        return stack
     }()
     fileprivate var lblName: UILabel = {
         let label = UILabel()
@@ -54,9 +54,9 @@ class EditScheduleView: UIView{
         return label
     }()
     fileprivate lazy var tfName : UITextField = {
-       let textField = UITextField()
+        let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
-//        textField.text = schedule?.name
+        textField.text = schedule?.name
         textField.backgroundColor = .white
         textField.placeholder = "Schedule Name"
         textField.textAlignment = .center
@@ -66,13 +66,13 @@ class EditScheduleView: UIView{
     //MARK: - Description
     fileprivate var descriptionHStack : UIStackView = {
         let stack = UIStackView()
-         stack.translatesAutoresizingMaskIntoConstraints = false
-         stack.axis = .horizontal
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .horizontal
         stack.distribution = .equalCentering
-
-         stack.spacing = UI.horizontalSpacing
-         stack.alignment = .center
-         return stack
+        
+        stack.spacing = UI.horizontalSpacing
+        stack.alignment = .center
+        return stack
     }()
     fileprivate var lblDescription: UILabel = {
         let label = UILabel()
@@ -82,7 +82,7 @@ class EditScheduleView: UIView{
         return label
     }()
     fileprivate lazy var tfDescription : UITextField = {
-       let textField = UITextField()
+        let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.text = schedule?.description
         textField.backgroundColor = .white
@@ -93,14 +93,14 @@ class EditScheduleView: UIView{
     //MARK: - Selection H Stack
     fileprivate var selectionHStack : UIStackView = {
         let stack = UIStackView()
-         stack.translatesAutoresizingMaskIntoConstraints = false
-         stack.axis = .horizontal
-         stack.spacing = UI.horizontalSpacing
-         stack.alignment = .center
-         return stack
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .horizontal
+        stack.spacing = UI.horizontalSpacing
+        stack.alignment = .center
+        return stack
     }()
     private var btnGroups: UIButton = {
-       let button = UIButton()
+        let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Select a Group", for: .normal)
         button.backgroundColor = .systemBlue
@@ -109,7 +109,7 @@ class EditScheduleView: UIView{
         return button
     }()
     private var btnLights: UIButton = {
-       let button = UIButton()
+        let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Select a light", for: .normal)
         button.backgroundColor = .systemGreen
@@ -119,7 +119,7 @@ class EditScheduleView: UIView{
     }()
     
     fileprivate var dpTimer : UIDatePicker = {
-       let timer = UIDatePicker()
+        let timer = UIDatePicker()
         timer.translatesAutoresizingMaskIntoConstraints = false
         timer.datePickerMode = .countDownTimer
         timer.addTarget(self, action: #selector(timerChanged), for: .valueChanged)
@@ -127,7 +127,7 @@ class EditScheduleView: UIView{
     }()
     
     fileprivate var lblDoWhat: UILabel = {
-       let label = UILabel()
+        let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         label.text = "When timer is done, do what:"
@@ -137,7 +137,7 @@ class EditScheduleView: UIView{
     fileprivate var tableView : UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-
+        
         tableView.register(HueLightsCell.self, forCellReuseIdentifier: Cells.cell)
         tableView.rowHeight = 80
         tableView.backgroundColor = .white
@@ -146,17 +146,17 @@ class EditScheduleView: UIView{
     //MARK: - Alert H Stack
     fileprivate var alertHStack : UIStackView = {
         let stack = UIStackView()
-         stack.translatesAutoresizingMaskIntoConstraints = false
-         stack.axis = .horizontal
-         stack.spacing = UI.horizontalSpacing
-         stack.alignment = .center
-         return stack
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .horizontal
+        stack.spacing = UI.horizontalSpacing
+        stack.alignment = .center
+        return stack
     }()
     fileprivate var lblFlash: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Enable Flash"
-       return label
+        return label
     }()
     fileprivate var swFlash: UISwitch = {
         let toggle = UISwitch()
@@ -169,17 +169,17 @@ class EditScheduleView: UIView{
     //MARK: - Recurring H Stack
     fileprivate var recurringHStack : UIStackView = {
         let stack = UIStackView()
-         stack.translatesAutoresizingMaskIntoConstraints = false
-         stack.axis = .horizontal
-         stack.spacing = UI.horizontalSpacing
-         stack.alignment = .center
-         return stack
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .horizontal
+        stack.spacing = UI.horizontalSpacing
+        stack.alignment = .center
+        return stack
     }()
     fileprivate var lblRecurring: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Recurring"
-       return label
+        return label
     }()
     fileprivate var swRecurring: UISwitch = {
         let toggle = UISwitch()
@@ -201,17 +201,17 @@ class EditScheduleView: UIView{
     }()
     
     /*
-    private var btnDelete : UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Delete", for: .normal)
-        button.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
-        button.setTitleColor(.label, for: .normal)
-        button.backgroundColor = .systemRed
-        return button
-    }()
- */
-
+     private var btnDelete : UIButton = {
+     let button = UIButton()
+     button.translatesAutoresizingMaskIntoConstraints = false
+     button.setTitle("Delete", for: .normal)
+     button.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
+     button.setTitleColor(.label, for: .normal)
+     button.backgroundColor = .systemRed
+     return button
+     }()
+     */
+    
     fileprivate var selectionArray : [Any]?
     fileprivate var groupSelected = false
     fileprivate var schedule: HueModel.Schedules?
@@ -264,11 +264,11 @@ class EditScheduleView: UIView{
         recurringHStack.addArrangedSubview(lblRecurring)
         recurringHStack.addArrangedSubview(swRecurring)
         
-
-//        self.addSubview(tableView)
+        
+        //        self.addSubview(tableView)
         self.addSubview(btnSave)
         
-//        self.addSubview(btnDelete)
+        //        self.addSubview(btnDelete)
         setupConstraints()
     }
     
@@ -283,7 +283,7 @@ class EditScheduleView: UIView{
             mainVStack.topAnchor.constraint(equalTo: mainVScroll.topAnchor),
             mainVStack.widthAnchor.constraint(equalTo: mainVScroll.widthAnchor),
             mainVStack.bottomAnchor.constraint(equalTo: mainVScroll.bottomAnchor),
-
+            
             nameHStack.widthAnchor.constraint(equalTo: mainVStack.widthAnchor),
             tfName.heightAnchor.constraint(equalToConstant: 35),
             tfName.widthAnchor.constraint(equalToConstant: 200),
@@ -297,22 +297,22 @@ class EditScheduleView: UIView{
             
             btnLights.heightAnchor.constraint(equalToConstant: 44),
             btnLights.widthAnchor.constraint(equalToConstant: 150),
-                        
             
-//            tableView.topAnchor.constraint(equalTo: safeArea.centerYAnchor, constant: 100),
+            
+            //            tableView.topAnchor.constraint(equalTo: safeArea.centerYAnchor, constant: 100),
             tableView.heightAnchor.constraint(equalToConstant: 80),
             tableView.widthAnchor.constraint(equalTo: mainVStack.widthAnchor),
-//            tableView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -50),
+            //            tableView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -50),
             btnSave.heightAnchor.constraint(equalToConstant: 40),
             btnSave.widthAnchor.constraint(equalToConstant: 100),
             btnSave.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
-//            btnSave.trailingAnchor.constraint(equalTo: safeArea.centerXAnchor, constant: -UI.horizontalSpacing),
+            //            btnSave.trailingAnchor.constraint(equalTo: safeArea.centerXAnchor, constant: -UI.horizontalSpacing),
             btnSave.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -UI.verticalSpacing),
             
-//            btnDelete.heightAnchor.constraint(equalToConstant: 40),
-//            btnDelete.widthAnchor.constraint(equalToConstant: 100),
-//            btnDelete.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -UI.verticalSpacing),
-//            btnDelete.leadingAnchor.constraint(equalTo: safeArea.centerXAnchor, constant: UI.horizontalSpacing),
+            //            btnDelete.heightAnchor.constraint(equalToConstant: 40),
+            //            btnDelete.widthAnchor.constraint(equalToConstant: 100),
+            //            btnDelete.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -UI.verticalSpacing),
+            //            btnDelete.leadingAnchor.constraint(equalTo: safeArea.centerXAnchor, constant: UI.horizontalSpacing),
             
         ])
     }
@@ -343,10 +343,10 @@ class EditScheduleView: UIView{
         print("recurring Toggled on: \(sender.isOn)")
         scheduleDelegate?.recurringToggled(isOn: sender.isOn)
     }
-//    @objc func deleteTapped(){
-//        print("Delete Tapped")
-//        updateItemDelegate?.deleteTapped(name: tfName.text!)
-//    }
+    //    @objc func deleteTapped(){
+    //        print("Delete Tapped")
+    //        updateItemDelegate?.deleteTapped(name: tfName.text!)
+    //    }
 }
 //MARK: - TableView DataSource and Delegate
 extension EditScheduleView : UITableViewDataSource, UITableViewDelegate{
@@ -360,19 +360,19 @@ extension EditScheduleView : UITableViewDataSource, UITableViewDelegate{
         if groupSelected == true {
             guard let selectionArray = selectionArray as? [HueModel.Groups] else{return UITableViewCell()}
             cell.lightName = selectionArray[indexPath.row].name
-
+            
         } else {
             guard let selectionArray = selectionArray as? [HueModel.Light] else{return UITableViewCell()}
             cell.lightName = selectionArray[indexPath.row].name
         }
-        
+        cell.backgroundColor = .secondarySystemBackground
         return cell
     }
     func updateSelectionArray(array: [Any]){
         self.selectionArray = array
         
         DispatchQueue.main.async {
-//            self.tableView.isHidden = false
+            //            self.tableView.isHidden = false
             self.tableView.reloadData()
         }
     }
@@ -381,14 +381,17 @@ extension EditScheduleView : UITableViewDataSource, UITableViewDelegate{
 //MARK: - Cell Delegate
 extension EditScheduleView: HueCellDelegate{
     func onSwitchToggled(sender: UISwitch) {
+        print("toggled in view")
         scheduleDelegate?.onToggle(sender: sender)
     }
     
     func brightnessSliderChanged(sender: UISlider) {
+        print("Slider changed in view")
         scheduleDelegate?.briChanged(sender: sender)
     }
     
     func changeLightColor(sender: UIButton) {
+        print("color change in view")
         scheduleDelegate?.changeColor(sender: sender)
     }
     

@@ -122,23 +122,29 @@ extension ScheduleListVC: UISearchBarDelegate{
             }
         }
     
-    /*
+    
     //MARK: - Leading Swipe Action
          func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-             let edit = self.edit(indexPath: indexPath)
-             let swipe = UISwipeActionsConfiguration(actions: [edit])
-             return swipe
+            let schedule = self.scheduleArray[indexPath.row]
+            if schedule.command.address.contains(self.appOwner){
+                let edit = self.edit(indexPath: indexPath)
+                let swipe = UISwipeActionsConfiguration(actions: [edit])
+                return swipe
+            }
+            return UISwipeActionsConfiguration()
          }
     //MARK: - Leading Swipe Action - Edit
         func edit(indexPath: IndexPath) -> UIContextualAction {
             let action = UIContextualAction(style: .normal, title: "Edit") { (_, _, _) in
                 print("Take user to edit schedule")
                 let schedule = self.scheduleArray[indexPath.row]
-                let editScheduleVC = EditScheduleVC(schedule: schedule)
+                let editScheduleVC = EditScheduleVC(baseURL: self.baseURL,
+                                                    appOwner: self.appOwner,
+                                                    schedule: schedule)
                 self.navigationController?.pushViewController(editScheduleVC, animated: true)
                 
             }
             return action
          }
- */
+ 
 }

@@ -11,7 +11,7 @@ struct CreateSchedule: Codable{
     let name: String
     let description: String
     let command: HueModel.Command
-    let time: String
+    let localtime: String
 }
 
 struct HueModel: Codable{
@@ -28,8 +28,6 @@ struct HueModel: Codable{
         static func == (lhs: HueModel.Light, rhs: HueModel.Light) -> Bool {
             return lhs.name == rhs.name && lhs.id == rhs.id
         }
-        
-        
         enum CodingKeys: String, CodingKey{
             case state, type, name, modelid, manufacturername, productname, capabilities, config, uniqueid, swversion, swconfigid, productid
         }
