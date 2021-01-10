@@ -10,8 +10,6 @@ import UIKit
 class MainVC: UIViewController {
     fileprivate var rootView : MainView!
     internal var bridgeIP = String()
-//    internal var bridgeUser = String()
-//    internal var bridgeKey = String()
     fileprivate var clientKey: String?
     fileprivate var appOwner : String?
     fileprivate var baseURL : String?
@@ -100,7 +98,7 @@ extension MainVC: GetDelegate{
                             print("Schedule id: \(schedule.id) - \(schedule.name)")
                         }
                         DispatchQueue.main.async {
-                            let scheduleList = ScheduleListVC(baseURL: baseURL, scheduleArray: schedules)
+                            let scheduleList = ScheduleListVC(baseURL: baseURL, appOwner: self.appOwner ?? "", scheduleArray: schedules)
                             scheduleList.title = HueSender.schedules.rawValue.capitalized
                             self.navigationController?.pushViewController(scheduleList, animated: true)
                         }

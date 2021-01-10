@@ -11,8 +11,10 @@ class ScheduleListVC: ListController{
     fileprivate var scheduleArray : [HueModel.Schedules]
     fileprivate var originalScheduleArray : [HueModel.Schedules] // used for search
     fileprivate var baseURL : String
-    init(baseURL: String, scheduleArray: [HueModel.Schedules]) {
+    fileprivate var appOwner: String
+    init(baseURL: String, appOwner: String, scheduleArray: [HueModel.Schedules]) {
         self.baseURL = baseURL
+        self.appOwner = appOwner
         self.scheduleArray = scheduleArray
         self.originalScheduleArray = scheduleArray
         super.init(nibName: nil, bundle: nil)
@@ -38,6 +40,7 @@ class ScheduleListVC: ListController{
         searchController.searchBar.isTranslucent = false
         navigationItem.searchController = searchController
         searchController.searchBar.delegate = self
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addSchedule))
         setup()
     }
     //MARK: - number of rows in section
@@ -80,6 +83,10 @@ class ScheduleListVC: ListController{
                                    httpBody: httpBody,
                                    completionHandler: self.noAlertOnSuccessClosure)
         }
+    @objc func addSchedule(){
+        let editScheduleVC = EditScheduleVC(baseURL: baseURL, appOwner: appOwner, schedule: nil)
+        self.navigationController?.pushViewController(editScheduleVC, animated: true)
+    }
 }
 extension ScheduleListVC: UISearchBarDelegate{
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
@@ -97,6 +104,25 @@ extension ScheduleListVC: UISearchBarDelegate{
         }
         tableView.reloadData()
     }
+    //MARK: - Trailing Swipe Action - Delete
+        func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+            let schedule = scheduleArray[indexPath.row]
+            if editingStyle == .delete{
+                Alert.showConfirmDelete(title: "Delete Scene?", message: "Are you sure you want to delete \(schedule.name)?", vc: self) {
+                    print("Delete pressed")
+                    DataManager.updateSchedule(baseURL: self.baseURL,
+                                               scheduleID: schedule.id,
+                                               method: .delete,
+                                               httpBody: [:]) { results in
+                        self.alertClosure(results, "Successfully deleted \(schedule.name).")
+                    }
+                    self.scheduleArray.remove(at: indexPath.row)
+                    self.tableView.reloadData()
+                }
+            }
+        }
+    
+    /*
     //MARK: - Leading Swipe Action
          func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
              let edit = self.edit(indexPath: indexPath)
@@ -114,4 +140,5 @@ extension ScheduleListVC: UISearchBarDelegate{
             }
             return action
          }
+ */
 }
