@@ -8,6 +8,19 @@
 import UIKit
 
 class EditScheduleVC: UIViewController {
+    lazy var alertClosure : (Result<String, NetworkError>, _ message: String) -> Void = {Result, message  in
+        DispatchQueue.main.async {
+            switch Result{
+            case .success(let response):
+                if response.contains("success"){
+                    Alert.showBasic(title: "Success", message: message, vc: self)
+                } else {
+                    Alert.showBasic(title: "Error occurred", message: response, vc: self) // will need changed later
+                }
+            case .failure(let e): print("Error occurred: \(e)")
+            }
+        }
+    }
     fileprivate var rootView : EditScheduleView!
     fileprivate var groupListView : GroupsListVC!
     fileprivate var lightListView : LightsListVC!
@@ -20,6 +33,11 @@ class EditScheduleVC: UIViewController {
     fileprivate var recurringSelected = false
     fileprivate var selectedTime : Date?
     fileprivate var appOwner: String
+    fileprivate var isOn: Bool? // only include in the schedule if changed by user
+    fileprivate var briValue: Int? // only include in the schedule if changed by user
+    fileprivate var pickedColor: UIColor? // only include in the schedule if changed by user
+    fileprivate var tempChangeColorButton : UIButton? // used to update the color of the cell's button
+
     init(baseURL: String, appOwner: String, schedule: HueModel.Schedules?) {
         self.baseURL = baseURL
         self.appOwner = appOwner
@@ -64,6 +82,20 @@ class EditScheduleVC: UIViewController {
 
 //MARK: - Schedule Delegate
 extension EditScheduleVC: ScheduleDelegate{
+    func onToggle(sender: UISwitch) {
+        self.isOn = sender.isOn
+    }
+    
+    func changeColor(sender: UIButton) {
+        if let safeColor = sender.backgroundColor{
+            self.pickedColor = safeColor
+        }
+    }
+    
+    func briChanged(sender: UISlider) {
+        self.briValue = Int(sender.value)
+    }
+    
     func flashToggled(isOn: Bool) {
         print("flash in vc: \(isOn)")
         self.alertSelected = isOn
@@ -89,15 +121,79 @@ extension EditScheduleVC: ScheduleDelegate{
     }
     
     func saveTapped(name: String, desc: String) {
-        print("Name: \(name), desc: \(desc)")
-        guard let time = self.selectedTime else {return}
-        let calendar = Calendar.current
-        let hour = calendar.component(.hour, from: time)
-        let minute = calendar.component(.minute, from: time)
-        print("Hour: \(hour), minute: \(minute)")
+        //MARK: - Address
+        var address = ""
+        if let selectedGroup = self.selectedGroup{
+            address = "/api/\(appOwner)/groups/\(selectedGroup.id)/action"
+        }
+        if let selectedLight = self.selectedLight{
+            address = "/api/\(appOwner)/lights/\(selectedLight.id)/state"
+        }
+        print("Address: \(address)")
+        //MARK: - xy
+        var xy : [Double]?
+        if let pickedColor = self.pickedColor{
+            guard let tempChangeColorButton = tempChangeColorButton else {return}
+            tempChangeColorButton.backgroundColor = pickedColor
+            let red = pickedColor.components.red
+            let green = pickedColor.components.green
+            let blue = pickedColor.components.blue
+            let colorXY = ConvertColor.getXY(red: red, green: green, blue: blue)
+            xy = colorXY
+        }
+        //MARK: - Alert
+        var alert : String?
+        if alertSelected == true{
+            alert =  "select"
+        }
+        
+        //MARK: - Time
+        guard let selectedTime = self.selectedTime else {
+            print("Select a time")
+            return}
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss"
+        let formattedTime = formatter.string(from: selectedTime)
+        var time = ""
+        if recurringSelected == true{
+            time = "R/PT\(formattedTime)"
+        } else {
+            time = "PT\(formattedTime)"
+        }
+        //MARK: - Create Struct
+        let body = HueModel.Body(scene: nil,
+                                 status: nil,
+                                 alert: alert,
+                                 bri: self.briValue,
+                                 on: self.isOn,
+                                 xy: xy)
+        let command = HueModel.Command(address: address,
+                                       body: body,
+                                       method: "PUT")
+        let newSchedule = CreateSchedule(name: name,
+                                         description: desc,
+                                         command: command,
+                                         time: time)
+        //MARK: - Encode and send to bridge
+        do {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .withoutEscapingSlashes
+            let newScheduleData = try encoder.encode(newSchedule)
+
+            let scheduleString = String(data: newScheduleData, encoding: .utf8) ?? ""
+            print(scheduleString)
+            
+            DataManager.createNewSchedule(baseURL: baseURL,
+                                          scheduleData: newScheduleData) { results in
+                self.alertClosure(results, "Successfully created schedule: \(name)")
+ 
+            }
+ 
+        } catch let e{
+            print(e)
+        }
     }
-    
-    
+
 }
 
 //MARK: - SelectedGroupDelegate

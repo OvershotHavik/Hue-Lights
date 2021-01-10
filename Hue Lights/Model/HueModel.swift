@@ -7,7 +7,12 @@
 
 import Foundation
 
-
+struct CreateSchedule: Codable{
+    let name: String
+    let description: String
+    let command: HueModel.Command
+    let time: String
+}
 
 struct HueModel: Codable{
     let lights :  [String:Light]
@@ -264,6 +269,10 @@ struct HueModel: Codable{
     struct Body: Codable{
         let scene: String?
         let status: Int?
+        let alert: String?
+        let bri: Int?
+        let on: Bool?
+        let xy: [Double]?
     }
     
     //MARK: - Scenes

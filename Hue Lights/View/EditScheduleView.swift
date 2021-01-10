@@ -13,6 +13,9 @@ protocol ScheduleDelegate: class{
     func saveTapped(name: String, desc: String)
     func flashToggled(isOn: Bool)
     func recurringToggled(isOn: Bool)
+    func onToggle(sender: UISwitch)
+    func changeColor(sender: UIButton)
+    func briChanged(sender: UISlider)
 }
 class EditScheduleView: UIView{
     weak var scheduleDelegate : ScheduleDelegate?
@@ -353,6 +356,7 @@ extension EditScheduleView : UITableViewDataSource, UITableViewDelegate{
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell) as! HueLightsCell
+        cell.cellDelegate = self
         if groupSelected == true {
             guard let selectionArray = selectionArray as? [HueModel.Groups] else{return UITableViewCell()}
             cell.lightName = selectionArray[indexPath.row].name
@@ -372,5 +376,21 @@ extension EditScheduleView : UITableViewDataSource, UITableViewDelegate{
             self.tableView.reloadData()
         }
     }
+    
+}
+//MARK: - Cell Delegate
+extension EditScheduleView: HueCellDelegate{
+    func onSwitchToggled(sender: UISwitch) {
+        scheduleDelegate?.onToggle(sender: sender)
+    }
+    
+    func brightnessSliderChanged(sender: UISlider) {
+        scheduleDelegate?.briChanged(sender: sender)
+    }
+    
+    func changeLightColor(sender: UIButton) {
+        scheduleDelegate?.changeColor(sender: sender)
+    }
+    
     
 }

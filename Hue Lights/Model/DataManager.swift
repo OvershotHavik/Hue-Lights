@@ -386,4 +386,25 @@ class DataManager{
                 }.resume()
             }
         }
+    //MARK: - Create New Schedule
+        static func createNewSchedule(baseURL: String, scheduleData: Data, completionHandler: @escaping (Result<String, NetworkError>) throws -> Void){
+            guard let url = URL(string: baseURL + HueSender.schedules.rawValue) else {return}
+            print(url)
+            var request = URLRequest(url: url)
+            request.httpMethod = HttpMethod.post.rawValue
+            URLSession.shared.uploadTask(with: request, from: scheduleData) { (data, response, error) in
+                if let httpresponse = response as? HTTPURLResponse{
+                    print(httpresponse.statusCode)
+                }
+                if let data = data{
+                    if let JSONString = String(data: data, encoding: String.Encoding.utf8){
+                        print(JSONString)
+                        try? completionHandler(.success(JSONString))
+                    }
+                } else {
+                    try? completionHandler(.failure(.badData))
+                }
+            }.resume()
+            
+        }
 }
