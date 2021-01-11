@@ -254,6 +254,7 @@ extension MainVC: BridgeDelegate{
                                     print(savedBridgesFromDefaults.keys)
                                     print("Saved Bridges after: \(savedBridgesFromDefaults)")
                                     print("Added to defaults")
+                                    Alert.showBasic(title: "Bridge Authorized", message: "Please make sure your Hue Bridge is up to date by using the official Philips Hue App to be able to use all the features. ", vc: self)
                                     self.rootView.updateTable(list: self.discoveredBridges.sorted(by: {$0.id < $1.id}), selectedBridge: bridge.id)
                                     self.clientKey = clientKey
                                     self.appOwner = username
