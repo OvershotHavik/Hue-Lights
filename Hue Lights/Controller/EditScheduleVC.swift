@@ -8,6 +8,7 @@
 import UIKit
 
 class EditScheduleVC: UIViewController {
+    weak var updateScheduleListDelegate : UpdateSchedules?
     lazy var noAlertOnSuccessClosure : (Result<String, NetworkError>) -> Void = {Result in
         DispatchQueue.main.async {
             switch Result{
@@ -67,8 +68,29 @@ class EditScheduleVC: UIViewController {
         rootView = EditScheduleView(schedule: schedule)
         rootView.scheduleDelegate = self
         colorPicker.delegate = self
+        getSelection()
         self.view = rootView
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        updateScheduleList()
+    }
+    
+    func updateScheduleList(){
+        DataManager.get(baseURL: baseURL,
+                        HueSender: .schedules) { results in
+            switch results{
+            case .success(let data):
+                do {
+                    let schedulesFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Schedules>.self, from: data)
+                    let schedules = schedulesFromBridge.compactMap {$0}
+                    self.updateScheduleListDelegate?.updateScheduleDS(items: schedules)
+                } catch let e {
+                    print("Error getting schedules: \(e)")
+                }
 
+            case .failure(let e): print(e)
+            }
+        }
     }
     func getGroups(){
         DataManager.get(baseURL: baseURL,
@@ -92,10 +114,81 @@ class EditScheduleVC: UIViewController {
             }
         }
     }
+    func getSelection(){
+        guard let schedule = self.schedule else {return}
+        let address = schedule.command.address
+        print(address)
+        if address.contains(HueSender.groups.rawValue){
+            print("fetch group")
+            let beforeID = "/api/\(appOwner)/\(HueSender.groups.rawValue)/"
+            let shortenedAddress = address.replacingOccurrences(of: beforeID, with: "")
+            let groupID = shortenedAddress.replacingOccurrences(of: Destination.action.rawValue, with: "")
+            print("Group ID: \(groupID)")
+            DataManager.get(baseURL: baseURL,
+                            HueSender: .groups) { results in
+                switch results{
+                case .success(let data):
+                    do {
+                        let groupsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Groups>.self, from: data)
+                        let groups = groupsFromBridge.compactMap{$0}
+                        let filtered = groups.filter({$0.id == groupID})
+                        for group in filtered{
+                            print(group.name)
+                        }
+                        self.rootView.updateGroupSelected(groupSelected: true)
+                        self.rootView.updateSelectionArray(array: filtered)
+                    } catch let e {
+                        print("Error getting Groups: \(e)")
+                    }
+
+                case .failure(let e): print(e)
+                    
+                }
+            }
+        }
+        if address.contains(HueSender.lights.rawValue){
+            print("Fetch light")
+            let beforeID = "/api/\(appOwner)/\(HueSender.lights.rawValue)/"
+            let shortenedAddress = address.replacingOccurrences(of: beforeID, with: "")
+            let lightID = shortenedAddress.replacingOccurrences(of: Destination.state.rawValue, with: "")
+            print("Light ID: \(lightID)")
+            DataManager.get(baseURL: baseURL, HueSender: .lights) { results in
+                switch results{
+                case .success(let data):
+                    do {
+                        let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
+                        let lights = lightsFromBridge.compactMap{ $0}
+                        for light in lights{
+                            print("Light id: \(light.id) - \(light.name)")
+                        }
+
+                    } catch let e {
+                        print("Error getting lights: \(e)")
+                    }
+                case .failure(let e): print(e)
+                }
+            }
+        }
+    }
 }
 
 //MARK: - Schedule Delegate
 extension EditScheduleVC: ScheduleDelegate{
+    func deleteTapped(name: String) {
+        print("Delete tapped, in VC")
+        Alert.showConfirmDelete(title: "Delete Schedule", message: "Are you sure you want to delete \(name)?", vc: self) {
+            print("Delete pressed.")
+            if let safeSchedule = self.schedule{
+                DataManager.updateSchedule(baseURL: self.baseURL,
+                                           scheduleID: safeSchedule.id,
+                                           method: .delete,
+                                           httpBody: [:]) { Results in
+                    self.alertClosure(Results, "Successfully Deleted \(safeSchedule.name)")
+                }
+            }
+        }
+    }
+    
     func onToggle(sender: UISwitch) {
         self.isOn = sender.isOn
     }
@@ -139,6 +232,9 @@ extension EditScheduleVC: ScheduleDelegate{
     func saveTapped(name: String, desc: String) {
         //MARK: - Address
         var address = ""
+        if let safeSchedule = schedule { // if schedule exist then use the pre existing. Change it below if user modified it
+            address = safeSchedule.command.address
+        }
         if let selectedGroup = self.selectedGroup{
             address = "/api/\(appOwner)/groups/\(selectedGroup.id)/action"
         }
@@ -199,10 +295,18 @@ extension EditScheduleVC: ScheduleDelegate{
 
             let scheduleString = String(data: newScheduleData, encoding: .utf8) ?? ""
             print(scheduleString)
-            
-            DataManager.createNewSchedule(baseURL: baseURL,
-                                          scheduleData: newScheduleData) { results in
-                self.alertClosure(results, "Successfully created schedule: \(name)")
+            if let safeSchedule = schedule{
+                DataManager.modifySchedule(baseURL: baseURL,
+                                           scheduleID: safeSchedule.id,
+                                           newScheduleData: newScheduleData) { Results in
+                    self.alertClosure(Results, "Successfully updated \(name)")
+                }
+            } else {
+                DataManager.createNewSchedule(baseURL: baseURL,
+                                              scheduleData: newScheduleData) { results in
+                    self.alertClosure(results, "Successfully created schedule: \(name)")
+                }
+
  
             }
  

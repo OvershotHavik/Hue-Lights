@@ -142,6 +142,33 @@ class HueLightsCell: UITableViewCell {
             btnChangeColor.isEnabled = false
         }
     }
+    
+    func configureScheduleGroupCell(schedule: HueModel.Schedules, group: HueModel.Groups){
+        if let safeBri = schedule.command.body.bri{
+            self.brightness = Float(safeBri)
+        } else {
+            if let bri = group.action.bri{
+                self.brightness = Float(bri)
+            }
+        }
+        if let safeOn = schedule.command.body.on{
+            self.isOn = safeOn
+        } else {
+            self.isOn = group.action.on
+        }
+        if let safeXY = schedule.command.body.xy{
+            self.btnChangeColor.backgroundColor = ConvertColor.getRGB(xy: safeXY, bri: Int(self.brightness))
+        } else {
+            if let xy = group.action.xy{
+                self.btnChangeColor.backgroundColor = ConvertColor.getRGB(xy: xy, bri: Int(self.brightness))
+            } else {
+                self.btnChangeColor.setImage(UIImage(), for: .normal)
+                self.btnChangeColor.backgroundColor = ConvertColor.getRGB(xy: UI.readWhiteXY, bri: 254) // default to the readWhite color temp
+                self.btnChangeColor.isEnabled = false
+            }
+        }
+    }
+    
     //MARK: - Setup
     func setup(){
         contentView.addSubview(btnChangeColor)

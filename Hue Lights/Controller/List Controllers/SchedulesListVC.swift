@@ -141,10 +141,22 @@ extension ScheduleListVC: UISearchBarDelegate{
                 let editScheduleVC = EditScheduleVC(baseURL: self.baseURL,
                                                     appOwner: self.appOwner,
                                                     schedule: schedule)
+                editScheduleVC.updateScheduleListDelegate = self
                 self.navigationController?.pushViewController(editScheduleVC, animated: true)
                 
             }
             return action
          }
  
+}
+//MARK: - Update Schedules
+extension ScheduleListVC: UpdateSchedules{
+    func updateScheduleDS(items: [HueModel.Schedules]) {
+        DispatchQueue.main.async {
+            self.scheduleArray = items
+            self.tableView.reloadData()
+        }
+    }
+    
+    
 }

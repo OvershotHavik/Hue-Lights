@@ -11,6 +11,7 @@ protocol ScheduleDelegate: class{
     func selectLightTapped()
     func timeSelected(time: Date)
     func saveTapped(name: String, desc: String)
+    func deleteTapped(name: String)
     func flashToggled(isOn: Bool)
     func recurringToggled(isOn: Bool)
     func onToggle(sender: UISwitch)
@@ -118,11 +119,27 @@ class EditScheduleView: UIView{
         return button
     }()
     
-    fileprivate var dpTimer : UIDatePicker = {
+    fileprivate lazy var dpTimer : UIDatePicker = {
         let timer = UIDatePicker()
         timer.translatesAutoresizingMaskIntoConstraints = false
         timer.datePickerMode = .countDownTimer
         timer.addTarget(self, action: #selector(timerChanged), for: .valueChanged)
+        if let time = schedule?.localtime{
+            print("Schedule time: \(time)")
+            let justTime = time.suffix(8)
+            print(justTime)
+            let hours = justTime.prefix(2)
+            let minutesAndSeconds = justTime.suffix(5)
+            let minutes = minutesAndSeconds.prefix(2)
+            
+            print("hours: \(hours) minutes: \(minutes)")
+            print("Timer before add: \(timer.date)")
+            if let dHours = Double(hours),
+               let dMinutes = Double(minutes){
+                timer.date = timer.date + ((dHours * 3600) + (dMinutes * 60))
+            }
+            print("Timer after add: \(timer.date)")
+        }
         return timer
     }()
     
@@ -158,10 +175,14 @@ class EditScheduleView: UIView{
         label.text = "Enable Flash"
         return label
     }()
-    fileprivate var swFlash: UISwitch = {
+    fileprivate lazy var swFlash: UISwitch = {
         let toggle = UISwitch()
         toggle.translatesAutoresizingMaskIntoConstraints = false
-        toggle.isOn = false
+        if schedule?.command.body.alert == "select"{
+            toggle.isOn = true
+        } else {
+            toggle.isOn = false
+        }
         toggle.addTarget(self, action: #selector(flashToggle), for: .valueChanged)
         return toggle
     }()
@@ -181,11 +202,17 @@ class EditScheduleView: UIView{
         label.text = "Recurring"
         return label
     }()
-    fileprivate var swRecurring: UISwitch = {
+    fileprivate lazy var swRecurring: UISwitch = {
         let toggle = UISwitch()
         toggle.translatesAutoresizingMaskIntoConstraints = false
         toggle.addTarget(self, action: #selector(recurringToggle), for: .valueChanged)
-        toggle.isOn = false
+        if let safeTime = schedule?.localtime{
+            if safeTime.contains("R"){
+                toggle.isOn = true
+            }
+        }else {
+            toggle.isOn = false
+        }
         return toggle
     }()
     
@@ -200,17 +227,17 @@ class EditScheduleView: UIView{
         return button
     }()
     
-    /*
-     private var btnDelete : UIButton = {
-     let button = UIButton()
-     button.translatesAutoresizingMaskIntoConstraints = false
-     button.setTitle("Delete", for: .normal)
-     button.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
-     button.setTitleColor(.label, for: .normal)
-     button.backgroundColor = .systemRed
-     return button
-     }()
-     */
+    
+    private var btnDelete : UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Delete", for: .normal)
+        button.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
+        button.setTitleColor(.label, for: .normal)
+        button.backgroundColor = .systemRed
+        return button
+    }()
+     
     
     fileprivate var selectionArray : [Any]?
     fileprivate var groupSelected = false
@@ -268,7 +295,7 @@ class EditScheduleView: UIView{
         //        self.addSubview(tableView)
         self.addSubview(btnSave)
         
-        //        self.addSubview(btnDelete)
+        self.addSubview(btnDelete)
         setupConstraints()
     }
     
@@ -303,18 +330,22 @@ class EditScheduleView: UIView{
             tableView.heightAnchor.constraint(equalToConstant: 80),
             tableView.widthAnchor.constraint(equalTo: mainVStack.widthAnchor),
             //            tableView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -50),
+            
             btnSave.heightAnchor.constraint(equalToConstant: 40),
             btnSave.widthAnchor.constraint(equalToConstant: 100),
-            btnSave.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
-            //            btnSave.trailingAnchor.constraint(equalTo: safeArea.centerXAnchor, constant: -UI.horizontalSpacing),
+//            btnSave.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            btnSave.trailingAnchor.constraint(equalTo: safeArea.centerXAnchor, constant: -UI.horizontalSpacing),
             btnSave.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -UI.verticalSpacing),
             
-            //            btnDelete.heightAnchor.constraint(equalToConstant: 40),
-            //            btnDelete.widthAnchor.constraint(equalToConstant: 100),
-            //            btnDelete.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -UI.verticalSpacing),
-            //            btnDelete.leadingAnchor.constraint(equalTo: safeArea.centerXAnchor, constant: UI.horizontalSpacing),
+            btnDelete.heightAnchor.constraint(equalToConstant: 40),
+            btnDelete.widthAnchor.constraint(equalToConstant: 100),
+            btnDelete.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -UI.verticalSpacing),
+            btnDelete.leadingAnchor.constraint(equalTo: safeArea.centerXAnchor, constant: UI.horizontalSpacing),
             
         ])
+    }
+    func updateGroupSelected(groupSelected: Bool){
+        self.groupSelected = groupSelected
     }
     //MARK: - Obj c functions
     @objc func timerChanged(sender: UIDatePicker){
@@ -333,6 +364,9 @@ class EditScheduleView: UIView{
     }
     @objc func saveTapped(){
         print("Save tapped")
+        scheduleDelegate?.flashToggled(isOn: swFlash.isOn)
+        scheduleDelegate?.timeSelected(time: dpTimer.date)
+        scheduleDelegate?.recurringToggled(isOn: swRecurring.isOn)
         scheduleDelegate?.saveTapped(name: tfName.text!, desc: tfDescription.text!)
     }
     @objc func flashToggle(sender: UISwitch){
@@ -343,10 +377,10 @@ class EditScheduleView: UIView{
         print("recurring Toggled on: \(sender.isOn)")
         scheduleDelegate?.recurringToggled(isOn: sender.isOn)
     }
-    //    @objc func deleteTapped(){
-    //        print("Delete Tapped")
-    //        updateItemDelegate?.deleteTapped(name: tfName.text!)
-    //    }
+    @objc func deleteTapped(){
+        print("Delete Tapped")
+        scheduleDelegate?.deleteTapped(name: tfName.text!)
+    }
 }
 //MARK: - TableView DataSource and Delegate
 extension EditScheduleView : UITableViewDataSource, UITableViewDelegate{
@@ -359,8 +393,13 @@ extension EditScheduleView : UITableViewDataSource, UITableViewDelegate{
         cell.cellDelegate = self
         if groupSelected == true {
             guard let selectionArray = selectionArray as? [HueModel.Groups] else{return UITableViewCell()}
-            cell.lightName = selectionArray[indexPath.row].name
-            
+            let group = selectionArray[indexPath.row]
+            cell.lightName = group.name
+            if let safeSchedule = self.schedule{
+                cell.configureScheduleGroupCell(schedule: safeSchedule, group: group)
+            }else {
+                cell.configureGroupCell(group: group)
+            }
         } else {
             guard let selectionArray = selectionArray as? [HueModel.Light] else{return UITableViewCell()}
             cell.lightName = selectionArray[indexPath.row].name
