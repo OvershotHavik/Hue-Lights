@@ -43,7 +43,6 @@ class EditScheduleVC: UIViewController {
     fileprivate var groupsArray : [HueModel.Groups]?
     fileprivate var selectedGroup : HueModel.Groups?
     fileprivate var selectedLight : HueModel.Light?
-    fileprivate var alertSelected = false
     fileprivate var recurringSelected = false
     fileprivate var selectedTime : Date?
     fileprivate var appOwner: String
@@ -52,7 +51,8 @@ class EditScheduleVC: UIViewController {
     fileprivate var pickedColor: UIColor? // only include in the schedule if changed by user
     fileprivate var colorPicker = UIColorPickerViewController()
     fileprivate var tempChangeColorButton : UIButton? // used to update the color of the cell's button
-
+    fileprivate var alertSelected : scheduleConstants?
+    fileprivate var autoDelete: Bool?
     init(baseURL: String, appOwner: String, schedule: HueModel.Schedules?) {
         self.baseURL = baseURL
         self.appOwner = appOwner
@@ -210,6 +210,10 @@ class EditScheduleVC: UIViewController {
 
 //MARK: - Schedule Delegate
 extension EditScheduleVC: ScheduleDelegate{
+    func autoDeleteToggled(autoDelete: Bool) {
+        self.autoDelete = autoDelete
+    }
+    
     func deleteTapped(name: String) {
         print("Delete tapped, in VC")
         Alert.showConfirmDelete(title: "Delete Schedule", message: "Are you sure you want to delete \(name)?", vc: self) {
@@ -241,14 +245,16 @@ extension EditScheduleVC: ScheduleDelegate{
         self.briValue = Int(sender.value)
     }
     
-    func flashToggled(isOn: Bool) {
-        print("flash in vc: \(isOn)")
-        self.alertSelected = isOn
+    func flashToggled(alert: scheduleConstants) {
+        self.alertSelected = alert
     }
     
     func recurringToggled(isOn: Bool) {
         print("recurring in vc: \(isOn)")
         self.recurringSelected = isOn
+        if isOn == true{
+            self.autoDelete = false
+        }
     }
     
     func selectGroupTapped() {
@@ -292,11 +298,6 @@ extension EditScheduleVC: ScheduleDelegate{
                 xy = colorXY
             }
         }
-        //MARK: - Alert
-        var alert : String?
-        if alertSelected == true{
-            alert =  "select"
-        }
         
         //MARK: - Time
         guard let selectedTime = self.selectedTime else {
@@ -314,7 +315,7 @@ extension EditScheduleVC: ScheduleDelegate{
         //MARK: - Create Struct
         let body = HueModel.Body(scene: nil,
                                  status: nil,
-                                 alert: alert,
+                                 alert: self.alertSelected?.rawValue,
                                  bri: self.briValue,
                                  on: self.isOn,
                                  xy: xy)
@@ -324,7 +325,8 @@ extension EditScheduleVC: ScheduleDelegate{
         let newSchedule = CreateSchedule(name: name,
                                          description: desc,
                                          command: command,
-                                         localtime: time)
+                                         localtime: time,
+                                         autodelete: self.autoDelete ?? true)
         //MARK: - Encode and send to bridge
         do {
             let encoder = JSONEncoder()

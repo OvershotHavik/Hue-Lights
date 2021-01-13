@@ -55,7 +55,7 @@ class ScheduleListVC: ListController{
         let itemRow = scheduleArray[indexPath.row]
         cell.lblListItem.text = itemRow.name
         let onSwitch = UISwitch()
-        if itemRow.status == "disabled"{
+        if itemRow.status == Constants.disabled.rawValue{
             onSwitch.isOn = false
         } else {
             onSwitch.isOn = true
@@ -73,9 +73,9 @@ class ScheduleListVC: ListController{
         print("sender tag: \(sender.tag)")
         var httpBody = [String: String]()
         if sender.isOn == true{
-            httpBody["status"] = "enabled"
+            httpBody[Keys.status.rawValue] = Constants.enabled.rawValue
         } else {
-            httpBody["status"] = "disabled"
+            httpBody[Keys.status.rawValue] = Constants.disabled.rawValue
         }
         DataManager.updateSchedule(baseURL: baseURL,
                                    scheduleID: scheduleID,

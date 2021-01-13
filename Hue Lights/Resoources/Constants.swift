@@ -41,7 +41,19 @@ enum Constants: String{
     case newScene = "New Scene"
     case savedBridges = "SavedBridges"
     case selectedBridge = "SelectedBridge"
+
     
 }
+enum scheduleConstants: String{
+    case flash = "select"
+    case longFlash = "lselect"
+}
 
-
+enum Keys: String{
+    case bri = "bri"
+    case name = "name"
+    case on = "on"
+    case scene = "scene"
+    case status = "status"
+    case xy = "xy"
+}

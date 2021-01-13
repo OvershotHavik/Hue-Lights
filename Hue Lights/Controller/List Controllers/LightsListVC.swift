@@ -88,7 +88,7 @@ class LightsListVC: ListController{
         let blue = pickedColor.components.blue
         let colorXY = ConvertColor.getXY(red: red, green: green, blue: blue)
         let lightID = String(tempChangeColorButton.tag)
-        let httpBody = ["xy": colorXY]
+        let httpBody = [Keys.xy.rawValue: colorXY]
         DataManager.updateLight(baseURL: baseURL,
                                 lightID: lightID,
                                 method: .put,
@@ -101,7 +101,7 @@ extension LightsListVC: HueCellDelegate{
     func onSwitchToggled(sender: UISwitch) {
         print("Sender's Tag: \(sender.tag)")
         let lightID = String(sender.tag)
-        let httpBody = ["on": sender.isOn]
+        let httpBody = [Keys.on.rawValue: sender.isOn]
         DataManager.updateLight(baseURL: baseURL,
                                 lightID: lightID,
                                 method: .put,
@@ -113,7 +113,7 @@ extension LightsListVC: HueCellDelegate{
         print("Brightness slider changed")
         print("Sender's Tag: \(sender.tag)")
         let lightID = String(sender.tag)
-        let httpBody = ["bri": Int(sender.value)]
+        let httpBody = [Keys.bri.rawValue: Int(sender.value)]
         DataManager.updateLight(baseURL: baseURL,
                                 lightID: lightID,
                                 method: .put,

@@ -154,7 +154,7 @@ class GroupsListVC: ListController, UpdateGroups{
                                          blue: blue)
         let groupID = String(tempChangeColorButton.tag)
 
-        let httpBody = ["xy": colorXY]
+        let httpBody = [Keys.xy.rawValue: colorXY]
         DataManager.updateGroup(baseURL: baseURL,
                                 groupID: groupID,
                                 method: .put,
@@ -167,7 +167,7 @@ extension GroupsListVC: HueCellDelegate{
     func onSwitchToggled(sender: UISwitch) {
         print("Sender's Tag: \(sender.tag)")
         let groupID = String(sender.tag)
-        let httpBody = ["on": sender.isOn]
+        let httpBody = [Keys.on.rawValue: sender.isOn]
         DataManager.updateGroup(baseURL: baseURL,
                                 groupID: groupID,
                                 method: .put,
@@ -181,7 +181,7 @@ extension GroupsListVC: HueCellDelegate{
         print("Sender's Tag: \(sender.tag)")
         
         let groupID = String(sender.tag)
-        let httpBody = ["bri": Int(sender.value)]
+        let httpBody = [Keys.bri.rawValue: Int(sender.value)]
         DataManager.updateGroup(baseURL: baseURL,
                                 groupID: groupID,
                                 method: .put,

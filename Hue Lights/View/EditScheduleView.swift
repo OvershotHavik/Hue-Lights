@@ -6,17 +6,20 @@
 //
 
 import UIKit
+
+
 protocol ScheduleDelegate: class{
     func selectGroupTapped()
     func selectLightTapped()
     func timeSelected(time: Date)
     func saveTapped(name: String, desc: String)
     func deleteTapped(name: String)
-    func flashToggled(isOn: Bool)
+    func flashToggled(alert: scheduleConstants)
     func recurringToggled(isOn: Bool)
     func onToggle(sender: UISwitch)
     func changeColor(sender: UIButton)
     func briChanged(sender: UISlider)
+    func autoDeleteToggled(autoDelete: Bool)
 }
 class EditScheduleView: UIView{
     weak var scheduleDelegate : ScheduleDelegate?
@@ -183,7 +186,25 @@ class EditScheduleView: UIView{
     fileprivate lazy var swFlash: UISwitch = {
         let toggle = UISwitch()
         toggle.translatesAutoresizingMaskIntoConstraints = false
-        if schedule?.command.body.alert == "select"{
+        if schedule?.command.body.alert == scheduleConstants.flash.rawValue{
+            toggle.isOn = true
+        } else {
+            toggle.isOn = false
+        }
+        toggle.addTarget(self, action: #selector(flashToggle), for: .valueChanged)
+        return toggle
+    }()
+    
+    fileprivate var lblLongFlash: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Long Flash"
+        return label
+    }()
+    fileprivate lazy var swLongFlash: UISwitch = {
+        let toggle = UISwitch()
+        toggle.translatesAutoresizingMaskIntoConstraints = false
+        if schedule?.command.body.alert == scheduleConstants.longFlash.rawValue{
             toggle.isOn = true
         } else {
             toggle.isOn = false
@@ -217,6 +238,32 @@ class EditScheduleView: UIView{
             }
         }else {
             toggle.isOn = false
+        }
+        return toggle
+    }()
+    //MARK: - Auto Delete H Stack
+    fileprivate var autoDeleteHStack : UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .horizontal
+        stack.spacing = UI.horizontalSpacing
+        stack.alignment = .center
+        return stack
+    }()
+    fileprivate var lblAutoDelete: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Auto Delete?"
+        return label
+    }()
+    fileprivate lazy var swDelete: UISwitch = {
+        let toggle = UISwitch()
+        toggle.translatesAutoresizingMaskIntoConstraints = false
+        toggle.addTarget(self, action: #selector(autoDeleteToggled), for: .valueChanged)
+        if let safeAutoDelete = schedule?.autodelete{
+            toggle.isOn = safeAutoDelete
+        }else {
+            toggle.isOn = true
         }
         return toggle
     }()
@@ -290,13 +337,18 @@ class EditScheduleView: UIView{
         mainVStack.addArrangedSubview(alertHStack)
         alertHStack.addArrangedSubview(lblFlash)
         alertHStack.addArrangedSubview(swFlash)
+        alertHStack.addArrangedSubview(lblLongFlash)
+        alertHStack.addArrangedSubview(swLongFlash)
         
         //MARK: - Recurring H Stack
         mainVStack.addArrangedSubview(recurringHStack)
         recurringHStack.addArrangedSubview(lblRecurring)
         recurringHStack.addArrangedSubview(swRecurring)
         
-        
+        //MARK: - Add Auto Delete H Stack
+        mainVStack.addArrangedSubview(autoDeleteHStack)
+        autoDeleteHStack.addArrangedSubview(lblAutoDelete)
+        autoDeleteHStack.addArrangedSubview(swDelete)
         //        self.addSubview(tableView)
         self.addSubview(btnSave)
         
@@ -370,14 +422,28 @@ class EditScheduleView: UIView{
     }
     @objc func saveTapped(){
         print("Save tapped")
-        scheduleDelegate?.flashToggled(isOn: swFlash.isOn)
+        if swFlash.isOn == true{
+            scheduleDelegate?.flashToggled(alert: .flash)
+        }
+        
+        if swLongFlash.isOn == true{
+            scheduleDelegate?.flashToggled(alert: .longFlash)
+        }
         scheduleDelegate?.timeSelected(time: dpTimer.date)
         scheduleDelegate?.recurringToggled(isOn: swRecurring.isOn)
         scheduleDelegate?.saveTapped(name: tfName.text!, desc: tfDescription.text!)
     }
     @objc func flashToggle(sender: UISwitch){
-        print("flash toggled on: \(sender.isOn)")
-        scheduleDelegate?.flashToggled(isOn: sender.isOn)
+        if sender == swFlash{
+            if sender.isOn == true{
+                scheduleDelegate?.flashToggled(alert: .flash)
+            }
+        }
+        if sender == swLongFlash{
+            if sender.isOn == true{
+                scheduleDelegate?.flashToggled(alert: .longFlash)
+            }
+        }
     }
     @objc func recurringToggle(sender: UISwitch){
         print("recurring Toggled on: \(sender.isOn)")
@@ -387,6 +453,10 @@ class EditScheduleView: UIView{
         print("Delete Tapped")
         scheduleDelegate?.deleteTapped(name: tfName.text!)
     }
+    @objc func autoDeleteToggled(sender: UISwitch){
+        scheduleDelegate?.autoDeleteToggled(autoDelete: sender.isOn)
+    }
+
 }
 //MARK: - TableView DataSource and Delegate
 extension EditScheduleView : UITableViewDataSource, UITableViewDelegate{
@@ -409,6 +479,10 @@ extension EditScheduleView : UITableViewDataSource, UITableViewDelegate{
         } else {
             guard let selectionArray = selectionArray as? [HueModel.Light] else{return UITableViewCell()}
             cell.lightName = selectionArray[indexPath.row].name
+            let light = selectionArray[indexPath.row]
+            if let safeSchedule = self.schedule{
+                cell.configureScheduleLightCell(schedule: safeSchedule, light: light)
+            }
         }
         cell.backgroundColor = .secondarySystemBackground
         return cell

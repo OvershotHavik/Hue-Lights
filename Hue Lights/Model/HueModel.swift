@@ -12,6 +12,7 @@ struct CreateSchedule: Codable{
     let description: String
     let command: HueModel.Command
     let localtime: String
+    let autodelete: Bool
 }
 
 struct HueModel: Codable{
@@ -230,7 +231,7 @@ struct HueModel: Codable{
     //MARK: - Schedules
     struct Schedules: Codable{
         enum CodingKeys: String, CodingKey{
-            case name, description, command, localtime, time, created, status, starttime, recycle
+            case name, description, command, localtime, time, created, status, starttime, recycle, autodelete
         }
         let id : String
         let name: String
@@ -242,6 +243,7 @@ struct HueModel: Codable{
         let status: String
         let starttime: String
         let recycle: Bool
+        let autodelete: Bool?
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             id = container.codingPath.first!.stringValue
@@ -254,6 +256,7 @@ struct HueModel: Codable{
             status = try container.decode(String.self, forKey: .status)
             starttime = try container.decode(String.self, forKey: .starttime)
             recycle = try container.decode(Bool.self, forKey: .recycle)
+            autodelete = try container.decodeIfPresent(Bool.self, forKey: .autodelete)
         }
     }
     //MARK: - Schedule - Command

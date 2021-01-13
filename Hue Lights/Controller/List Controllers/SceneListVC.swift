@@ -89,7 +89,7 @@ class SceneListVC: ListController{
         let scene = sceneArray[indexPath.row]
         if let safeGroup = group{
             print("Selected Scene: \(scene.name)")
-            let httpBody = ["scene" : scene.id]
+            let httpBody = [Keys.scene.rawValue : scene.id]
             DataManager.updateGroup(baseURL: baseURL,
                                     groupID: safeGroup.id,
                                     method: .put,
@@ -128,10 +128,10 @@ class SceneListVC: ListController{
         for light in sceneLights{
             let lightID = String(light.key)
             var httpBody = [String: Any]()
-            httpBody["on"] = light.value.on
-            httpBody["bri"] = Int(light.value.bri)
+            httpBody[Keys.on.rawValue] = light.value.on
+            httpBody[Keys.bri.rawValue] = Int(light.value.bri)
             if let safeXY = light.value.xy{
-                httpBody["xy"] = safeXY
+                httpBody[Keys.xy.rawValue] = safeXY
             }
             DataManager.updateLight(baseURL: baseURL,
                                     lightID: lightID,
