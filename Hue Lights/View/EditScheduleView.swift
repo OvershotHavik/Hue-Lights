@@ -136,10 +136,15 @@ class EditScheduleView: UIView{
             print("Timer before add: \(timer.date)")
             if let dHours = Double(hours),
                let dMinutes = Double(minutes){
-                timer.date = timer.date + ((dHours * 3600) + (dMinutes * 60))
+                timer.date +=  ((dHours * 3600) + (dMinutes * 60))
+            } else {
+                timer.date += 60
             }
             print("Timer after add: \(timer.date)")
+        } else {
+            timer.date += 60 // This way it is not 0 which is invalid for the schedule, it will default to 1 which will match the gui
         }
+        print("Timer: \(timer.date)")
         return timer
     }()
     
@@ -347,6 +352,7 @@ class EditScheduleView: UIView{
     func updateGroupSelected(groupSelected: Bool){
         self.groupSelected = groupSelected
     }
+    
     //MARK: - Obj c functions
     @objc func timerChanged(sender: UIDatePicker){
         print("Selected time: \(sender.date)")

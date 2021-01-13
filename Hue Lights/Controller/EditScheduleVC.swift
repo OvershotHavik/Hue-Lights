@@ -74,7 +74,7 @@ class EditScheduleVC: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         updateScheduleList()
     }
-    
+    //MARK: - Update Schedule List
     func updateScheduleList(){
         DataManager.get(baseURL: baseURL,
                         HueSender: .schedules) { results in
@@ -83,6 +83,9 @@ class EditScheduleVC: UIViewController {
                 do {
                     let schedulesFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Schedules>.self, from: data)
                     let schedules = schedulesFromBridge.compactMap {$0}
+                    for i in schedules{
+                        print("Schedule name: \(i.name)")
+                    }
                     self.updateScheduleListDelegate?.updateScheduleDS(items: schedules)
                 } catch let e {
                     print("Error getting schedules: \(e)")
@@ -92,6 +95,7 @@ class EditScheduleVC: UIViewController {
             }
         }
     }
+    //MARK: - Get Groups
     func getGroups(){
         DataManager.get(baseURL: baseURL,
                         HueSender: .groups) { results in
@@ -114,6 +118,38 @@ class EditScheduleVC: UIViewController {
             }
         }
     }
+    func getLights(){
+        DataManager.get(baseURL: baseURL, HueSender: .lights) { results in
+            switch results{
+            case .success(let data):
+                do {
+                    let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
+                    let lights = lightsFromBridge.compactMap{ $0}
+
+                    DispatchQueue.main.async {
+                        if let safeSelectedLight = self.selectedLight {
+                            let selectedLightArray = [safeSelectedLight]
+                            let lightsListVC = ModifyLightsInGroupVC(limit: 1,
+                                                                     selectedItems: selectedLightArray,
+                                                                     lightsArray: lights)
+                            lightsListVC.selectedItemsDelegate = self
+                            self.navigationController?.pushViewController(lightsListVC, animated: true)
+                        } else {
+                            let lightsListVC = ModifyLightsInGroupVC(limit: 1,
+                                                                     selectedItems: [],
+                                                                     lightsArray: lights)
+                            lightsListVC.selectedItemsDelegate = self
+                            self.navigationController?.pushViewController(lightsListVC, animated: true)
+                        }
+                    }
+                } catch let e {
+                    print("Error getting lights: \(e)")
+                }
+            case .failure(let e): print(e)
+            }
+        }
+    }
+    //MARK: - Get Selection
     func getSelection(){
         guard let schedule = self.schedule else {return}
         let address = schedule.command.address
@@ -158,9 +194,9 @@ class EditScheduleVC: UIViewController {
                     do {
                         let lightsFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Light>.self, from: data)
                         let lights = lightsFromBridge.compactMap{ $0}
-                        for light in lights{
-                            print("Light id: \(light.id) - \(light.name)")
-                        }
+                        let filtered = lights.filter({$0.id == lightID})
+                        self.rootView.updateGroupSelected(groupSelected: false)
+                        self.rootView.updateSelectionArray(array: filtered)
 
                     } catch let e {
                         print("Error getting lights: \(e)")
@@ -222,10 +258,12 @@ extension EditScheduleVC: ScheduleDelegate{
     
     func selectLightTapped() {
         print("in vc")
+        getLights()
     }
     
     func timeSelected(time: Date) {
         print("Time in vc: \(time)")
+        
         self.selectedTime = time
     }
     
@@ -361,4 +399,16 @@ extension EditScheduleVC : UIColorPickerViewControllerDelegate{
                                 httpBody: httpBody,
                                 completionHandler: noAlertOnSuccessClosure)
     }
+}
+
+extension EditScheduleVC: SelectedLightsDelegate{
+    func selectedLights(lights: [HueModel.Light]) {
+        if let selected = lights.first{
+            self.selectedLight = selected
+            rootView.updateSelectionArray(array: [selected])
+        }
+        
+    }
+    
+    
 }

@@ -96,7 +96,7 @@ struct HueModel: Codable{
         let archetype : String
         let function : String
         let direction : String
-        let startup: Startup
+        let startup: Startup?
     }
     //MARK: - Light - Startup
     struct Startup: Codable{
