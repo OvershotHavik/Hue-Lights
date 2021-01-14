@@ -50,10 +50,26 @@ enum scheduleConstants: String{
 }
 
 enum Keys: String{
+    case alert = "alert"
     case bri = "bri"
+    case hueClass = "class"
+    case devicetype = "devicetype"
+    case generateclientkey = "generateclientkey"
+    case group = "group"
+    case lights = "lights"
     case name = "name"
     case on = "on"
+    case recycle = "recycle"
     case scene = "scene"
     case status = "status"
+    case type = "type"
     case xy = "xy"
+}
+
+enum Values: String{
+    case groupScene = "GroupScene"
+    case lightScene = "LightScene"
+    case room = "Room"
+    case select = "select"
+    case other = "Other"
 }

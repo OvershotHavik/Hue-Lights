@@ -159,7 +159,7 @@ class EditSceneVC: UIViewController, UpdateItem{
     //MARK: - Identify Tapped
     func identifyTapped() {
         print("identify tapped in edit scene vc")
-        let httpBody = ["alert": "select"]
+        let httpBody = [Keys.alert.rawValue: Values.select.rawValue]
         for light in lightsInScene{
             DataManager.updateLight(baseURL: baseURL,
                                     lightID: light.id,
@@ -188,7 +188,7 @@ class EditSceneVC: UIViewController, UpdateItem{
             addNewScene(name: name)
         } else {
             if name != sceneName{
-                let httpBody = ["name": name]
+                let httpBody = [Keys.name.rawValue: name]
                 DataManager.updateScene(baseURL: baseURL,
                                         sceneID: sceneID,
                                         method: .put,
@@ -198,7 +198,7 @@ class EditSceneVC: UIViewController, UpdateItem{
             }
             if group == nil{ // Update the list of lights if no group
                 let lightIDs = lightsInScene.map({$0.id})
-                let httpBody = ["lights": lightIDs]
+                let httpBody = [Keys.lights.rawValue: lightIDs]
                 DataManager.updateScene(baseURL: baseURL,
                                         sceneID: sceneID,
                                         method: .put,
@@ -239,14 +239,14 @@ class EditSceneVC: UIViewController, UpdateItem{
         print("No key, adding scene to bridge")
         
         var httpBody = [String: Any]()
-        httpBody["name"] = name
-        httpBody["recycle"] = false
+        httpBody[Keys.name.rawValue] = name
+        httpBody[Keys.recycle.rawValue] = false
         if let safeGroup = group{
-            httpBody["group"] = safeGroup.id
-            httpBody["type"] = "GroupScene"
+            httpBody[Keys.group.rawValue] = safeGroup.id
+            httpBody[Keys.type.rawValue] = Values.groupScene.rawValue
         } else {
-            httpBody["lights"] = lightIDs
-            httpBody["type"] = "LightScene"
+            httpBody[Keys.lights.rawValue] = lightIDs
+            httpBody[Keys.type.rawValue] = Values.lightScene.rawValue
         }
         
         print(httpBody)
@@ -280,9 +280,9 @@ class EditSceneVC: UIViewController, UpdateItem{
     func updateLightState(sceneID: String){
         for light in lightsInScene{
             var httpBody = [String: Any]()
-            httpBody["on"] = light.state.on
-            httpBody["bri"] = light.state.bri
-            httpBody["xy"] = light.state.xy
+            httpBody[Keys.on.rawValue] = light.state.on
+            httpBody[Keys.bri.rawValue] = light.state.bri
+            httpBody[Keys.xy.rawValue] = light.state.xy
             DataManager.updateLightStateInScene(baseURL: baseURL,
                                                 sceneID: sceneID,
                                                 lightID: light.id,
@@ -324,7 +324,7 @@ extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
         if let light = filtered.first{
             if let index = lightsInScene.firstIndex(of: light){
                 lightsInScene[index].state.on = sender.isOn
-                let httpBody = ["on": sender.isOn]
+                let httpBody = [Keys.on.rawValue: sender.isOn]
                 DataManager.updateLight(baseURL: baseURL,
                                         lightID: lightID,
                                         method: .put,
@@ -340,7 +340,7 @@ extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
         if let light = filtered.first{
             if let index = lightsInScene.firstIndex(of: light){
                 lightsInScene[index].state.bri = Int(sender.value)
-                let httpBody = ["bri": Int(sender.value)]
+                let httpBody = [Keys.bri.rawValue: Int(sender.value)]
                 DataManager.updateLight(baseURL: baseURL,
                                         lightID: lightID,
                                         method: .put,
@@ -373,7 +373,7 @@ extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
         if let light = filtered.first{
             if let index = lightsInScene.firstIndex(of: light){
                 lightsInScene[index].state.xy = colorXY
-                let httpBody = ["xy": colorXY]
+                let httpBody = [Keys.xy.rawValue: colorXY]
                 DataManager.updateLight(baseURL: baseURL,
                                         lightID: lightID,
                                         method: .put,
@@ -420,10 +420,10 @@ extension EditSceneVC: HueCellDelegate, UITableViewDataSource{
         for light in lightsInScene{
 //            let lightID = String(light.key)
             var httpBody = [String: Any]()
-            httpBody["on"] = light.state.on
-            httpBody["bri"] = Int(light.state.bri)
+            httpBody[Keys.on.rawValue] = light.state.on
+            httpBody[Keys.bri.rawValue] = Int(light.state.bri)
             if let safeXY = light.state.xy{
-                httpBody["xy"] = safeXY
+                httpBody[Keys.xy.rawValue] = safeXY
             }
             DataManager.updateLight(baseURL: baseURL,
                                     lightID: light.id,

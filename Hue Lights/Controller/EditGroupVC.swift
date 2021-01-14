@@ -157,8 +157,8 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
         if let safeLightsInGroup = lightsInGroup{
             let lightIDsInGroup = safeLightsInGroup.map({$0.id})
             var httpBody = [String: Any]()
-            httpBody["name"] = name
-            httpBody["lights"] = lightIDsInGroup
+            httpBody[Keys.name.rawValue] = name
+            httpBody[Keys.lights.rawValue] = lightIDsInGroup
             if let safeGroup = group{
                 DataManager.modifyGroup(baseURL: baseURL,
                                         groupID: safeGroup.id,
@@ -168,8 +168,8 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
                 }
             } else {
                 // Create a new group on the bridge
-                httpBody["type"] = "Room"
-                httpBody["class"] = "Other" // change later once user can select the icon for the group
+                httpBody[Keys.type.rawValue] = Values.room.rawValue
+                httpBody[Keys.hueClass.rawValue] = Values.other.rawValue // change later once user can select the icon for the group
                 DataManager.createGroup(baseURL: baseURL,
                                         httpBody: httpBody) { (Results) in
                     self.alertClosure(Results, "Successfully created group: \(name)")

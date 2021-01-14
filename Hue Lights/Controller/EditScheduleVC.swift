@@ -53,6 +53,7 @@ class EditScheduleVC: UIViewController {
     fileprivate var tempChangeColorButton : UIButton? // used to update the color of the cell's button
     fileprivate var alertSelected : scheduleConstants?
     fileprivate var autoDelete: Bool?
+    fileprivate var scheduleType: ScheduleChoices?
     init(baseURL: String, appOwner: String, schedule: HueModel.Schedules?) {
         self.baseURL = baseURL
         self.appOwner = appOwner
@@ -82,7 +83,7 @@ class EditScheduleVC: UIViewController {
             case .success(let data):
                 do {
                     let schedulesFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Schedules>.self, from: data)
-                    let schedules = schedulesFromBridge.compactMap {$0}
+                    let schedules = schedulesFromBridge.compactMap {$0}.sorted(by: {$0.name < $1.name})
                     for i in schedules{
                         print("Schedule name: \(i.name)")
                     }
@@ -210,6 +211,10 @@ class EditScheduleVC: UIViewController {
 
 //MARK: - Schedule Delegate
 extension EditScheduleVC: ScheduleDelegate{
+
+    
+
+    
     func autoDeleteToggled(autoDelete: Bool) {
         self.autoDelete = autoDelete
     }
@@ -245,8 +250,8 @@ extension EditScheduleVC: ScheduleDelegate{
         self.briValue = Int(sender.value)
     }
     
-    func flashToggled(alert: scheduleConstants) {
-        self.alertSelected = alert
+    func flashSelected(flash: scheduleConstants?) {
+        self.alertSelected = flash
     }
     
     func recurringToggled(isOn: Bool) {
@@ -266,13 +271,11 @@ extension EditScheduleVC: ScheduleDelegate{
         print("in vc")
         getLights()
     }
-    
-    func timeSelected(time: Date) {
+    func timeSelected(time: Date, scheduleType: ScheduleChoices?) {
         print("Time in vc: \(time)")
-        
         self.selectedTime = time
+        self.scheduleType = scheduleType
     }
-    
     func saveTapped(name: String, desc: String) {
         //MARK: - Address
         var address = ""
@@ -303,15 +306,30 @@ extension EditScheduleVC: ScheduleDelegate{
         guard let selectedTime = self.selectedTime else {
             print("Select a time")
             return}
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm:ss"
-        let formattedTime = formatter.string(from: selectedTime)
+
         var time = ""
-        if recurringSelected == true{
-            time = "R/PT\(formattedTime)"
-        } else {
-            time = "PT\(formattedTime)"
+        
+        switch scheduleType{
+        case .timer : print("Do something for timer")
+            let formatter = DateFormatter()
+            formatter.dateFormat = "HH:mm:ss"
+            let formattedTime = formatter.string(from: selectedTime)
+            if recurringSelected == true{
+                time = Time.recurring.rawValue + formattedTime
+//                time = "\(Time.recurring.rawValue)\(formattedTime)"
+                self.autoDelete = nil // if recurring is selected, auto delete needs to be nil
+            } else {
+                time = Time.timer.rawValue + formattedTime
+//                time = "\(Time.timer.rawValue)\(formattedTime)"
+            }
+        case .selectTime: print("Do something for time")
+            let formatter = DateFormatter()
+            formatter.dateFormat = "YYYY-MM-DD'T'HH:mm:ss"
+            let formattedTime = formatter.string(from: selectedTime)
+            time = formattedTime
+        default: print("Not setup in time selected in VC")
         }
+
         //MARK: - Create Struct
         let body = HueModel.Body(scene: nil,
                                  status: nil,
@@ -322,11 +340,12 @@ extension EditScheduleVC: ScheduleDelegate{
         let command = HueModel.Command(address: address,
                                        body: body,
                                        method: "PUT")
+        
         let newSchedule = CreateSchedule(name: name,
                                          description: desc,
                                          command: command,
                                          localtime: time,
-                                         autodelete: self.autoDelete ?? true)
+                                         autodelete: self.autoDelete)
         //MARK: - Encode and send to bridge
         do {
             let encoder = JSONEncoder()
@@ -394,7 +413,7 @@ extension EditScheduleVC : UIColorPickerViewControllerDelegate{
         let blue = pickedColor.components.blue
         let colorXY = ConvertColor.getXY(red: red, green: green, blue: blue)
         let lightID = String(tempChangeColorButton.tag)
-        let httpBody = ["xy": colorXY]
+        let httpBody = [Keys.xy.rawValue: colorXY]
         DataManager.updateLight(baseURL: baseURL,
                                 lightID: lightID,
                                 method: .put,

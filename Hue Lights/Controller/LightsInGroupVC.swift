@@ -164,7 +164,7 @@ extension LightsInGroupVC: GroupDelegate{
     //MARK: - Identify Tapped
     func identifyTapped() {
         print("Identify tapped for Group")
-        let httpBody = ["alert" : "select"]
+        let httpBody = [Keys.alert.rawValue : Values.select.rawValue]
         DataManager.updateGroup(baseURL: baseURL,
                                 groupID: group.id,
                                 method: .put,

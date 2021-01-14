@@ -65,8 +65,10 @@ class HueLightsCell: UITableViewCell {
             onSwitch.isOn = isOn
             if isOn == true{
                 brightnessSlider.isHidden = false
+                btnChangeColor.isHidden = false
             } else {
                 brightnessSlider.isHidden = true // can't adjust bri if light is off
+                btnChangeColor.isHidden = true // can't adjust the color if light is off
             }
         }
     }

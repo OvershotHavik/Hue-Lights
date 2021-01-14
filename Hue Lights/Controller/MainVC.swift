@@ -93,7 +93,7 @@ extension MainVC: GetDelegate{
                 case .success(let data):
                     do {
                         let schedulesFromBridge = try JSONDecoder().decode(DecodedArray<HueModel.Schedules>.self, from: data)
-                        let schedules = schedulesFromBridge.compactMap {$0}
+                        let schedules = schedulesFromBridge.compactMap {$0}.sorted(by: {$0.name < $1.name})
                         for schedule in schedules{
                             print("Schedule id: \(schedule.id) - \(schedule.name)")
                         }
@@ -105,7 +105,6 @@ extension MainVC: GetDelegate{
                     } catch let e {
                         print("Error getting schedules: \(e)")
                     }
-
                 case .failure(let e): print(e)
                 }
             }
@@ -129,15 +128,12 @@ extension MainVC: GetDelegate{
                             sceneList.title = HueSender.lightScenes.rawValue.capitalized
                             self.navigationController?.pushViewController(sceneList, animated: true)
                         }
-
                     } catch let e {
                         print("Error getting scenes: \(e)")
                     }
-
                 case .failure(let e): print(e)
                 }
             }
- 
         default:
             print("not setup yet")
         }
@@ -147,8 +143,6 @@ extension MainVC: GetDelegate{
 extension MainVC{
     func discovery(){
         //runs at start up. If the bridge IP is different then what is stored in defaults, do the process to get a new username
-        
-        //will need to get app owner through this as well later for light scenes to work
         print("Discovering Bridges...")
         guard let url = URL(string: "https://discovery.meethue.com") else {return}
         print(url)
@@ -163,16 +157,6 @@ extension MainVC{
                     if let selectedBridge = filteredBridges.first{
                         self.selectedBridge(bridge: selectedBridge)
                     }
-                    /*
-                     this block should be covered with the above, keeping for now just to be safe
-                    if self.discoveredBridges.count == 1 { // defaults to the only bridge so user doesn't have to select it
-                        self.bridgeIP = self.discoveredBridges[0].internalipaddress
-                        if let safeBridge = self.discoveredBridges.first{
-                            self.selectedBridge(bridge: safeBridge) // will then set the base URL for this single bridge
-                        }
-                    }
-                    */
-                    
                     for bridge in self.discoveredBridges{
                         print("Bridge ID: \(bridge.id)")
                         print("Brdige IP: \(bridge.internalipaddress)")
@@ -228,8 +212,8 @@ extension MainVC: BridgeDelegate{
             guard let url = URL(string: "http://\(self.bridgeIP)/api") else {return}
             let device = UIDevice()
             let httpBody: [String: Any] = [
-                "devicetype": "HueLights#\(device.name)", // App name then device name
-                "generateclientkey": true
+                Keys.devicetype.rawValue: "HueLights#\(device.name)", // App name then device name
+                Keys.generateclientkey.rawValue: true
             ]
             DataManager.createUser(baseURL: url,
                                    httpBody: httpBody) { Results in

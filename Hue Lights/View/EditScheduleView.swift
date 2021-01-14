@@ -7,14 +7,21 @@
 
 import UIKit
 
-
+enum ScheduleChoices: String{
+    case timer = "Timer"
+    case selectTime = "Select a time"
+}
+enum Time: String{
+    case timer = "PT"
+    case recurring = "R/PT"
+}
 protocol ScheduleDelegate: class{
     func selectGroupTapped()
     func selectLightTapped()
-    func timeSelected(time: Date)
+    func timeSelected(time: Date, scheduleType: ScheduleChoices?)
     func saveTapped(name: String, desc: String)
     func deleteTapped(name: String)
-    func flashToggled(alert: scheduleConstants)
+    func flashSelected(flash: scheduleConstants?)
     func recurringToggled(isOn: Bool)
     func onToggle(sender: UISwitch)
     func changeColor(sender: UIButton)
@@ -22,6 +29,7 @@ protocol ScheduleDelegate: class{
     func autoDeleteToggled(autoDelete: Bool)
 }
 class EditScheduleView: UIView{
+    
     weak var scheduleDelegate : ScheduleDelegate?
     fileprivate lazy var mainVScroll: UIScrollView = {
         let scroll = UIScrollView()
@@ -94,6 +102,89 @@ class EditScheduleView: UIView{
         textField.textColor = .black
         return textField
     }()
+    //MARK: - Schedule Choices
+    fileprivate var scheduleOptions = [
+        ScheduleChoices.timer.rawValue,
+        ScheduleChoices.selectTime.rawValue
+        ]
+    fileprivate var scheduleType: ScheduleChoices?{
+        didSet{
+            if scheduleType == .timer{
+                datePicker.datePickerMode = .countDownTimer
+            }
+            if scheduleType == .selectTime{
+                datePicker.datePickerMode = .time
+                datePicker.preferredDatePickerStyle = .wheels
+            }
+        }
+    }
+    fileprivate lazy var scheduleSelection: UISegmentedControl = {
+       let sc = UISegmentedControl(items: scheduleOptions)
+        sc.translatesAutoresizingMaskIntoConstraints = false
+        sc.addTarget(self, action: #selector(scheduleTypeSelected), for: .valueChanged)
+        if let time = schedule?.localtime{
+            if time.contains(Time.timer.rawValue){ // timer previously selected
+                sc.selectedSegmentIndex = 0
+                self.scheduleType = .timer
+            } else { // time previously selected
+                sc.selectedSegmentIndex = 1
+                self.scheduleType = .selectTime
+            }
+        } else { // if schedule is nil, default to timer
+            sc.selectedSegmentIndex = 0
+            self.scheduleType = .timer
+        }
+
+        return sc
+    }()
+    
+    //MARK: - Date Picker
+    fileprivate lazy var datePicker : UIDatePicker = {
+        let datePicker = UIDatePicker()
+        datePicker.translatesAutoresizingMaskIntoConstraints = false
+        if self.scheduleType == .timer{
+            datePicker.datePickerMode = .countDownTimer
+            datePicker.addTarget(self, action: #selector(timerChanged), for: .valueChanged)
+            if let time = schedule?.localtime{
+                    print("Schedule time: \(time)")
+                    let justTime = time.suffix(8)
+                    print(justTime)
+                    let hours = justTime.prefix(2)
+                    let minutesAndSeconds = justTime.suffix(5)
+                    let minutes = minutesAndSeconds.prefix(2)
+                    
+                    print("hours: \(hours) minutes: \(minutes)")
+                    print("Timer before add: \(datePicker.date)")
+                    if let dHours = Double(hours),
+                       let dMinutes = Double(minutes){
+                        datePicker.date +=  ((dHours * 3600) + (dMinutes * 60))
+                    } else {
+                        datePicker.date += 60
+                    }
+                    print("Timer after add: \(datePicker.date)")
+            } else {
+                datePicker.date += 60 // This way it is not 0 which is invalid for the schedule, it will default to 1 which will match the GUI
+            }
+            print("Timer: \(datePicker.date)")
+        }
+        if self.scheduleType == .selectTime{
+            datePicker.datePickerMode = .time
+            datePicker.preferredDatePickerStyle = .wheels
+            if let time = schedule?.localtime{
+                let formatter = DateFormatter()
+//                formatter.dateFormat = "HH:mm:ss"
+                formatter.locale = Locale(identifier: "en_US_POSIX")
+                formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+                if let formattedDate = formatter.date(from: time){
+                    datePicker.date = formattedDate
+                }
+
+            }
+
+        }
+
+        return datePicker
+    }()
     //MARK: - Selection H Stack
     fileprivate var selectionHStack : UIStackView = {
         let stack = UIStackView()
@@ -122,34 +213,7 @@ class EditScheduleView: UIView{
         return button
     }()
     
-    fileprivate lazy var dpTimer : UIDatePicker = {
-        let timer = UIDatePicker()
-        timer.translatesAutoresizingMaskIntoConstraints = false
-        timer.datePickerMode = .countDownTimer
-        timer.addTarget(self, action: #selector(timerChanged), for: .valueChanged)
-        if let time = schedule?.localtime{
-            print("Schedule time: \(time)")
-            let justTime = time.suffix(8)
-            print(justTime)
-            let hours = justTime.prefix(2)
-            let minutesAndSeconds = justTime.suffix(5)
-            let minutes = minutesAndSeconds.prefix(2)
-            
-            print("hours: \(hours) minutes: \(minutes)")
-            print("Timer before add: \(timer.date)")
-            if let dHours = Double(hours),
-               let dMinutes = Double(minutes){
-                timer.date +=  ((dHours * 3600) + (dMinutes * 60))
-            } else {
-                timer.date += 60
-            }
-            print("Timer after add: \(timer.date)")
-        } else {
-            timer.date += 60 // This way it is not 0 which is invalid for the schedule, it will default to 1 which will match the gui
-        }
-        print("Timer: \(timer.date)")
-        return timer
-    }()
+
     
     fileprivate var lblDoWhat: UILabel = {
         let label = UILabel()
@@ -168,51 +232,40 @@ class EditScheduleView: UIView{
         tableView.backgroundColor = .white
         return tableView
     }()
-    //MARK: - Alert H Stack
-    fileprivate var alertHStack : UIStackView = {
-        let stack = UIStackView()
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.axis = .horizontal
-        stack.spacing = UI.horizontalSpacing
-        stack.alignment = .center
-        return stack
-    }()
-    fileprivate var lblFlash: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Enable Flash"
-        return label
-    }()
-    fileprivate lazy var swFlash: UISwitch = {
-        let toggle = UISwitch()
-        toggle.translatesAutoresizingMaskIntoConstraints = false
-        if schedule?.command.body.alert == scheduleConstants.flash.rawValue{
-            toggle.isOn = true
+    //MARK: - Alert Choices
+    enum AlertChoices: String{
+        case none = "None"
+        case flash = "Flash Once"
+        case longFlash = "Flash for 15 sec"
+    }
+    //MARK: - AlertOptions
+    fileprivate var alertOptions = [
+        AlertChoices.none.rawValue,
+        AlertChoices.flash.rawValue,
+        AlertChoices.longFlash.rawValue
+    ]
+    fileprivate var flashSelected : scheduleConstants?
+    //MARK: - Segmented Control - Alerts
+    fileprivate lazy var scAlerts : UISegmentedControl = {
+        let sc = UISegmentedControl(items: alertOptions)
+        sc.translatesAutoresizingMaskIntoConstraints = false
+        sc.addTarget(self, action: #selector(alertSelection), for: .valueChanged)
+        if let alert = schedule?.command.body.alert{
+            if alert == scheduleConstants.flash.rawValue{
+                sc.selectedSegmentIndex = 1
+                self.flashSelected = .flash
+            }
+            if alert == scheduleConstants.longFlash.rawValue{
+                sc.selectedSegmentIndex = 2
+                self.flashSelected = .longFlash
+            }
         } else {
-            toggle.isOn = false
+            sc.selectedSegmentIndex = 0
+            self.flashSelected = nil
         }
-        toggle.addTarget(self, action: #selector(flashToggle), for: .valueChanged)
-        return toggle
+        return sc
     }()
-    
-    fileprivate var lblLongFlash: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Long Flash"
-        return label
-    }()
-    fileprivate lazy var swLongFlash: UISwitch = {
-        let toggle = UISwitch()
-        toggle.translatesAutoresizingMaskIntoConstraints = false
-        if schedule?.command.body.alert == scheduleConstants.longFlash.rawValue{
-            toggle.isOn = true
-        } else {
-            toggle.isOn = false
-        }
-        toggle.addTarget(self, action: #selector(flashToggle), for: .valueChanged)
-        return toggle
-    }()
-    
+
     //MARK: - Recurring H Stack
     fileprivate var recurringHStack : UIStackView = {
         let stack = UIStackView()
@@ -239,9 +292,20 @@ class EditScheduleView: UIView{
         }else {
             toggle.isOn = false
         }
+        self.autoDeleteHidden = toggle.isOn
         return toggle
     }()
     //MARK: - Auto Delete H Stack
+    fileprivate var autoDeleteHidden = Bool(){
+        didSet{
+            //If recurring is selected, the auto delete command needs to be nil, so user can not select on or off, so hide the h stack
+            if autoDeleteHidden == true{
+                autoDeleteHStack.isHidden = true
+            } else {
+                autoDeleteHStack.isHidden = false
+            }
+        }
+    }
     fileprivate var autoDeleteHStack : UIStackView = {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -320,8 +384,10 @@ class EditScheduleView: UIView{
         descriptionHStack.addArrangedSubview(lblDescription)
         descriptionHStack.addArrangedSubview(tfDescription)
         
-        // add timer
-        mainVStack.addArrangedSubview(dpTimer)
+        
+        mainVStack.addArrangedSubview(scheduleSelection)
+        
+        mainVStack.addArrangedSubview(datePicker)
         
         mainVStack.addArrangedSubview(lblDoWhat)
         
@@ -333,12 +399,8 @@ class EditScheduleView: UIView{
         //MARK: - Add TableView
         mainVStack.addArrangedSubview(tableView)
         
-        //MARK: - Alert H Stack
-        mainVStack.addArrangedSubview(alertHStack)
-        alertHStack.addArrangedSubview(lblFlash)
-        alertHStack.addArrangedSubview(swFlash)
-        alertHStack.addArrangedSubview(lblLongFlash)
-        alertHStack.addArrangedSubview(swLongFlash)
+        //MARK: - Alerts
+        mainVStack.addArrangedSubview(scAlerts)
         
         //MARK: - Recurring H Stack
         mainVStack.addArrangedSubview(recurringHStack)
@@ -383,14 +445,11 @@ class EditScheduleView: UIView{
             btnLights.widthAnchor.constraint(equalToConstant: 150),
             
             
-            //            tableView.topAnchor.constraint(equalTo: safeArea.centerYAnchor, constant: 100),
             tableView.heightAnchor.constraint(equalToConstant: 80),
             tableView.widthAnchor.constraint(equalTo: mainVStack.widthAnchor),
-            //            tableView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -50),
             
             btnSave.heightAnchor.constraint(equalToConstant: 40),
             btnSave.widthAnchor.constraint(equalToConstant: 100),
-//            btnSave.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
             btnSave.trailingAnchor.constraint(equalTo: safeArea.centerXAnchor, constant: -UI.horizontalSpacing),
             btnSave.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -UI.verticalSpacing),
             
@@ -408,7 +467,8 @@ class EditScheduleView: UIView{
     //MARK: - Obj c functions
     @objc func timerChanged(sender: UIDatePicker){
         print("Selected time: \(sender.date)")
-        scheduleDelegate?.timeSelected(time: sender.date)
+        scheduleDelegate?.timeSelected(time: sender.date, scheduleType: self.scheduleType)
+        
     }
     @objc func selectGroup(){
         print("select group tapped")
@@ -422,31 +482,14 @@ class EditScheduleView: UIView{
     }
     @objc func saveTapped(){
         print("Save tapped")
-        if swFlash.isOn == true{
-            scheduleDelegate?.flashToggled(alert: .flash)
-        }
-        
-        if swLongFlash.isOn == true{
-            scheduleDelegate?.flashToggled(alert: .longFlash)
-        }
-        scheduleDelegate?.timeSelected(time: dpTimer.date)
+        scheduleDelegate?.flashSelected(flash: self.flashSelected)
+        scheduleDelegate?.timeSelected(time: datePicker.date, scheduleType: self.scheduleType)
         scheduleDelegate?.recurringToggled(isOn: swRecurring.isOn)
         scheduleDelegate?.saveTapped(name: tfName.text!, desc: tfDescription.text!)
     }
-    @objc func flashToggle(sender: UISwitch){
-        if sender == swFlash{
-            if sender.isOn == true{
-                scheduleDelegate?.flashToggled(alert: .flash)
-            }
-        }
-        if sender == swLongFlash{
-            if sender.isOn == true{
-                scheduleDelegate?.flashToggled(alert: .longFlash)
-            }
-        }
-    }
     @objc func recurringToggle(sender: UISwitch){
         print("recurring Toggled on: \(sender.isOn)")
+        self.autoDeleteHidden = sender.isOn
         scheduleDelegate?.recurringToggled(isOn: sender.isOn)
     }
     @objc func deleteTapped(){
@@ -456,7 +499,28 @@ class EditScheduleView: UIView{
     @objc func autoDeleteToggled(sender: UISwitch){
         scheduleDelegate?.autoDeleteToggled(autoDelete: sender.isOn)
     }
-
+    @objc func alertSelection(sender: UISegmentedControl){
+        let selected = alertOptions[sender.selectedSegmentIndex]
+        switch selected{
+        case AlertChoices.none.rawValue: print("No alert selected")
+            self.flashSelected = nil
+        case AlertChoices.flash.rawValue: print("flash once selected")
+            self.flashSelected = .flash
+        case AlertChoices.longFlash.rawValue: print("long flash selected")
+            self.flashSelected = .longFlash
+        default: print("Choice not setup in alert selection")
+        }
+    }
+    @objc func scheduleTypeSelected(sender: UISegmentedControl){
+        let selected = scheduleOptions[sender.selectedSegmentIndex]
+        switch selected{
+        case ScheduleChoices.timer.rawValue:
+            self.scheduleType = .timer
+        case ScheduleChoices.selectTime.rawValue:
+            self.scheduleType = .selectTime
+        default: print("Choice not setup in schedule selection")
+        }
+    }
 }
 //MARK: - TableView DataSource and Delegate
 extension EditScheduleView : UITableViewDataSource, UITableViewDelegate{

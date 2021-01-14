@@ -12,7 +12,7 @@ struct CreateSchedule: Codable{
     let description: String
     let command: HueModel.Command
     let localtime: String
-    let autodelete: Bool
+    let autodelete: Bool?
 }
 
 struct HueModel: Codable{
@@ -241,7 +241,7 @@ struct HueModel: Codable{
         let time: String
         let created: String
         let status: String
-        let starttime: String
+        let starttime: String?
         let recycle: Bool
         let autodelete: Bool?
         init(from decoder: Decoder) throws {
@@ -254,7 +254,7 @@ struct HueModel: Codable{
             time = try container.decode(String.self, forKey: .time)
             created = try container.decode(String.self, forKey: .created)
             status = try container.decode(String.self, forKey: .status)
-            starttime = try container.decode(String.self, forKey: .starttime)
+            starttime = try container.decodeIfPresent(String.self, forKey: .starttime)
             recycle = try container.decode(Bool.self, forKey: .recycle)
             autodelete = try container.decodeIfPresent(Bool.self, forKey: .autodelete)
         }

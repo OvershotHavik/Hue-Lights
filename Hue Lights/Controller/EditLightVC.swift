@@ -148,7 +148,7 @@ class EditLightVC: UIViewController{
 extension EditLightVC: UpdateItem, SelectedGroupDelegate{
     func identifyTapped() {
         print("Identity tapped in Edit Lights VC")
-        let httpBody = ["alert": "select"]
+        let httpBody = [Keys.alert.rawValue: Values.select.rawValue]
         DataManager.updateLight(baseURL: baseURL,
                                 lightID: light.id,
                                 method: .put,
@@ -218,7 +218,7 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
     func saveTapped(name: String) {
         print("save tapped")
         if light.name != name{ // name changed, update the bridge
-            let httpBody = ["name" : name]
+            let httpBody = [Keys.name.rawValue : name]
             DataManager.modifyLight(baseURL: baseURL,
                                     lightID: light.id,
                                     method: .put,
@@ -260,7 +260,7 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
         if let safeGroupID = groupID{
             groupLights.append(light.id)
             groupLights = groupLights.unique()
-            let httpBody = ["lights":  groupLights]
+            let httpBody = [Keys.lights.rawValue:  groupLights]
             DataManager.modifyGroup(baseURL: baseURL,
                                     groupID: safeGroupID,
                                     method: .put,
@@ -289,7 +289,7 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
             if showingInGroup != nil{
                 showingInGroup?.lights = safeGroupLights
             }
-            let httpBody = ["lights": safeGroupLights]
+            let httpBody = [Keys.lights.rawValue: safeGroupLights]
             DataManager.modifyGroup(baseURL: baseURL,
                                     groupID: safeID,
                                     method: .put,
