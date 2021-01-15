@@ -159,6 +159,7 @@
 		B30753CE256EB5C300C8CA4F /* For Reference */ = {
 			isa = PBXGroup;
 			children = (
+				B3D47A7425B20BCA0018BE51 /* TestSchedulePicker.swift */,
 				B3E9539E258793B900567B61 /* EditLightSceneVC.swift */,
 				B30753C9256EB56400C8CA4F /* SectionedListController.swift */,
 			);
@@ -244,7 +245,6 @@
 				B3A47334259E7738003DC350 /* WebSocketTest.swift */,
 				B3A4734525A34A83003DC350 /* LightsInGroupVC.swift */,
 				B312CFDC25A620BB005ED002 /* EditScheduleVC.swift */,
-				B3D47A7425B20BCA0018BE51 /* TestSchedulePicker.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";

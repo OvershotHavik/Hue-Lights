@@ -57,6 +57,7 @@ enum Keys: String{
     case generateclientkey = "generateclientkey"
     case group = "group"
     case lights = "lights"
+    case localtime = "localtime"
     case name = "name"
     case on = "on"
     case recycle = "recycle"

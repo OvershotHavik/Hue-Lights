@@ -9,7 +9,17 @@ import UIKit
 
 struct Schedule: OptionSet{
     let rawValue: Int
+    static let monday       = Schedule(rawValue: 1 << 6) // 64
+    static let tuesday      = Schedule(rawValue: 1 << 5) // 32
+    static let wednesday    = Schedule(rawValue: 1 << 4) // 16
+    static let thursday     = Schedule(rawValue: 1 << 3) // 8
+    static let friday       = Schedule(rawValue: 1 << 2) // 4
+    static let saturday     = Schedule(rawValue: 1 << 1) // 2
+    static let sunday       = Schedule(rawValue: 1 << 0) // 1
     
+    
+    /*
+     original
     static let monday       = Schedule(rawValue: 1 << 0) // 1
     static let tuesday      = Schedule(rawValue: 1 << 1) // 2
     static let wednesday    = Schedule(rawValue: 1 << 2) // 4
@@ -17,12 +27,16 @@ struct Schedule: OptionSet{
     static let friday       = Schedule(rawValue: 1 << 4) // 16
     static let saturday     = Schedule(rawValue: 1 << 5) // 32
     static let sunday       = Schedule(rawValue: 1 << 6) // 64
-    
+    */
     static let weekend: Schedule = [.saturday, .sunday]
     static let weekDays : Schedule = [.monday, .tuesday, .wednesday, .thursday, .friday]
 }
 
+protocol SchedulePickerDelegate: class{
+    func getScheduleRawValue(rawValue: Int)
+}
 class SchedulePicker : UIControl {
+    var delegate : SchedulePickerDelegate?
     var schedule: Schedule = []{
         didSet {updateView()}
     }
@@ -70,7 +84,7 @@ class SchedulePicker : UIControl {
 
             // Configure Button
             button.setTitle(title, for: .normal)
-
+    
             button.tintColor = Color.tint
             button.setTitleColor(Color.normal, for: .normal)
             button.setTitleColor(Color.selected, for: .selected)
@@ -138,6 +152,7 @@ class SchedulePicker : UIControl {
         // Store Value
         let scheduleRawValue = sender.schedule.rawValue
         print("schedule raw value: \(scheduleRawValue)")
+        delegate?.getScheduleRawValue(rawValue: scheduleRawValue)
 //        userDefaults.set(scheduleRawValue, forKey: UserDefaults.Keys.schedule)
 //        userDefaults.synchronize()
     }

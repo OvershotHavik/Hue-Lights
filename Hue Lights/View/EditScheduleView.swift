@@ -14,11 +14,12 @@ enum ScheduleChoices: String{
 enum Time: String{
     case timer = "PT"
     case recurring = "R/PT"
+    case recurringTime = "W"
 }
 protocol ScheduleDelegate: class{
     func selectGroupTapped()
     func selectLightTapped()
-    func timeSelected(time: Date, scheduleType: ScheduleChoices?)
+    func timeSelected(time: Date, scheduleType: ScheduleChoices?, scheduleRawValue: Int?)
     func saveTapped(name: String, desc: String)
     func deleteTapped(name: String)
     func flashSelected(flash: scheduleConstants?)
@@ -111,8 +112,10 @@ class EditScheduleView: UIView{
         didSet{
             if scheduleType == .timer{
                 datePicker.datePickerMode = .countDownTimer
+                scheduleContainer.isHidden = true
             }
             if scheduleType == .selectTime{
+                scheduleContainer.isHidden = false
                 datePicker.datePickerMode = .time
                 datePicker.preferredDatePickerStyle = .wheels
             }
@@ -190,11 +193,20 @@ class EditScheduleView: UIView{
     fileprivate lazy var schedulePicker : SchedulePicker = {
         let schedulePicker = SchedulePicker()
         schedulePicker.translatesAutoresizingMaskIntoConstraints = false
-        
-        //Get the days from the schedule
-        let scheduleRawValue = 22 // testing
-        // Configure Schedule Picker
-        schedulePicker.schedule = Schedule(rawValue: scheduleRawValue)
+        schedulePicker.delegate = self
+        if let time = schedule?.localtime{
+            if time.contains(Time.recurringTime.rawValue){
+                print("Get the bitmask for the days of the week")
+                let firstFour = time.prefix(4)
+                let bitMask = firstFour.suffix(3)
+                print("bitMask: \(bitMask)")
+                if let rawValue = Int(bitMask){
+                    schedulePicker.schedule = Schedule(rawValue: rawValue)
+                }
+            }
+        } else {
+            schedulePicker.schedule = Schedule(rawValue: 0) // none selected
+        }
         return schedulePicker
     }()
     //MARK: - Selection H Stack
@@ -370,6 +382,17 @@ class EditScheduleView: UIView{
     fileprivate var selectionArray : [Any]?
     fileprivate var groupSelected = false
     fileprivate var schedule: HueModel.Schedules?
+    fileprivate var scheduleRawValue: Int? {
+        didSet{
+            if scheduleRawValue == nil{
+                self.recurringHStack.isHidden = false
+                self.autoDeleteHStack.isHidden = false // auto delete needs to be nil if recurring is enabled
+            } else {
+                self.recurringHStack.isHidden = true // recurring has to be enabled for this to work
+                self.autoDeleteHStack.isHidden = true // auto delete needs to be nil if recurring is enabled
+            }
+        }
+    }
     init(schedule: HueModel.Schedules?) {
         self.schedule = schedule
         super.init(frame: .zero)
@@ -488,7 +511,7 @@ class EditScheduleView: UIView{
     //MARK: - Obj c functions
     @objc func timerChanged(sender: UIDatePicker){
         print("Selected time: \(sender.date)")
-        scheduleDelegate?.timeSelected(time: sender.date, scheduleType: self.scheduleType)
+        scheduleDelegate?.timeSelected(time: sender.date, scheduleType: self.scheduleType, scheduleRawValue: self.scheduleRawValue)
         
     }
     @objc func selectGroup(){
@@ -504,7 +527,7 @@ class EditScheduleView: UIView{
     @objc func saveTapped(){
         print("Save tapped")
         scheduleDelegate?.flashSelected(flash: self.flashSelected)
-        scheduleDelegate?.timeSelected(time: datePicker.date, scheduleType: self.scheduleType)
+        scheduleDelegate?.timeSelected(time: datePicker.date, scheduleType: self.scheduleType, scheduleRawValue: self.scheduleRawValue)
         scheduleDelegate?.recurringToggled(isOn: swRecurring.isOn)
         scheduleDelegate?.saveTapped(name: tfName.text!, desc: tfDescription.text!)
     }
@@ -597,6 +620,14 @@ extension EditScheduleView: HueCellDelegate{
     func changeLightColor(sender: UIButton) {
         print("color change in view")
         scheduleDelegate?.changeColor(sender: sender)
+    }
+    
+    
+}
+//MARK: - Schedule Picker Delegate
+extension EditScheduleView: SchedulePickerDelegate{
+    func getScheduleRawValue(rawValue: Int) {
+        self.scheduleRawValue = rawValue
     }
     
     

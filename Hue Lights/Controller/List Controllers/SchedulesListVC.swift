@@ -69,7 +69,35 @@ class ScheduleListVC: ListController{
     }
     //MARK: - objc - On Toggled
     @objc func onToggled(sender: UISwitch){
+        
+        //Check to see if the time is in the past, if it is the update it to today/future
         let scheduleID = String(sender.tag)
+        let filtered = scheduleArray.filter({$0.id == scheduleID})
+        if let selected = filtered.first{
+            if let safeTime = selected.localtime{
+                let now = Date()
+                print("selected: \(selected.name)")
+                let formatter = DateFormatter()
+                formatter.dateFormat = "YYYY-MM-DD'T'HH:mm:ss"
+                //Below only runs if user selected a time but didn't select to happen on a specific day of the week
+                if var selectedDate = formatter.date(from: safeTime){
+                    while selectedDate < now{
+                        print("Selected Date: \(selectedDate)")
+                        print("Time is in the past.. change to be today/future")
+                        selectedDate.addTimeInterval(60 * 60 * 24) // add 24 hours in seconds to the date and check again
+                    }
+                    print("selected date is now in the future, send the updated time to the bridge for this schedule, then activate it ")
+                     let updatedDateStr = formatter.string(from: selectedDate)
+                    
+                    let httpBody = [Keys.localtime.rawValue: updatedDateStr]
+                    DataManager.updateSchedule(baseURL: baseURL,
+                                               scheduleID: scheduleID,
+                                               method: .put,
+                                               httpBody: httpBody,
+                                               completionHandler: self.noAlertOnSuccessClosure)
+                }
+            }
+        }
         print("sender tag: \(sender.tag)")
         var httpBody = [String: String]()
         if sender.isOn == true{

@@ -54,6 +54,7 @@ class EditScheduleVC: UIViewController {
     fileprivate var alertSelected : scheduleConstants?
     fileprivate var autoDelete: Bool?
     fileprivate var scheduleType: ScheduleChoices?
+    fileprivate var scheduleRawValue: Int?
     init(baseURL: String, appOwner: String, schedule: HueModel.Schedules?) {
         self.baseURL = baseURL
         self.appOwner = appOwner
@@ -211,10 +212,6 @@ class EditScheduleVC: UIViewController {
 
 //MARK: - Schedule Delegate
 extension EditScheduleVC: ScheduleDelegate{
-
-    
-
-    
     func autoDeleteToggled(autoDelete: Bool) {
         self.autoDelete = autoDelete
     }
@@ -271,10 +268,11 @@ extension EditScheduleVC: ScheduleDelegate{
         print("in vc")
         getLights()
     }
-    func timeSelected(time: Date, scheduleType: ScheduleChoices?) {
+    func timeSelected(time: Date, scheduleType: ScheduleChoices?, scheduleRawValue: Int?) {
         print("Time in vc: \(time)")
         self.selectedTime = time
         self.scheduleType = scheduleType
+        self.scheduleRawValue = scheduleRawValue
     }
     func saveTapped(name: String, desc: String) {
         //MARK: - Address
@@ -316,17 +314,25 @@ extension EditScheduleVC: ScheduleDelegate{
             let formattedTime = formatter.string(from: selectedTime)
             if recurringSelected == true{
                 time = Time.recurring.rawValue + formattedTime
-//                time = "\(Time.recurring.rawValue)\(formattedTime)"
                 self.autoDelete = nil // if recurring is selected, auto delete needs to be nil
             } else {
                 time = Time.timer.rawValue + formattedTime
-//                time = "\(Time.timer.rawValue)\(formattedTime)"
             }
         case .selectTime: print("Do something for time")
             let formatter = DateFormatter()
-            formatter.dateFormat = "YYYY-MM-DD'T'HH:mm:ss"
-            let formattedTime = formatter.string(from: selectedTime)
-            time = formattedTime
+            if let safeScheduleRawValue = self.scheduleRawValue{
+                formatter.dateFormat = "HH:mm:ss"
+                let formattedTime = formatter.string(from: selectedTime)
+                let W = Time.recurringTime.rawValue
+                time = "\(W)\(safeScheduleRawValue)/T\(formattedTime)"
+                print("Recurring time: \(time)")
+                self.autoDelete = nil // if recurring is selected, auto delete needs to be nil
+            } else { // no days selected, just use the time selected
+                formatter.dateFormat = "YYYY-MM-DD'T'HH:mm:ss"
+                let formattedTime = formatter.string(from: selectedTime)
+                time = formattedTime
+            }
+
         default: print("Not setup in time selected in VC")
         }
 
