@@ -134,7 +134,6 @@ class EditScheduleView: UIView{
             sc.selectedSegmentIndex = 0
             self.scheduleType = .timer
         }
-
         return sc
     }()
     
@@ -172,18 +171,31 @@ class EditScheduleView: UIView{
             datePicker.preferredDatePickerStyle = .wheels
             if let time = schedule?.localtime{
                 let formatter = DateFormatter()
-//                formatter.dateFormat = "HH:mm:ss"
                 formatter.locale = Locale(identifier: "en_US_POSIX")
                 formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
                 if let formattedDate = formatter.date(from: time){
                     datePicker.date = formattedDate
                 }
-
             }
-
         }
-
         return datePicker
+    }()
+    //MARK: - Schedule Container
+    fileprivate var scheduleContainer : UIView = {
+       let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    //MARK: - Schedule Picker
+    fileprivate lazy var schedulePicker : SchedulePicker = {
+        let schedulePicker = SchedulePicker()
+        schedulePicker.translatesAutoresizingMaskIntoConstraints = false
+        
+        //Get the days from the schedule
+        let scheduleRawValue = 22 // testing
+        // Configure Schedule Picker
+        schedulePicker.schedule = Schedule(rawValue: scheduleRawValue)
+        return schedulePicker
     }()
     //MARK: - Selection H Stack
     fileprivate var selectionHStack : UIStackView = {
@@ -389,6 +401,9 @@ class EditScheduleView: UIView{
         
         mainVStack.addArrangedSubview(datePicker)
         
+        mainVStack.addArrangedSubview(scheduleContainer)
+        scheduleContainer.addSubview(schedulePicker)
+        
         mainVStack.addArrangedSubview(lblDoWhat)
         
         //Add selection
@@ -437,6 +452,12 @@ class EditScheduleView: UIView{
             descriptionHStack.widthAnchor.constraint(equalTo: mainVStack.widthAnchor),
             tfDescription.heightAnchor.constraint(equalToConstant: 35),
             tfDescription.widthAnchor.constraint(equalToConstant: 200),
+            
+            scheduleContainer.heightAnchor.constraint(equalTo: schedulePicker.heightAnchor),
+            scheduleContainer.widthAnchor.constraint(equalTo: mainVStack.widthAnchor),
+            schedulePicker.widthAnchor.constraint(equalTo: mainVStack.widthAnchor),
+            schedulePicker.heightAnchor.constraint(equalToConstant: 50),
+            schedulePicker.centerXAnchor.constraint(equalTo: mainVStack.centerXAnchor),
             
             btnGroups.heightAnchor.constraint(equalToConstant: 44),
             btnGroups.widthAnchor.constraint(equalToConstant: 150),

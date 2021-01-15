@@ -46,6 +46,8 @@
 		B3D2E0EB2572939100B4B46B /* ModifyLightsInGroupVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D2E0EA2572939100B4B46B /* ModifyLightsInGroupVC.swift */; };
 		B3D2E0F02572949A00B4B46B /* ListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D2E0EF2572949A00B4B46B /* ListCell.swift */; };
 		B3D2E0F62573CF3F00B4B46B /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D2E0F52573CF3F00B4B46B /* Alert.swift */; };
+		B3D47A7525B20BCA0018BE51 /* TestSchedulePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D47A7425B20BCA0018BE51 /* TestSchedulePicker.swift */; };
+		B3D47A7C25B21F970018BE51 /* SchedulePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D47A7B25B21F970018BE51 /* SchedulePicker.swift */; };
 		B3DA93CD2561B60E004BF5E1 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DA93CC2561B60E004BF5E1 /* DataManager.swift */; };
 		B3E95391258630EA00567B61 /* ModifyGroupVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E95390258630EA00567B61 /* ModifyGroupVC.swift */; };
 		B3E9539F258793B900567B61 /* EditLightSceneVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E9539E258793B900567B61 /* EditLightSceneVC.swift */; };
@@ -114,6 +116,8 @@
 		B3D2E0EA2572939100B4B46B /* ModifyLightsInGroupVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModifyLightsInGroupVC.swift; sourceTree = "<group>"; };
 		B3D2E0EF2572949A00B4B46B /* ListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCell.swift; sourceTree = "<group>"; };
 		B3D2E0F52573CF3F00B4B46B /* Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
+		B3D47A7425B20BCA0018BE51 /* TestSchedulePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSchedulePicker.swift; sourceTree = "<group>"; };
+		B3D47A7B25B21F970018BE51 /* SchedulePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulePicker.swift; sourceTree = "<group>"; };
 		B3DA93CC2561B60E004BF5E1 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		B3DA93D22561BB85004BF5E1 /* HueSDK.framework.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = HueSDK.framework.zip; path = "../../../Downloads/HueSDK-master/HueSDK/Apple/iOS/simulator/HueSDK.framework.zip"; sourceTree = "<group>"; };
 		B3DA93D32561BBCC004BF5E1 /* HueSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HueSDK.framework; path = "../../../Downloads/HueSDK-master/HueSDK/Apple/iOS/device/HueSDK.framework"; sourceTree = "<group>"; };
@@ -240,6 +244,7 @@
 				B3A47334259E7738003DC350 /* WebSocketTest.swift */,
 				B3A4734525A34A83003DC350 /* LightsInGroupVC.swift */,
 				B312CFDC25A620BB005ED002 /* EditScheduleVC.swift */,
+				B3D47A7425B20BCA0018BE51 /* TestSchedulePicker.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -271,6 +276,7 @@
 				B33631C92581532100B83432 /* SuccessModel.swift */,
 				B33631CE258174D600B83432 /* HueConfiguration.swift */,
 				B3A4733925A09B46003DC350 /* CreateUserOnBridge.swift */,
+				B3D47A7B25B21F970018BE51 /* SchedulePicker.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -434,6 +440,7 @@
 			files = (
 				B3AF8EE92565A04C0060C968 /* Discovery.swift in Sources */,
 				B3AF8F092566A6B30060C968 /* Constants.swift in Sources */,
+				B3D47A7C25B21F970018BE51 /* SchedulePicker.swift in Sources */,
 				B3A4734125A346F8003DC350 /* LightsInGroupView.swift in Sources */,
 				B33631D92583895D00B83432 /* DecodeArray.swift in Sources */,
 				B31824902577F13900D9D06E /* GetImageFromURLIV.swift in Sources */,
@@ -462,6 +469,7 @@
 				B3E9539F258793B900567B61 /* EditLightSceneVC.swift in Sources */,
 				B318246525779F6600D9D06E /* SchedulesListVC.swift in Sources */,
 				B3CC3E0B257CE93F00058933 /* EditSceneView.swift in Sources */,
+				B3D47A7525B20BCA0018BE51 /* TestSchedulePicker.swift in Sources */,
 				B3A4734625A34A83003DC350 /* LightsInGroupVC.swift in Sources */,
 				B37EEA822561A9B4003FBC42 /* MainVC.swift in Sources */,
 				B33631CA2581532100B83432 /* SuccessModel.swift in Sources */,

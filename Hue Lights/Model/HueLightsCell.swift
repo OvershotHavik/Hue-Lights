@@ -88,6 +88,7 @@ class HueLightsCell: UITableViewCell {
                 self.brightnessSlider.isHidden = true
                 self.lblBrightness.isHidden = true
                 onSwitch.isOn = false
+                self.btnChangeColor.isHidden = true
             }
         }
     }
