@@ -6,7 +6,7 @@
 //
 
 import UIKit
-protocol SelectedGroupDelegate: class {
+protocol SelectedGroupDelegate: AnyObject {
     func selectedGroup(group: HueModel.Groups?)
 }
 

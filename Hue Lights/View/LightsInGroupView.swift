@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol GroupDelegate: class{
+protocol GroupDelegate: AnyObject{
     func scenesTapped()
     func identifyTapped()
 }

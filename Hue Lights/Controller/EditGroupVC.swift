@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol UpdateTitle: class {
+protocol UpdateTitle: AnyObject {
     func updateTitle(newTitle: String)
 }
 

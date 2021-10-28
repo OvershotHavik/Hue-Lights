@@ -88,7 +88,10 @@ class LightsListVC: ListController{
         let blue = pickedColor.components.blue
         let colorXY = ConvertColor.getXY(red: red, green: green, blue: blue)
         let lightID = String(tempChangeColorButton.tag)
-        let httpBody = [Keys.xy.rawValue: colorXY]
+        let httpBody: [String: Any] = [
+            Keys.xy.rawValue: colorXY,
+            "transitiontime": 80
+        ]
         DataManager.updateLight(baseURL: baseURL,
                                 lightID: lightID,
                                 method: .put,

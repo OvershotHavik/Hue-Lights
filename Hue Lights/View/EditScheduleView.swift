@@ -16,7 +16,7 @@ enum Time: String{
     case recurring = "R/PT"
     case recurringTime = "W"
 }
-protocol ScheduleDelegate: class{
+protocol ScheduleDelegate: AnyObject{
     func selectGroupTapped()
     func selectLightTapped()
     func timeSelected(time: Date, scheduleType: ScheduleChoices?, scheduleRawValue: Int?)

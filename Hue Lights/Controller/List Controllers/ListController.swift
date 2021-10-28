@@ -6,16 +6,16 @@
 //
 
 import UIKit
-protocol UpdateLights: class {
+protocol UpdateLights: AnyObject {
     func updateLightsDS(items: [HueModel.Light])
 }
-protocol UpdateGroups : class{
+protocol UpdateGroups : AnyObject{
     func updateGroupsDS(items: [HueModel.Groups])
 }
-protocol UpdateScenes: class {
+protocol UpdateScenes: AnyObject {
     func updateScenesDS(items: [HueModel.Scenes])
 }
-protocol UpdateSchedules: class {
+protocol UpdateSchedules: AnyObject {
     func updateScheduleDS(items: [HueModel.Schedules])
 }
 

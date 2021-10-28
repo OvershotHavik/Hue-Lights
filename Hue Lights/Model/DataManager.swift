@@ -31,6 +31,11 @@ enum Destination: String{
     case action = "/action"
     case lightstates = "/lightstates"
 }
+
+enum Brand{
+    case hue
+    case LIFX
+}
 class DataManager{
 //MARK: - Get From URL
     static func getFromURL(url: URL, completionHandler: @escaping (Result<Data, NetworkError>) throws -> Void){

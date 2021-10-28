@@ -7,14 +7,14 @@
 
 import UIKit
 
-protocol UpdateItem: class {
+protocol UpdateItem: AnyObject {
     func saveTapped(name: String)
     func editList()
     func deleteTapped(name: String)
     func identifyTapped()
 }
 
-protocol ApplyToGroup: class{
+protocol ApplyToGroup: AnyObject{
     func showScenes()
 }
 

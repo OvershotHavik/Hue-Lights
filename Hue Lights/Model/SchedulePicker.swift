@@ -32,7 +32,7 @@ struct Schedule: OptionSet{
     static let weekDays : Schedule = [.monday, .tuesday, .wednesday, .thursday, .friday]
 }
 
-protocol SchedulePickerDelegate: class{
+protocol SchedulePickerDelegate: AnyObject{
     func getScheduleRawValue(rawValue: Int)
 }
 class SchedulePicker : UIControl {

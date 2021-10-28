@@ -8,10 +8,10 @@
 import UIKit
 
 
-protocol GetDelegate: class{
+protocol GetDelegate: AnyObject{
     func getTapped(sender: HueSender)
 }
-protocol BridgeDelegate: class{
+protocol BridgeDelegate: AnyObject{
     func selectedBridge(bridge: Discovery)
 }
 
