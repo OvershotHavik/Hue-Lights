@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol SelectedLightsDelegate: class{
+protocol SelectedLightsDelegate: AnyObject{
     func selectedLights(lights: [HueModel.Light])
 }
 
