@@ -50,6 +50,7 @@ class EditGroupVC: UIViewController{
         rootView = EditItemView(itemName: group?.name ?? "")
         self.view = rootView
         rootView.updateItemDelegate = self
+        rootView.tfChangeName.delegate = self
     }
     //MARK: - View Did Load
     override func viewDidLoad() {
@@ -177,5 +178,12 @@ extension EditGroupVC: UpdateItem, SelectedLightsDelegate{
                 
             }
         }
+    }
+}
+
+extension EditGroupVC: UITextFieldDelegate{
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        rootView.tfChangeName.resignFirstResponder()
+        return true
     }
 }

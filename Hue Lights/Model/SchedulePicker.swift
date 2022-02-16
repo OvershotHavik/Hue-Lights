@@ -48,7 +48,7 @@ class SchedulePicker : UIControl {
         
         static let selected = UIColor.secondarySystemBackground
         static let tint = UIColor.label
-        static let normal = UIColor.systemBackground
+        static let normal = UIColor.systemGray
     }
     init() {
         super.init(frame: .zero)

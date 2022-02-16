@@ -69,6 +69,8 @@ class EditScheduleVC: UIViewController {
         super.loadView()
         rootView = EditScheduleView(schedule: schedule)
         rootView.scheduleDelegate = self
+        rootView.tfName.delegate = self
+        rootView.tfDescription.delegate = self
         colorPicker.delegate = self
         getSelection()
         self.view = rootView
@@ -438,4 +440,13 @@ extension EditScheduleVC: SelectedLightsDelegate{
     }
     
     
+}
+
+extension EditScheduleVC: UITextFieldDelegate{
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        rootView.tfName.resignFirstResponder()
+        rootView.tfDescription.resignFirstResponder()
+        print("return tapped")
+        return true
+    }
 }

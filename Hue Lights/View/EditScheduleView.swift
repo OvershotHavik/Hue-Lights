@@ -66,7 +66,7 @@ class EditScheduleView: UIView{
         label.text = "Name: "
         return label
     }()
-    fileprivate lazy var tfName : UITextField = {
+    lazy var tfName : UITextField = {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.text = schedule?.name
@@ -94,7 +94,7 @@ class EditScheduleView: UIView{
         label.text = "Description: "
         return label
     }()
-    fileprivate lazy var tfDescription : UITextField = {
+    lazy var tfDescription : UITextField = {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.text = schedule?.description
@@ -175,8 +175,10 @@ class EditScheduleView: UIView{
             if let time = schedule?.localtime{
                 let formatter = DateFormatter()
                 formatter.locale = Locale(identifier: "en_US_POSIX")
-                formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-                if let formattedDate = formatter.date(from: time){
+//                formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+                formatter.dateFormat = "HH:mm:ss"
+                let justTime = String(time.suffix(8))
+                if let formattedDate = formatter.date(from: justTime){
                     datePicker.date = formattedDate
                 }
             }
@@ -194,6 +196,7 @@ class EditScheduleView: UIView{
         let schedulePicker = SchedulePicker()
         schedulePicker.translatesAutoresizingMaskIntoConstraints = false
         schedulePicker.delegate = self
+        
         if let time = schedule?.localtime{
             if time.contains(Time.recurringTime.rawValue){
                 print("Get the bitmask for the days of the week")

@@ -63,6 +63,7 @@ class EditLightVC: UIViewController{
         rootView = EditItemView(itemName: light.name)
         self.view = rootView
         rootView.updateItemDelegate = self
+        rootView.tfChangeName.delegate = self
         getGroups()
     }
     //MARK: - View Will Disappear
@@ -297,5 +298,12 @@ extension EditLightVC: UpdateItem, SelectedGroupDelegate{
                 self.alertClosure(results, "Successfully removed from group")
             }
         }
+    }
+}
+
+extension EditLightVC: UITextFieldDelegate{
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        rootView.tfChangeName.resignFirstResponder()
+        return true
     }
 }
